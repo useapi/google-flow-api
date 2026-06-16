@@ -1,0 +1,9 @@
+{
+  "name": "google-flow-api",
+  "version": "1.0.0",
+  "description": "Runnable Node.js examples for the Google Flow API by useapi.net — Veo 3.1 video, Gemini Omni Flash, Nano Banana, Imagen 4.",
+  "author": "useapi.net",
+  "license": "ISC",
+  "type": "module",
+  "homepage": "https://useapi.net/docs/api-google-flow-v1"
+}

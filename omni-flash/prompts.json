@@ -1,0 +1,22 @@
+[
+    {
+        "prompt": "Audio-native text-to-video. By default model omni-flash with a landscape 8-second clip will be used."
+    },
+    {
+        "duration": 10,
+        "referenceAudio_1": "Charon",
+        "prompt": "A 10-second clip (omni-flash only) narrated by the system voice 'Charon'. referenceAudio_1 accepts a preset name or a POST /voices user-voice id."
+    },
+    {
+        "duration": 8,
+        "referenceImage_1": "./subject.jpeg",
+        "referenceAudio_1": "Kore",
+        "prompt": "Reference-to-video (R2V): the uploaded image is a reference, narrated by 'Kore'. Up to 7 referenceImage_* on omni-flash."
+    },
+    {
+        "referenceVideo_1": "./source.mp4",
+        "startFrameIndex_1": 0,
+        "endFrameIndex_1": 240,
+        "prompt": "Video-to-video edit (V2V): omni-flash restyles the uploaded MP4. No duration here — output matches the trim window (max 10 s). For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
+    }
+]

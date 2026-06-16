@@ -1,0 +1,14 @@
+node_modules
+.vscode
+.env
+
+# Downloaded / generated media (results + local input frames you supply)
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# Run logs / scratch
+result.json
+_*.*

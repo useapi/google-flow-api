@@ -1,0 +1,26 @@
+[
+    {
+        "prompt": "By default the veo-3.1-fast model with a landscape 8-second clip will be used."
+    },
+    {
+        "model": "veo-3.1-quality",
+        "aspectRatio": "landscape",
+        "duration": 8,
+        "count": 2,
+        "seed": 123456,
+        "prompt": "Highest-quality Veo 3.1, two variations. For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
+    },
+    {
+        "model": "veo-3.1-fast",
+        "aspectRatio": "portrait",
+        "duration": 8,
+        "startImage": "./first_image.jpeg",
+        "endImage": "./last_image.jpeg",
+        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). Veo only — omni-flash supports a start frame only."
+    },
+    {
+        "model": "omni-flash",
+        "duration": 10,
+        "prompt": "Gemini Omni Flash is audio-native and supports 10-second clips. Other models (veo-3.1-lite, veo-3.1-lite-low-priority, …) are selectable via the model field — see the POST /videos docs."
+    }
+]

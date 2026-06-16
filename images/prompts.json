@@ -1,0 +1,24 @@
+[
+    {
+        "prompt": "By default the imagen-4 model generates 4 image variations at 16:9."
+    },
+    {
+        "model": "nano-banana-pro",
+        "aspectRatio": "1:1",
+        "count": 2,
+        "seed": 123456,
+        "prompt": "Nano Banana Pro (Gemini 3 Pro Image), two square variations. For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-images"
+    },
+    {
+        "model": "nano-banana-2",
+        "aspectRatio": "auto",
+        "reference_1": "./reference_image.jpeg",
+        "prompt": "Image-to-image: pass a local reference file as reference_1 (uploaded automatically). auto aspect ratio derives from the first reference. nano-banana-2 / nano-banana-pro accept up to 10 references."
+    },
+    {
+        "model": "imagen-4",
+        "aspectRatio": "9:16",
+        "count": 4,
+        "prompt": "Imagen 4 portrait. Other models (nano-banana-2, nano-banana-pro) are selectable via the model field — see the POST /images docs."
+    }
+]
