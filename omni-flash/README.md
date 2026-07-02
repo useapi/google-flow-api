@@ -1,14 +1,14 @@
-# Gemini Omni Flash video — Google Flow API batch generation (Node.js)
+# Gemini Omni Flash video — Google Flow API batch generation (Node.js & Python)
 
 Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net) — synced dialogue, reference images, and video-to-video edits from a list of prompts.
 
 📖 Full walkthrough: **[Generate audio-native AI video with Gemini Omni Flash](https://useapi.net/docs/articles/omni-flash-bash)**
 
-`omni-flash.mjs` reads prompts from `prompts.json`, uploads any reference images or source videos, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode with `model: "omni-flash"`, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
+`omni-flash.mjs` (Node.js) and `omni-flash.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any reference images or source videos, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode with `model: "omni-flash"`, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org) v21 or newer (no dependencies to install — uses built-in `fetch`)
+- [Node.js](https://nodejs.org) v21 or newer (no dependencies to install — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies to install)
 - A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi)
 - A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email (Omni Flash runs on Plus, Pro, and Ultra plans)
 
@@ -16,6 +16,7 @@ Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow
 
 ```bash
 node ./omni-flash.mjs <API_TOKEN> <EMAIL> [PROMPTS_FILE]
+python3 ./omni-flash.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 ```
 
 `PROMPTS_FILE` defaults to `prompts.json`. The script looks the account up by email and checks its `health` field before submitting.
