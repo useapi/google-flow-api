@@ -12,3 +12,7 @@ node_modules
 # Run logs / scratch
 result.json
 _*.*
+
+# Pipeline run state (ugc-product-video)
+ugc_state.json
+ugc_errors.txt

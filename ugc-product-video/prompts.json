@@ -1,0 +1,81 @@
+{
+  "model": "nano-banana-2-lite",
+  "videoModel": "omni-flash",
+  "products": [
+    {
+      "name": "smart-mug",
+      "aspectRatio": "1:1",
+      "count": 2,
+      "prompt": "Orthographic product-catalog sheet on a plain white background: a matte white ceramic mug with a straight cylindrical body and a clearly visible glowing amber light band around its base, about a finger wide, like a smart heated mug. The sheet is divided into four equal panels by thin grey lines in a 2 by 2 grid. Every panel shows the same single item at exactly the same size, position and lighting, camera at the item's eye level unless stated: top-left: side profile, the handle pointing left and seen edge-on; top-right: view from the handle side, the handle pointing straight at the camera; bottom-left: view from the opposite side, the handle hidden behind the body; bottom-right: three-quarter view from slightly above, the handle to the right. Soft even studio light, photoreal. Object only: no hands, no people, no props, no text anywhere, no captions, no labels, no logo, no packaging."
+    },
+    {
+      "name": "desk-robot",
+      "aspectRatio": "1:1",
+      "count": 2,
+      "prompt": "Orthographic product-catalog sheet on a plain white background: a small rounded pastel mint desk robot, a palm-sized cube with a glossy black screen face showing a happy smiling expression, two round white eyes and a curved white smile, a little rounded antenna nub on top, a small round white dial on its right side, and a speaker grille on its back. The sheet is divided into four equal panels by thin grey lines in a 2 by 2 grid. Every panel shows the same single item at exactly the same size, position and lighting, camera at the item's eye level unless stated: top-left: front view showing the smiling face; top-right: right side view showing the round dial and the antenna nub; bottom-left: back view showing the speaker grille; bottom-right: three-quarter view showing the smiling face and the dial. Soft even studio light, photoreal. Object only: no hands, no people, no props, no text anywhere, no captions, no labels, no logo, no packaging."
+    },
+    {
+      "name": "macro-keyboard",
+      "aspectRatio": "1:1",
+      "count": 4,
+      "prompt": "Orthographic product-catalog sheet on a plain white background: a real mechanical three-key macro pad, the kind sold for shortcuts: a slim, low-profile white aluminum case, three mechanical key switches in one row with sculpted dished keycaps and a small gap between them, coral on the left, lemon yellow in the middle, sky blue on the right, a USB-C port on the back edge. Exactly three keys in one row, never more. The sheet is divided into four equal panels by thin grey lines in a 2 by 2 grid. Every panel shows the same single item at exactly the same size, position and lighting, camera at the item's eye level unless stated: top-left: top-down view straight from above, the three keys in a row left to right; top-right: front view at eye level; bottom-left: left side view at eye level, the slim case and the keycap profile seen edge-on; bottom-right: three-quarter view from above. Soft even studio light, photoreal. Object only: no hands, no people, no props, no text anywhere, no captions, no labels, no logo, no packaging."
+    }
+  ],
+  "presenter": {
+    "displayName": "Mia",
+    "personalityNotes": "Quick, bright, deadpan delivery with a smile in her voice. Talks to the camera like a friend showing off things she bought at 2am.",
+    "voice": "Leda",
+    "front": {
+      "aspectRatio": "3:4",
+      "count": 2,
+      "prompt": "Character reference portrait, photoreal, natural skin, no heavy retouching: a strikingly attractive young woman in her early twenties with a sleek platinum-blonde blunt bob and straight bangs, dark defined eyebrows, icy grey eyes, a tiny silver nose stud, a playful smirk with a hint of teeth, wearing a fitted black turtleneck and a thin gold chain necklace. Head and shoulders, facing the camera straight on, plain light-grey studio background, soft even light. No text, no logo, no captions."
+    },
+    "threeQuarter": {
+      "aspectRatio": "3:4",
+      "count": 1,
+      "prompt": "@reference_1 is the same woman: identical face, hair, freckles, sweater and earrings. Three-quarter view from the waist up, relaxed natural smile, plain light-grey studio background, soft even light. Photoreal, no text."
+    }
+  },
+  "still": {
+    "aspectRatio": "9:16",
+    "count": 2,
+    "prompt": "Full-frame vertical phone video look, no phone, no bezel. @character_1 sits at a light wooden table in a bright minimal creator studio, facing the camera, waist-up and centered, a plain warm-grey backdrop behind her, soft key light from the left with a gentle catchlight in her eyes. Laid out on the table in front of her, left to right, each fully visible and resting flat on the table: the mug from @reference_1, the desk robot from @reference_2, the keyboard from @reference_3. Her hands rest on the table, relaxed closed-mouth smile, eyes on the lens. Photoreal, no text, no captions."
+  },
+  "clips": [
+    {
+      "name": "smart-mug",
+      "aspectRatio": "portrait",
+      "duration": 10,
+      "resolution": "720p",
+      "prompt": "She begins and ends exactly on this frame: hands resting on the table, the three items laid out in front of her, a small closed-mouth smile, looking into the lens, with a short quiet beat before she moves and another after she settles back. Timing matters: after a short quiet beat she picks up the mug on the left with both hands and starts talking as she lifts it, holding it up to the camera and talking straight to the lens, quick and bright with a deadpan edge and a smile in her voice, keeping both hands on the mug while she speaks. She says: \"Three gadgets smarter than me. Low bar. One: this mug texts me when my coffee's cold. Better follow-up than my ex.\" Right after the last word she gives one short laugh to herself, still holding the mug. By the eight-second mark the mug is back down gently in exactly the same spot and both hands are resting on the table again, brought back in one calm unhurried movement. For the final two seconds she holds completely still, hands resting on the table, looking into the lens with a small closed-mouth smile. Natural room tone, no music, no captions, no text on screen."
+    },
+    {
+      "name": "desk-robot",
+      "aspectRatio": "portrait",
+      "duration": 10,
+      "resolution": "720p",
+      "prompt": "She begins and ends exactly on this frame: hands resting on the table, the three items laid out in front of her, a small closed-mouth smile, looking into the lens, with a short quiet beat before she moves and another after she settles back. Timing matters: after a short quiet beat she picks up the desk robot in the middle with both hands and starts talking as she lifts it, holding it up to the camera with its smiling face toward the lens and turning it once and talking straight to the lens, quick and bright with a deadpan edge and a smile in her voice, keeping both hands on it while she speaks. The other two items stay on the table exactly where they are. She says: \"Two: a desk robot that reacts to my day. It has a face. It has never once looked impressed.\" Right after the last word she raises one eyebrow at the camera, a quick expressive beat, still holding the desk robot. By the eight-second mark the desk robot is back down gently in exactly the same spot and both hands are resting on the table again, brought back in one calm unhurried movement. For the final two seconds she is silent and holds completely still, hands resting on the table, looking into the lens with a small closed-mouth smile. Natural room tone, no music, no captions, no text on screen."
+    },
+    {
+      "name": "macro-keyboard",
+      "aspectRatio": "portrait",
+      "duration": 10,
+      "resolution": "720p",
+      "prompt": "She begins and ends exactly on this frame: hands resting on the table, the three items laid out in front of her, a small closed-mouth smile, looking into the lens, with a short quiet beat before she moves and another after she settles back. Timing matters: after a short quiet beat she picks up the keyboard on the right with both hands and starts talking as she lifts it, holding it up to the camera with the three keys facing the lens and talking straight to the lens, quick and bright with a deadpan edge and a smile in her voice, keeping both hands on it while she speaks. The other two items stay on the table exactly where they are. She says: \"Three: a keyboard with three keys. Copy, paste, undo. That's my whole career. Oh, the mug's texting. Bye!\" Right after the last word she raises one eyebrow at the camera, a quick expressive beat, still holding the keyboard. By the eight-second mark the keyboard is back down gently in exactly the same spot and both hands are resting on the table again, brought back in one calm unhurried movement. For the final two seconds she is silent and holds completely still, hands resting on the table, looking into the lens with a small closed-mouth smile. Natural room tone, no music, no captions, no text on screen."
+    }
+  ],
+  "upscale": {
+    "resolution": "1080p"
+  },
+  "join": [
+    {},
+    {
+      "trimStart": 0.458,
+      "trimEnd": 0.6
+    },
+    {
+      "trimStart": 0.125
+    }
+  ],
+  "output": "ugc-product-video.mp4"
+}

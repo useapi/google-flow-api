@@ -2,7 +2,7 @@
 
 Runnable Node.js and Python examples for the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net) — generate **Veo 3.1** video, **Gemini Omni Flash** audio-native video, and **Nano Banana 2 Lite** / **Nano Banana 2** / **Nano Banana Pro** images through a simple REST API that drives your own [Google Flow](https://labs.google/flow) subscription (no Google Cloud project, API key, or per-call metering).
 
-Each example ships JavaScript and Python implementations (`.mjs` and `.py`) that read a list of prompts from `prompts.json`, submit them through the useapi.net Google Flow API, and download every result — so you can queue a batch and come back to the winners.
+Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driven by a `prompts.json` you edit. Most are batch runners: they submit every prompt in the file and download every result, so you can queue a batch and come back to the winners. [`ugc-product-video/`](./ugc-product-video) is a pipeline instead — it chains six endpoints into one finished video, checkpointing as it goes.
 
 | Example | What it does | Tutorial |
 |---|---|---|
@@ -10,6 +10,7 @@ Each example ships JavaScript and Python implementations (`.mjs` and `.py`) that
 | [`images/`](./images) | Batch-generate images with **Nano Banana 2**, **Nano Banana Pro** | [Generate images via curl](https://useapi.net/docs/articles/google-flow-images-bash) |
 | [`nano-banana-compare/`](./nano-banana-compare) | Run one prompt through all three **Nano Banana** models (**2 Lite**, **2**, **Pro**) and compare | [Nano Banana 2 Lite vs 2 vs Pro compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare) |
 | [`omni-flash/`](./omni-flash) | Batch-generate **Gemini Omni Flash** audio-native video — text-to-video, reference-to-video, video-to-video edit | [Generate Omni Flash video via curl](https://useapi.net/docs/articles/omni-flash-bash) |
+| [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) |
 
 ## Quick start
 
