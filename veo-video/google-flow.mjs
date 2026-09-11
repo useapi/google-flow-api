@@ -1,6 +1,6 @@
 /*
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 11, 2026
 
 Script to batch-generate videos using prompts with the Google Flow API v1 by useapi.net 🚀
 Uses the POST /videos endpoint in async mode (default model: veo-3.1-fast) and polls GET /jobs/{jobId}.
@@ -37,6 +37,7 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 11, 2026: Accepts .jpg and upper-case image extensions for startImage and endImage. A prompt whose startImage or endImage fails to upload is skipped and logged to google-flow_errors.txt instead of being submitted without that frame. Saves a downloaded video under its final name only once it has been fully received, so a failed download leaves no partial MP4 for the next run to skip as "already exists".
 
 */
 
@@ -61,7 +62,7 @@ const urlJobs = 'https://api.useapi.net/v1/google-flow/jobs/';
 const urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/';
 
 // To upload .webp keep its .webp extension — Google Flow accepts png, jpeg and webp.
-const supportedFileExtensions = ['png', 'jpeg', 'webp'];
+const supportedFileExtensions = ['png', 'jpg', 'jpeg', 'webp'];
 
 // { filename: mediaGenerationId }
 const uploadedFiles = {};
@@ -103,7 +104,7 @@ async function uploadAsset(apiToken, email, filename) {
 
     const body = new Blob([await fs.readFile(filename)]);
 
-    const fileExt = filename.split('.').pop();
+    const fileExt = filename.split('.').pop().toLowerCase();
 
     const response = await fetch(`${urlUploadAsset}${encodeURIComponent(email)}`, {
         method: 'POST',
@@ -183,7 +184,7 @@ async function submit(apiToken, url, body, index, prompt) {
 }
 
 // Submit a single prompt to POST /videos in async mode.
-// startImage = start frame (I2V), endImage = end frame (I2V-FL, Veo only, requires startImage).
+// startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage).
 async function submitVideo(apiToken, email, prompt, index) {
     const { model, prompt: text, startImage, endImage, aspectRatio, duration, count, seed } = prompt;
 
@@ -193,6 +194,18 @@ async function submitVideo(apiToken, email, prompt, index) {
 
     const startImageId = startImage ? await uploadAsset(apiToken, email, startImage) : undefined;
     const endImageId = endImage ? await uploadAsset(apiToken, email, endImage) : undefined;
+
+    // A frame that failed to upload would be left out of the body, and the prompt would still be
+    // generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    // so a later prompt using it is skipped too, without another upload attempt.
+    const failedUploads = [['startImage', startImage, startImageId], ['endImage', endImage, endImageId]]
+        .filter(([, file, id]) => file && !id);
+    for (const [param, file] of failedUploads) {
+        console.error(`🛑 Prompt #${index} skipped: ${param} ${file} failed to upload`);
+        await fs.appendFile(ERRORS_FILE, `Upload failed for ${param} ${file},#${index}:${text}\n`);
+    }
+    if (failedUploads.length)
+        return;
 
     const body = JSON.stringify({
         model: useModel,
@@ -265,6 +278,9 @@ async function download(apiToken) {
 
                         if (url) {
                             console.log(`✅ Downloading ${url} to ${videoFilename}`);
+                            // Stream into a temporary file and rename it once the whole video has arrived, so a download
+                            // that drops mid-stream leaves no partial file behind for the next run to skip as "already exists".
+                            const tempFilename = `${videoFilename}.part`;
                             try {
                                 const videoResponse = await fetch(url);
                                 if (!videoResponse.ok) {
@@ -272,8 +288,10 @@ async function download(apiToken) {
                                     continue;
                                 }
                                 const stream = Readable.fromWeb(videoResponse.body);
-                                await writeFile(videoFilename, stream);
+                                await writeFile(tempFilename, stream);
+                                await fs.rename(tempFilename, videoFilename);
                             } catch (err) {
+                                await fs.rm(tempFilename, { force: true });
                                 console.error(`⛔ Error during download: ${err}`);
                             }
                         } else
@@ -303,7 +321,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.info('Script v1.0');
+    console.info('Script v1.1');
 
     console.info('Node version is: ' + process.version);
 
@@ -386,7 +404,7 @@ async function execute(apiToken, email, promptFile) {
                     warnings.push(`⚠️  Image '${file}' does not exist. Prompt ${i}`);
                 }
 
-                const ext = file.split('.').pop();
+                const ext = file.split('.').pop().toLowerCase();
 
                 if (!supportedFileExtensions.includes(ext))
                     warnings.push(`⚠️  Image ${file} extension ${ext} not supported. Prompt ${i}`);

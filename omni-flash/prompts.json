@@ -4,14 +4,19 @@
     },
     {
         "duration": 10,
-        "referenceAudio_1": "Charon",
-        "prompt": "A 10-second clip (omni-flash only) narrated by the system voice 'Charon'. referenceAudio_1 accepts a preset name or a POST /voices user-voice id."
+        "prompt": "A 10-second clip (omni-flash only). Omni Flash is audio-native, so narration, dialogue and sound come from the prompt. To pin a specific voice, add referenceAudio_1 together with a referenceImage_* or character_*, as in the next prompt."
     },
     {
         "duration": 8,
         "referenceImage_1": "./subject.jpeg",
         "referenceAudio_1": "Kore",
         "prompt": "Reference-to-video (R2V): the uploaded image is a reference, narrated by 'Kore'. Up to 7 referenceImage_* on omni-flash."
+    },
+    {
+        "duration": 8,
+        "startImage": "./first_image.jpeg",
+        "endImage": "./last_image.jpeg",
+        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). The two frames are the only input — no referenceImage_*, character_* or referenceAudio_* alongside them."
     },
     {
         "referenceVideo_1": "./source.mp4",

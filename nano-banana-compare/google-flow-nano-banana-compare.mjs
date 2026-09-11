@@ -1,6 +1,6 @@
 /*
 
-Script version 1.0, July 2, 2026
+Script version 1.1, September 11, 2026
 
 Batch-compare Google Flow's Nano Banana image models (2 Lite, 2, Pro) with the useapi.net API 🚀
 Reads prompts.json (one entry per model), submits each to the synchronous POST /images endpoint,
@@ -39,12 +39,12 @@ Changelog:
 ==========
 
 - July 2, 2026: Initial release.
+- September 11, 2026: Saves encodedImage when fifeUrl is absent, and writes a downloaded image only once it has been fully received, so a failed download leaves no partial file for the next run to skip as "already exists".
 
 */
 
 import fs from 'fs/promises';
 import { writeFile } from 'node:fs/promises';
-import { Readable } from 'node:stream';
 
 // Constants
 const DEFAULT_PROMPTS_FILE = 'prompts.json';
@@ -75,8 +75,9 @@ async function fetchAccounts(apiToken) {
     return response.json();
 }
 
-// Download a single image from its signed fifeUrl.
-async function downloadImage(url, filename) {
+// Save a single image from its signed fifeUrl. fifeUrl is normally present; when it is absent
+// the image arrived inline as base64 in encodedImage. A failure is reported and skipped.
+async function downloadImage(img, filename) {
     try {
         await fs.access(filename);
         console.log(`⚠️ ${filename} already exists. Skipping download.`);
@@ -85,8 +86,20 @@ async function downloadImage(url, filename) {
         // File does not exist, proceed with downloading
     }
 
+    const url = img?.fifeUrl;
+
+    if (!url && img?.encodedImage) {
+        console.log(`✅ Saving ${filename} from encodedImage`);
+        try {
+            await writeFile(filename, Buffer.from(img.encodedImage, 'base64'));
+        } catch (err) {
+            console.error(`⛔ Unable to save ${filename}: ${err}`);
+        }
+        return;
+    }
+
     if (!url) {
-        console.error(`🛑 No fifeUrl for ${filename}`);
+        console.error(`🛑 No fifeUrl or encodedImage for ${filename}`);
         return;
     }
 
@@ -97,7 +110,10 @@ async function downloadImage(url, filename) {
             console.error(`⛔ Unable to download ${filename} (HTTP ${imageResponse.status})`);
             return;
         }
-        await writeFile(filename, Readable.fromWeb(imageResponse.body));
+        // Read the whole body before creating the file, so a failed download leaves no
+        // partial file behind for the next run to skip as "already exists".
+        const data = Buffer.from(await imageResponse.arrayBuffer());
+        await writeFile(filename, data);
     } catch (err) {
         console.error(`⛔ Error during download: ${err}`);
     }
@@ -137,7 +153,7 @@ async function submitImage(apiToken, email, prompt, index) {
             // count > 1 returns multiple images in the media array.
             for (let i = 0; i < media.length; i++) {
                 const img = media[i]?.image?.generatedImage;
-                await downloadImage(img?.fifeUrl, `${model}_${i + 1}.jpg`);
+                await downloadImage(img, `${model}_${i + 1}.jpg`);
             }
             console.log(`🆗 ${model} done (${elapsedTimeSec(startTime)} sec)`);
             return 200;
@@ -167,7 +183,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.info('Script v1.0 • Node version ' + process.version);
+    console.info('Script v1.1 • Node version ' + process.version);
 
     const accounts = await fetchAccounts(apiToken);
 

@@ -16,7 +16,7 @@
         "duration": 8,
         "startImage": "./first_image.jpeg",
         "endImage": "./last_image.jpeg",
-        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). Veo only — omni-flash supports a start frame only."
+        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). Supported by Veo and by omni-flash."
     },
     {
         "model": "omni-flash",

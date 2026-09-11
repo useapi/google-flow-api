@@ -1,6 +1,6 @@
 """
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 11, 2026
 
 Script to batch-generate videos using prompts with the Google Flow API v1 by useapi.net 🚀
 Uses the POST /videos endpoint in async mode (default model: veo-3.1-fast) and polls GET /jobs/{jobId}.
@@ -37,6 +37,7 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 11, 2026: Reads API_TOKEN, EMAIL and PROMPTS_FILE from the documented argument positions, sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403), and accepts .jpg and upper-case image extensions. A prompt whose startImage or endImage fails to upload is skipped and logged to google-flow_errors.txt instead of being submitted without that frame.
 
 """
 
@@ -64,7 +65,7 @@ urlJobs = 'https://api.useapi.net/v1/google-flow/jobs/'
 urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/'
 
 # To upload .webp keep its .webp extension — Google Flow accepts png, jpeg and webp.
-supportedFileExtensions = ['png', 'jpeg', 'webp']
+supportedFileExtensions = ['png', 'jpg', 'jpeg', 'webp']
 
 # { filename: mediaGenerationId }
 uploadedFiles = {}
@@ -82,7 +83,8 @@ def now_ms():
 # Perform an HTTP request and return (status, body_text). Network/HTTP errors
 # are surfaced as their HTTP status (mirroring fetch which does not throw on 4xx/5xx).
 def http_request(url, method='GET', headers=None, data=None):
-    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    # api.useapi.net's Cloudflare edge rejects urllib's default User-Agent (error 1010, HTTP 403).
+    req = urllib.request.Request(url, data=data, method=method, headers={'User-Agent': 'google-flow.py', **(headers or {})})
     try:
         with urllib.request.urlopen(req) as response:
             return response.status, response.read().decode('utf-8')
@@ -127,7 +129,7 @@ def uploadAsset(apiToken, email, filename):
     with open(filename, 'rb') as f:
         body = f.read()
 
-    fileExt = filename.split('.').pop()
+    fileExt = filename.split('.').pop().lower()
 
     status, responseText = http_request(
         f'{urlUploadAsset}{urllib.parse.quote(email, safe="")}',
@@ -204,7 +206,7 @@ def jsonStringify(obj):
 
 
 # Submit a single prompt to POST /videos in async mode.
-# startImage = start frame (I2V), endImage = end frame (I2V-FL, Veo only, requires startImage).
+# startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage).
 def submitVideo(apiToken, email, prompt, index):
     model = prompt.get('model')
     text = prompt.get('prompt')
@@ -221,6 +223,18 @@ def submitVideo(apiToken, email, prompt, index):
 
     startImageId = uploadAsset(apiToken, email, startImage) if startImage else None
     endImageId = uploadAsset(apiToken, email, endImage) if endImage else None
+
+    # A frame that failed to upload would be left out of the body, and the prompt would still be
+    # generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    # so a later prompt using it is skipped too, without another upload attempt.
+    failedUploads = [(param, filename) for param, filename, mediaId in
+                     [('startImage', startImage, startImageId), ('endImage', endImage, endImageId)]
+                     if filename and not mediaId]
+    for param, filename in failedUploads:
+        print(f'🛑 Prompt #{index} skipped: {param} {filename} failed to upload', file=sys.stderr)
+        appendFile(ERRORS_FILE, f'Upload failed for {param} {filename},#{index}:{text}\n')
+    if failedUploads:
+        return None
 
     body = jsonStringify({
         'model': useModel,
@@ -323,15 +337,15 @@ def http_download(url):
 
 # Main function
 def main():
-    apiToken = sys.argv[2] if len(sys.argv) > 2 else None
-    email = sys.argv[3] if len(sys.argv) > 3 else None
-    promptFile = sys.argv[4] if len(sys.argv) > 4 else DEFAULT_PROMPTS_FILE
+    apiToken = sys.argv[1] if len(sys.argv) > 1 else None
+    email = sys.argv[2] if len(sys.argv) > 2 else None
+    promptFile = sys.argv[3] if len(sys.argv) > 3 else DEFAULT_PROMPTS_FILE
 
     if not apiToken or not email:
         print('Usage: python3 google-flow.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
-    print('Script v1.0')
+    print('Script v1.1')
 
     print('Python version is: ' + sys.version)
 
@@ -405,7 +419,7 @@ def execute(apiToken, email, promptFile):
                 if not os.path.exists(file):
                     warnings.append(f"⚠️  Image '{file}' does not exist. Prompt {i}")
 
-                ext = file.split('.').pop()
+                ext = file.split('.').pop().lower()
 
                 if ext not in supportedFileExtensions:
                     warnings.append(f'⚠️  Image {file} extension {ext} not supported. Prompt {i}')

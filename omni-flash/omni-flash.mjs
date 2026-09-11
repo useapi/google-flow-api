@@ -1,6 +1,6 @@
 /*
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 11, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API v1 by useapi.net 🚀
 Uses the POST /videos endpoint in async mode (model: omni-flash) and polls GET /jobs/{jobId}.
@@ -37,6 +37,7 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 11, 2026: Adds resolution, startImage / endImage (start and end frames, local files uploaded for you) and character_1..7. Accepts .jpg and upper-case file extensions. Stops with a warning before submitting combinations the API rejects, such as endImage without startImage or referenceAudio_* on its own. A prompt whose local startImage, endImage, referenceImage_* or referenceVideo_1 file fails to upload is skipped and logged to omni-flash_errors.txt instead of being submitted without it. Saves a downloaded video under its final name only once it has been fully received, so a failed download leaves no partial MP4 for the next run to skip as "already exists".
 
 */
 
@@ -61,7 +62,7 @@ const urlJobs = 'https://api.useapi.net/v1/google-flow/jobs/';
 const urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/';
 
 // Google Flow accepts png, jpeg and webp images, and mp4 video (for omni-flash V2V edit).
-const supportedImageExtensions = ['png', 'jpeg', 'webp'];
+const supportedImageExtensions = ['png', 'jpg', 'jpeg', 'webp'];
 const supportedVideoExtensions = ['mp4'];
 
 // { filename: mediaGenerationId }
@@ -108,7 +109,7 @@ async function uploadAsset(apiToken, email, filename) {
 
     const body = new Blob([await fs.readFile(filename)]);
 
-    const fileExt = filename.split('.').pop();
+    const fileExt = filename.split('.').pop().toLowerCase();
 
     const response = await fetch(`${urlUploadAsset}${encodeURIComponent(email)}`, {
         method: 'POST',
@@ -188,13 +189,18 @@ async function submit(apiToken, url, body, index, prompt) {
 }
 
 // Submit a single prompt to POST /videos with model omni-flash in async mode.
-// referenceImage_1..7 = R2V image refs; referenceVideo_1 = V2V edit (no duration);
-// referenceAudio_1..5 = system voice name or POST /voices user-voice id.
+// startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
+// referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
+// referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
+// resolution = 720p (default) or 360p (about half the credits).
 async function submitVideo(apiToken, email, prompt, index) {
     const {
-        prompt: text, aspectRatio, duration, count, seed,
+        prompt: text, aspectRatio, duration, resolution, count, seed,
+        startImage, endImage,
         referenceImage_1, referenceImage_2, referenceImage_3, referenceImage_4,
         referenceImage_5, referenceImage_6, referenceImage_7,
+        character_1, character_2, character_3, character_4,
+        character_5, character_6, character_7,
         referenceVideo_1, startFrameIndex_1, endFrameIndex_1,
         referenceAudio_1, referenceAudio_2, referenceAudio_3, referenceAudio_4, referenceAudio_5
     } = prompt;
@@ -204,10 +210,12 @@ async function submitVideo(apiToken, email, prompt, index) {
     // Upload any local image/video files and swap the paths for their mediaGenerationId.
     const resolveRef = async (ref) =>
         ref && (ref.startsWith('./') || ref.includes('.'))
-            && (supportedImageExtensions.includes(ref.split('.').pop()) || supportedVideoExtensions.includes(ref.split('.').pop()))
+            && [...supportedImageExtensions, ...supportedVideoExtensions].includes(ref.split('.').pop().toLowerCase())
             ? await uploadAsset(apiToken, email, ref)
             : ref;
 
+    const startImageId = await resolveRef(startImage);
+    const endImageId = await resolveRef(endImage);
     const refImage_1 = await resolveRef(referenceImage_1);
     const refImage_2 = await resolveRef(referenceImage_2);
     const refImage_3 = await resolveRef(referenceImage_3);
@@ -216,6 +224,23 @@ async function submitVideo(apiToken, email, prompt, index) {
     const refImage_6 = await resolveRef(referenceImage_6);
     const refImage_7 = await resolveRef(referenceImage_7);
     const refVideo_1 = await resolveRef(referenceVideo_1);
+
+    // A local file that failed to upload would be left out of the body, and the prompt would still be
+    // generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    // so a later prompt using it is skipped too, without another upload attempt.
+    const failedUploads = [
+        ['startImage', startImage, startImageId], ['endImage', endImage, endImageId],
+        ['referenceImage_1', referenceImage_1, refImage_1], ['referenceImage_2', referenceImage_2, refImage_2],
+        ['referenceImage_3', referenceImage_3, refImage_3], ['referenceImage_4', referenceImage_4, refImage_4],
+        ['referenceImage_5', referenceImage_5, refImage_5], ['referenceImage_6', referenceImage_6, refImage_6],
+        ['referenceImage_7', referenceImage_7, refImage_7], ['referenceVideo_1', referenceVideo_1, refVideo_1]
+    ].filter(([, file, id]) => file && !id);
+    for (const [param, file] of failedUploads) {
+        console.error(`🛑 Prompt #${index} skipped: ${param} ${file} failed to upload`);
+        await fs.appendFile(ERRORS_FILE, `Upload failed for ${param} ${file},#${index}:${text}\n`);
+    }
+    if (failedUploads.length)
+        return;
 
     // V2V edit does not accept duration — output matches the trim window.
     const isV2V = !!refVideo_1;
@@ -226,8 +251,11 @@ async function submitVideo(apiToken, email, prompt, index) {
         prompt: text,
         aspectRatio,
         duration: isV2V ? undefined : duration,
+        resolution,
         count,
         seed,
+        startImage: startImageId,
+        endImage: endImageId,
         referenceImage_1: refImage_1,
         referenceImage_2: refImage_2,
         referenceImage_3: refImage_3,
@@ -235,6 +263,13 @@ async function submitVideo(apiToken, email, prompt, index) {
         referenceImage_5: refImage_5,
         referenceImage_6: refImage_6,
         referenceImage_7: refImage_7,
+        character_1,
+        character_2,
+        character_3,
+        character_4,
+        character_5,
+        character_6,
+        character_7,
         referenceVideo_1: refVideo_1,
         startFrameIndex_1,
         endFrameIndex_1,
@@ -304,6 +339,9 @@ async function download(apiToken) {
 
                         if (url) {
                             console.log(`✅ Downloading ${url} to ${videoFilename}`);
+                            // Stream into a temporary file and rename it once the whole video has arrived, so a download
+                            // that drops mid-stream leaves no partial file behind for the next run to skip as "already exists".
+                            const tempFilename = `${videoFilename}.part`;
                             try {
                                 const videoResponse = await fetch(url);
                                 if (!videoResponse.ok) {
@@ -311,8 +349,10 @@ async function download(apiToken) {
                                     continue;
                                 }
                                 const stream = Readable.fromWeb(videoResponse.body);
-                                await writeFile(videoFilename, stream);
+                                await writeFile(tempFilename, stream);
+                                await fs.rename(tempFilename, videoFilename);
                             } catch (err) {
+                                await fs.rm(tempFilename, { force: true });
                                 console.error(`⛔ Error during download: ${err}`);
                             }
                         } else
@@ -342,7 +382,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.info('Script v1.0');
+    console.info('Script v1.1');
 
     console.info('Node version is: ' + process.version);
 
@@ -410,14 +450,19 @@ async function execute(apiToken, email, promptFile) {
     // Parameters accepted by this script for the omni-flash POST /videos endpoint.
     // See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     const supportedParams = [
-        'prompt', 'aspectRatio', 'duration', 'count', 'seed',
+        'prompt', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',
+        'character_1', 'character_2', 'character_3', 'character_4',
+        'character_5', 'character_6', 'character_7',
         'referenceVideo_1', 'startFrameIndex_1', 'endFrameIndex_1',
         'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'
     ];
 
     const imageRefKeys = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4', 'referenceImage_5', 'referenceImage_6', 'referenceImage_7'];
+    const characterKeys = ['character_1', 'character_2', 'character_3', 'character_4', 'character_5', 'character_6', 'character_7'];
+    const audioRefKeys = ['referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'];
 
     const invalidKeys = (prompt) => Object.keys(prompt).filter(key => !key.startsWith('__') && !supportedParams.includes(key))
 
@@ -426,7 +471,7 @@ async function execute(apiToken, email, promptFile) {
 
     for (let i = 1; i <= prompts.length; i++) {
         const prompt = prompts[i - 1];
-        const { prompt: text, referenceVideo_1, duration } = prompt;
+        const { prompt: text, referenceVideo_1, duration, startImage, endImage } = prompt;
 
         const validateFile = async (file, allowedExts) => {
             if (looksLikePath(file)) {
@@ -436,7 +481,7 @@ async function execute(apiToken, email, promptFile) {
                     warnings.push(`⚠️  File '${file}' does not exist. Prompt ${i}`);
                 }
 
-                const ext = file.split('.').pop();
+                const ext = file.split('.').pop().toLowerCase();
 
                 if (!allowedExts.includes(ext))
                     warnings.push(`⚠️  File ${file} extension ${ext} not supported. Prompt ${i}`);
@@ -454,9 +499,27 @@ async function execute(apiToken, email, promptFile) {
         if (referenceVideo_1 && duration)
             warnings.push(`⚠️  duration is not accepted with referenceVideo_1 (V2V edit). Prompt ${i}`);
 
+        if (endImage && !startImage)
+            warnings.push(`⚠️  endImage requires startImage (end-frame-only is not supported). Prompt ${i}`);
+
+        // Start/end frames (I2V, I2V-FL) are the only input in that mode — the API rejects anything alongside them.
+        if (startImage || endImage) {
+            if (referenceVideo_1)
+                warnings.push(`⚠️  startImage/endImage cannot be combined with referenceVideo_1 (V2V edit). Prompt ${i}`);
+            if ([...imageRefKeys, ...characterKeys].some(k => prompt[k]))
+                warnings.push(`⚠️  startImage/endImage cannot be combined with referenceImage_* or character_*. Prompt ${i}`);
+            if (audioRefKeys.some(k => prompt[k]))
+                warnings.push(`⚠️  startImage/endImage cannot be combined with referenceAudio_*. Prompt ${i}`);
+        }
+
+        // A voice needs a referenceImage_* or character_* to attach to (or a V2V edit) — the API rejects referenceAudio_* on its own.
+        // With start/end frames the check above already applies.
+        if (!startImage && !endImage && !referenceVideo_1 && audioRefKeys.some(k => prompt[k]) && ![...imageRefKeys, ...characterKeys].some(k => prompt[k]))
+            warnings.push(`⚠️  referenceAudio_* requires a referenceImage_* or character_* (or referenceVideo_1 for a V2V edit). Prompt ${i}`);
+
         await Promise.all([
             validateFile(referenceVideo_1, supportedVideoExtensions),
-            ...imageRefKeys.map(k => validateFile(prompt[k], supportedImageExtensions))
+            ...['startImage', 'endImage', ...imageRefKeys].map(k => validateFile(prompt[k], supportedImageExtensions))
         ]);
     }
 

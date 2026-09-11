@@ -1,10 +1,10 @@
 # Gemini Omni Flash video — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net) — synced dialogue, reference images, and video-to-video edits from a list of prompts.
+Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net) — synced dialogue, reference images and characters, start/end frames, and video-to-video edits from a list of prompts.
 
 📖 Full walkthrough: **[Generate audio-native AI video with Gemini Omni Flash](https://useapi.net/docs/articles/omni-flash-bash)**
 
-`omni-flash.mjs` (Node.js) and `omni-flash.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any reference images or source videos, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode with `model: "omni-flash"`, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
+`omni-flash.mjs` (Node.js) and `omni-flash.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any reference images, start/end frames or source videos, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode with `model: "omni-flash"`, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
 
 ## Prerequisites
 
@@ -23,13 +23,16 @@ python3 ./omni-flash.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 
 ## Prompts
 
-`prompts.json` is an array of prompt objects — `prompt` is the only required field; everything else falls back to the API defaults (model `omni-flash`, landscape, 8 seconds; durations 4 / 6 / 8 / 10 s).
+`prompts.json` is an array of prompt objects — `prompt` is the only required field; everything else falls back to the API defaults (model `omni-flash`, landscape, 8 seconds at 720p; durations 4 / 6 / 8 / 10 s).
 
-- **Spoken dialogue:** set `referenceAudio_1` to a preset voice name (e.g. `Charon`, `Kore`) or a [`POST /voices`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-voices) user-voice id.
+- **Spoken dialogue:** set `referenceAudio_1` to a preset voice name (e.g. `Charon`, `Kore`) or a [`POST /voices`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-voices) user-voice id. The voice needs a `referenceImage_*` or `character_*` in the same prompt (or a video-to-video edit via `referenceVideo_1`) — a voice on its own is rejected.
 - **Reference-to-video:** use `referenceImage_1`…`referenceImage_7` (local file paths, uploaded for you).
+- **Characters:** set `character_1`…`character_7` to character ids from [`POST /characters`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters) (sent as-is). They drive reference-to-video like `referenceImage_*`, and each character's images count toward the same 7-reference budget.
+- **Image-to-video:** set `startImage` to a local file path for the first frame, and optionally `endImage` for the last frame (uploaded for you). `endImage` requires `startImage`, and the frames are the only input in this mode — no `referenceImage_*`, `character_*`, `referenceAudio_*` or `referenceVideo_1` alongside them.
 - **Video-to-video edit:** set `referenceVideo_1` to a local MP4 plus `startFrameIndex_1` / `endFrameIndex_1` for the trim window (output max 10 s).
+- **Resolution:** `resolution` is `720p` (default) or `360p`, which costs about half the credits and can be promoted to 720p later with [`POST /videos/upscale`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-upscale).
 
-Every parameter is documented on [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos). Local image/video paths in `prompts.json` (e.g. `./subject.jpeg`, `./source.mp4`) are inputs **you** supply — they are not included in this repo.
+Every parameter is documented on [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos). Local image/video paths in `prompts.json` (e.g. `./subject.jpeg`, `./first_image.jpeg`, `./source.mp4`) are inputs **you** supply — they are not included in this repo.
 
 ---
 

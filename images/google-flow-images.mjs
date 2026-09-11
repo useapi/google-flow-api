@@ -1,6 +1,6 @@
 /*
 
-Script version 1.1, September 10, 2026
+Script version 1.2, September 11, 2026
 
 Script to batch-generate images using prompts with the Google Flow API v1 by useapi.net 🚀
 Uses the synchronous POST /images endpoint (default model: nano-banana-2-lite) and saves each image from fifeUrl, or from encodedImage when fifeUrl is absent.
@@ -38,12 +38,12 @@ Changelog:
 
 - June 15, 2026: Initial release.
 - September 10, 2026: Default model is now nano-banana-2-lite (Google removed Imagen from Flow, and imagen-4 now maps to nano-banana-2-lite). Saves encodedImage when fifeUrl is absent, and accepts .jpg reference images.
+- September 11, 2026: A prompt whose reference_* file fails to upload is skipped and logged to google-flow-images_errors.txt instead of being submitted without that reference. Writes a downloaded image only once it has been fully received, so a failed download leaves no partial file for the next run to skip as "already exists".
 
 */
 
 import fs from 'fs/promises';
 import { writeFile } from 'node:fs/promises';
-import { Readable } from 'node:stream';
 
 
 // Constants
@@ -152,8 +152,10 @@ async function downloadImage(url, filename) {
             console.error(`⛔ Unable to download ${filename} (HTTP ${imageResponse.status})`, url);
             return;
         }
-        const stream = Readable.fromWeb(imageResponse.body);
-        await writeFile(filename, stream);
+        // Read the whole body before creating the file, so a failed download leaves no
+        // partial file behind for the next run to skip as "already exists".
+        const data = Buffer.from(await imageResponse.arrayBuffer());
+        await writeFile(filename, data);
     } catch (err) {
         console.error(`⛔ Error during download: ${err}`);
     }
@@ -178,6 +180,17 @@ async function submitImage(apiToken, email, prompt, index) {
         if (value)
             body[refKey] = await uploadAsset(apiToken, email, value);
     }
+
+    // A reference that failed to upload would be left out of the body, and the prompt would still be
+    // generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    // so a later prompt using it is skipped too, without another upload attempt.
+    const failedUploads = referenceParams.filter(refKey => prompt[refKey] && !body[refKey]);
+    for (const refKey of failedUploads) {
+        console.error(`🛑 Prompt #${index} skipped: ${refKey} ${prompt[refKey]} failed to upload`);
+        await fs.appendFile(ERRORS_FILE, `Upload failed for ${refKey} ${prompt[refKey]},#${index}:${text}\n`);
+    }
+    if (failedUploads.length)
+        return;
 
     while (true) {
         const response = await fetch(urlImages, {
@@ -249,7 +262,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.info('Script v1.1');
+    console.info('Script v1.2');
     console.info('Node version is: ' + process.version);
 
     const start = new Date();

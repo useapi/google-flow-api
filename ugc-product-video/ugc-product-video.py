@@ -1,6 +1,6 @@
 """
 
-Script version 1.0, September 4, 2026
+Script version 1.1, September 11, 2026
 
 Build a UGC product video end to end with the Google Flow API v1 by useapi.net 🚀
 
@@ -48,6 +48,7 @@ Changelog:
 ==========
 
 - September 4, 2026: Initial release.
+- September 11, 2026: Sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403).
 
 """
 
@@ -72,6 +73,9 @@ URL_VIDEOS = "https://api.useapi.net/v1/google-flow/videos"
 URL_UPSCALE = "https://api.useapi.net/v1/google-flow/videos/upscale"
 URL_CONCATENATE = "https://api.useapi.net/v1/google-flow/videos/concatenate"
 URL_JOBS = "https://api.useapi.net/v1/google-flow/jobs/"
+
+# api.useapi.net's Cloudflare edge rejects urllib's default User-Agent (error 1010, HTTP 403).
+USER_AGENT = "ugc-product-video.py"
 
 
 # --- checkpoint state ------------------------------------------------------
@@ -118,6 +122,7 @@ def post(api_token, url, payload, what):
                 "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {api_token}",
+                "User-Agent": USER_AGENT,
             },
             method="POST",
         )
@@ -143,7 +148,12 @@ def post(api_token, url, payload, what):
 
 def get_json(api_token, url, what):
     req = urllib.request.Request(
-        url, headers={"Accept": "application/json", "Authorization": f"Bearer {api_token}"}
+        url,
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Bearer {api_token}",
+            "User-Agent": USER_AGENT,
+        },
     )
     try:
         with urllib.request.urlopen(req) as resp:

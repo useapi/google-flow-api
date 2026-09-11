@@ -1,6 +1,6 @@
 """
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 11, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API v1 by useapi.net 🚀
 Uses the POST /videos endpoint in async mode (model: omni-flash) and polls GET /jobs/{jobId}.
@@ -37,6 +37,7 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 11, 2026: Adds resolution, startImage / endImage (start and end frames, local files uploaded for you) and character_1..7. Reads API_TOKEN, EMAIL and PROMPTS_FILE from the documented argument positions, sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403), and accepts .jpg and upper-case file extensions. Stops with a warning before submitting combinations the API rejects, such as endImage without startImage or referenceAudio_* on its own. A prompt whose local startImage, endImage, referenceImage_* or referenceVideo_1 file fails to upload is skipped and logged to omni-flash_errors.txt instead of being submitted without it.
 
 """
 
@@ -64,7 +65,7 @@ urlJobs = 'https://api.useapi.net/v1/google-flow/jobs/'
 urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/'
 
 # Google Flow accepts png, jpeg and webp images, and mp4 video (for omni-flash V2V edit).
-supportedImageExtensions = ['png', 'jpeg', 'webp']
+supportedImageExtensions = ['png', 'jpg', 'jpeg', 'webp']
 supportedVideoExtensions = ['mp4']
 
 # { filename: mediaGenerationId }
@@ -83,7 +84,8 @@ def now_ms():
 # Perform an HTTP request and return (status, body_text). Network/HTTP errors
 # are surfaced as their HTTP status (mirroring fetch which does not throw on 4xx/5xx).
 def http_request(url, method='GET', headers=None, data=None):
-    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    # api.useapi.net's Cloudflare edge rejects urllib's default User-Agent (error 1010, HTTP 403).
+    req = urllib.request.Request(url, data=data, method=method, headers={'User-Agent': 'omni-flash.py', **(headers or {})})
     try:
         with urllib.request.urlopen(req) as response:
             return response.status, response.read().decode('utf-8')
@@ -149,7 +151,7 @@ def uploadAsset(apiToken, email, filename):
     with open(filename, 'rb') as f:
         body = f.read()
 
-    fileExt = filename.split('.').pop()
+    fileExt = filename.split('.').pop().lower()
 
     status, responseText = http_request(
         f'{urlUploadAsset}{urllib.parse.quote(email, safe="")}',
@@ -221,14 +223,19 @@ def jsonStringify(obj):
 
 
 # Submit a single prompt to POST /videos with model omni-flash in async mode.
-# referenceImage_1..7 = R2V image refs; referenceVideo_1 = V2V edit (no duration);
-# referenceAudio_1..5 = system voice name or POST /voices user-voice id.
+# startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
+# referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
+# referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
+# resolution = 720p (default) or 360p (about half the credits).
 def submitVideo(apiToken, email, prompt, index):
     text = prompt.get('prompt')
     aspectRatio = prompt.get('aspectRatio')
     duration = prompt.get('duration')
+    resolution = prompt.get('resolution')
     count = prompt.get('count')
     seed = prompt.get('seed')
+    startImage = prompt.get('startImage')
+    endImage = prompt.get('endImage')
     referenceImage_1 = prompt.get('referenceImage_1')
     referenceImage_2 = prompt.get('referenceImage_2')
     referenceImage_3 = prompt.get('referenceImage_3')
@@ -236,6 +243,13 @@ def submitVideo(apiToken, email, prompt, index):
     referenceImage_5 = prompt.get('referenceImage_5')
     referenceImage_6 = prompt.get('referenceImage_6')
     referenceImage_7 = prompt.get('referenceImage_7')
+    character_1 = prompt.get('character_1')
+    character_2 = prompt.get('character_2')
+    character_3 = prompt.get('character_3')
+    character_4 = prompt.get('character_4')
+    character_5 = prompt.get('character_5')
+    character_6 = prompt.get('character_6')
+    character_7 = prompt.get('character_7')
     referenceVideo_1 = prompt.get('referenceVideo_1')
     startFrameIndex_1 = prompt.get('startFrameIndex_1')
     endFrameIndex_1 = prompt.get('endFrameIndex_1')
@@ -250,10 +264,12 @@ def submitVideo(apiToken, email, prompt, index):
     # Upload any local image/video files and swap the paths for their mediaGenerationId.
     def resolveRef(ref):
         if ref and (ref.startswith('./') or ('.' in ref)) \
-                and (ref.split('.').pop() in supportedImageExtensions or ref.split('.').pop() in supportedVideoExtensions):
+                and ref.split('.').pop().lower() in supportedImageExtensions + supportedVideoExtensions:
             return uploadAsset(apiToken, email, ref)
         return ref
 
+    startImageId = resolveRef(startImage)
+    endImageId = resolveRef(endImage)
     refImage_1 = resolveRef(referenceImage_1)
     refImage_2 = resolveRef(referenceImage_2)
     refImage_3 = resolveRef(referenceImage_3)
@@ -262,6 +278,22 @@ def submitVideo(apiToken, email, prompt, index):
     refImage_6 = resolveRef(referenceImage_6)
     refImage_7 = resolveRef(referenceImage_7)
     refVideo_1 = resolveRef(referenceVideo_1)
+
+    # A local file that failed to upload would be left out of the body, and the prompt would still be
+    # generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    # so a later prompt using it is skipped too, without another upload attempt.
+    failedUploads = [(param, filename) for param, filename, mediaId in [
+        ('startImage', startImage, startImageId), ('endImage', endImage, endImageId),
+        ('referenceImage_1', referenceImage_1, refImage_1), ('referenceImage_2', referenceImage_2, refImage_2),
+        ('referenceImage_3', referenceImage_3, refImage_3), ('referenceImage_4', referenceImage_4, refImage_4),
+        ('referenceImage_5', referenceImage_5, refImage_5), ('referenceImage_6', referenceImage_6, refImage_6),
+        ('referenceImage_7', referenceImage_7, refImage_7), ('referenceVideo_1', referenceVideo_1, refVideo_1)
+    ] if filename and not mediaId]
+    for param, filename in failedUploads:
+        print(f'🛑 Prompt #{index} skipped: {param} {filename} failed to upload', file=sys.stderr)
+        appendFile(ERRORS_FILE, f'Upload failed for {param} {filename},#{index}:{text}\n')
+    if failedUploads:
+        return None
 
     # V2V edit does not accept duration — output matches the trim window.
     isV2V = bool(refVideo_1)
@@ -272,8 +304,11 @@ def submitVideo(apiToken, email, prompt, index):
         'prompt': text,
         'aspectRatio': aspectRatio,
         'duration': None if isV2V else duration,
+        'resolution': resolution,
         'count': count,
         'seed': seed,
+        'startImage': startImageId,
+        'endImage': endImageId,
         'referenceImage_1': refImage_1,
         'referenceImage_2': refImage_2,
         'referenceImage_3': refImage_3,
@@ -281,6 +316,13 @@ def submitVideo(apiToken, email, prompt, index):
         'referenceImage_5': refImage_5,
         'referenceImage_6': refImage_6,
         'referenceImage_7': refImage_7,
+        'character_1': character_1,
+        'character_2': character_2,
+        'character_3': character_3,
+        'character_4': character_4,
+        'character_5': character_5,
+        'character_6': character_6,
+        'character_7': character_7,
         'referenceVideo_1': refVideo_1,
         'startFrameIndex_1': startFrameIndex_1,
         'endFrameIndex_1': endFrameIndex_1,
@@ -370,15 +412,15 @@ def download(apiToken):
 
 # Main function
 def main():
-    apiToken = sys.argv[2] if len(sys.argv) > 2 else None
-    email = sys.argv[3] if len(sys.argv) > 3 else None
-    promptFile = sys.argv[4] if len(sys.argv) > 4 else DEFAULT_PROMPTS_FILE
+    apiToken = sys.argv[1] if len(sys.argv) > 1 else None
+    email = sys.argv[2] if len(sys.argv) > 2 else None
+    promptFile = sys.argv[3] if len(sys.argv) > 3 else DEFAULT_PROMPTS_FILE
 
     if not apiToken or not email:
         print('Usage: python3 omni-flash.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
-    print('Script v1.0')
+    print('Script v1.1')
 
     print('Python version is: ' + sys.version)
 
@@ -437,14 +479,19 @@ def execute(apiToken, email, promptFile):
     # Parameters accepted by this script for the omni-flash POST /videos endpoint.
     # See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     supportedParams = [
-        'prompt', 'aspectRatio', 'duration', 'count', 'seed',
+        'prompt', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',
+        'character_1', 'character_2', 'character_3', 'character_4',
+        'character_5', 'character_6', 'character_7',
         'referenceVideo_1', 'startFrameIndex_1', 'endFrameIndex_1',
         'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'
     ]
 
     imageRefKeys = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4', 'referenceImage_5', 'referenceImage_6', 'referenceImage_7']
+    characterKeys = ['character_1', 'character_2', 'character_3', 'character_4', 'character_5', 'character_6', 'character_7']
+    audioRefKeys = ['referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5']
 
     def invalidKeys(prompt):
         return [key for key in prompt.keys() if not key.startswith('__') and key not in supportedParams]
@@ -458,13 +505,15 @@ def execute(apiToken, email, promptFile):
         text = prompt.get('prompt')
         referenceVideo_1 = prompt.get('referenceVideo_1')
         duration = prompt.get('duration')
+        startImage = prompt.get('startImage')
+        endImage = prompt.get('endImage')
 
         def validateFile(file, allowedExts):
             if looksLikePath(file):
                 if not os.path.exists(file):
                     warnings.append(f"⚠️  File '{file}' does not exist. Prompt {i}")
 
-                ext = file.split('.').pop()
+                ext = file.split('.').pop().lower()
 
                 if ext not in allowedExts:
                     warnings.append(f'⚠️  File {file} extension {ext} not supported. Prompt {i}')
@@ -480,8 +529,25 @@ def execute(apiToken, email, promptFile):
         if referenceVideo_1 and duration:
             warnings.append(f'⚠️  duration is not accepted with referenceVideo_1 (V2V edit). Prompt {i}')
 
+        if endImage and not startImage:
+            warnings.append(f'⚠️  endImage requires startImage (end-frame-only is not supported). Prompt {i}')
+
+        # Start/end frames (I2V, I2V-FL) are the only input in that mode — the API rejects anything alongside them.
+        if startImage or endImage:
+            if referenceVideo_1:
+                warnings.append(f'⚠️  startImage/endImage cannot be combined with referenceVideo_1 (V2V edit). Prompt {i}')
+            if any(prompt.get(k) for k in imageRefKeys + characterKeys):
+                warnings.append(f'⚠️  startImage/endImage cannot be combined with referenceImage_* or character_*. Prompt {i}')
+            if any(prompt.get(k) for k in audioRefKeys):
+                warnings.append(f'⚠️  startImage/endImage cannot be combined with referenceAudio_*. Prompt {i}')
+
+        # A voice needs a referenceImage_* or character_* to attach to (or a V2V edit) — the API rejects referenceAudio_* on its own.
+        # With start/end frames the check above already applies.
+        if not startImage and not endImage and not referenceVideo_1 and any(prompt.get(k) for k in audioRefKeys) and not any(prompt.get(k) for k in imageRefKeys + characterKeys):
+            warnings.append(f'⚠️  referenceAudio_* requires a referenceImage_* or character_* (or referenceVideo_1 for a V2V edit). Prompt {i}')
+
         validateFile(referenceVideo_1, supportedVideoExtensions)
-        for k in imageRefKeys:
+        for k in ['startImage', 'endImage'] + imageRefKeys:
             validateFile(prompt.get(k), supportedImageExtensions)
 
     if len(warnings) > 0:

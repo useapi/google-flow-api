@@ -1,6 +1,6 @@
 """
 
-Script version 1.0, July 2, 2026
+Script version 1.1, September 11, 2026
 
 Batch-compare Google Flow's Nano Banana image models (2 Lite, 2, Pro) with the useapi.net API.
 Reads prompts.json (one entry per model), submits each to the synchronous POST /images endpoint,
@@ -39,9 +39,11 @@ Changelog:
 ==========
 
 - July 2, 2026: Initial release.
+- September 11, 2026: Sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403), saves encodedImage when fifeUrl is absent, and a failed image download no longer stops the run or leaves a partial file for the next run to skip as "already exists".
 
 """
 
+import base64
 import json
 import os
 import sys
@@ -56,11 +58,18 @@ SLEEP_RETRY = 30  # seconds
 URL_ACCOUNTS = "https://api.useapi.net/v1/google-flow/accounts"
 URL_IMAGES = "https://api.useapi.net/v1/google-flow/images"
 
+# api.useapi.net's Cloudflare edge rejects urllib's default User-Agent (error 1010, HTTP 403).
+USER_AGENT = "google-flow-nano-banana-compare.py"
+
 
 def fetch_accounts(api_token):
     req = urllib.request.Request(
         URL_ACCOUNTS,
-        headers={"Accept": "application/json", "Authorization": f"Bearer {api_token}"},
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Bearer {api_token}",
+            "User-Agent": USER_AGENT,
+        },
     )
     try:
         with urllib.request.urlopen(req) as resp:
@@ -70,19 +79,38 @@ def fetch_accounts(api_token):
         sys.exit(1)
 
 
-def download_image(url, filename):
+# Save one generated image. fifeUrl is normally present; when it is absent the image
+# arrived inline as base64 in encodedImage. A failure is reported and skipped so the
+# remaining images are still saved.
+def download_image(image, filename):
     if os.path.exists(filename):
         print(f"⚠️ {filename} already exists. Skipping download.")
         return
+    url = image.get("fifeUrl")
+    if not url and image.get("encodedImage"):
+        print(f"✅ Saving {filename} from encodedImage")
+        try:
+            data = base64.b64decode(image["encodedImage"])
+            with open(filename, "wb") as f:
+                f.write(data)
+        except Exception as e:
+            print(f"⛔ Unable to save {filename}: {e}")
+        return
     if not url:
-        print(f"🛑 No fifeUrl for {filename}")
+        print(f"🛑 No fifeUrl or encodedImage for {filename}")
         return
     print(f"✅ Downloading {filename}")
     try:
-        with urllib.request.urlopen(url) as resp, open(filename, "wb") as f:
-            f.write(resp.read())
+        # Read the whole body before creating the file, so a failed download leaves no
+        # partial file behind for the next run to skip as "already exists".
+        with urllib.request.urlopen(url) as resp:
+            data = resp.read()
+        with open(filename, "wb") as f:
+            f.write(data)
     except urllib.error.HTTPError as e:
         print(f"⛔ Unable to download {filename} (HTTP {e.code})")
+    except Exception as e:
+        print(f"⛔ Error during download of {filename}: {e}")
 
 
 def submit_image(api_token, email, prompt, index):
@@ -104,6 +132,7 @@ def submit_image(api_token, email, prompt, index):
                 "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {api_token}",
+                "User-Agent": USER_AGENT,
             },
         )
         try:
@@ -114,7 +143,7 @@ def submit_image(api_token, email, prompt, index):
                     print(f"🛑 200 OK but no media (moderated?) for {model}")
                 for i, m in enumerate(media):
                     gen = (m.get("image") or {}).get("generatedImage") or {}
-                    download_image(gen.get("fifeUrl"), f"{model}_{i + 1}.jpg")
+                    download_image(gen, f"{model}_{i + 1}.jpg")
                 print(f"🆗 {model} done ({time.time() - start:.0f} sec)")
                 return 200
         except urllib.error.HTTPError as e:

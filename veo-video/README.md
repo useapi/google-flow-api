@@ -26,7 +26,6 @@ python3 ./google-flow.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 `prompts.json` is an array of prompt objects — `prompt` is the only required field; everything else falls back to the API defaults (model `veo-3.1-fast`, landscape, 8 seconds). Supported models include `veo-3.1-fast`, `veo-3.1-quality`, `veo-3.1-lite`, `veo-3.1-lite-low-priority`, and `omni-flash`.
 
 - **Image-to-video:** set `startImage` (and optionally `endImage`) to a **local file path** — the script uploads it for you.
-- **Reference-to-video:** use `referenceImage_1`…`referenceImage_3`.
 
 Every parameter is documented on [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos). Local image paths in `prompts.json` (e.g. `./first_image.jpeg`) are inputs **you** supply — they are not included in this repo.
 

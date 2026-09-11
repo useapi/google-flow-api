@@ -1,6 +1,6 @@
 """
 
-Script version 1.1, September 10, 2026
+Script version 1.2, September 11, 2026
 
 Script to batch-generate images using prompts with the Google Flow API v1 by useapi.net 🚀
 Uses the synchronous POST /images endpoint (default model: nano-banana-2-lite) and saves each image from fifeUrl, or from encodedImage when fifeUrl is absent.
@@ -38,6 +38,7 @@ Changelog:
 
 - June 15, 2026: Initial release.
 - September 10, 2026: Default model is now nano-banana-2-lite (Google removed Imagen from Flow, and imagen-4 now maps to nano-banana-2-lite). Saves encodedImage when fifeUrl is absent, and accepts .jpg reference images.
+- September 11, 2026: Reads API_TOKEN, EMAIL and PROMPTS_FILE from the documented argument positions and sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403). A prompt whose reference_* file fails to upload is skipped and logged to google-flow-images_errors.txt instead of being submitted without that reference.
 
 """
 
@@ -216,6 +217,16 @@ def submitImage(apiToken, email, prompt, index):
         if value:
             body[refKey] = uploadAsset(apiToken, email, value)
 
+    # A reference that failed to upload would be left out of the body, and the prompt would still be
+    # generated (and charged) without it. Skip the prompt instead. uploadAsset remembers the failed file,
+    # so a later prompt using it is skipped too, without another upload attempt.
+    failedUploads = [refKey for refKey in referenceParams if prompt.get(refKey) and not body.get(refKey)]
+    for refKey in failedUploads:
+        print(f'🛑 Prompt #{index} skipped: {refKey} {prompt[refKey]} failed to upload', file=sys.stderr)
+        appendFile(ERRORS_FILE, f'Upload failed for {refKey} {prompt[refKey]},#{index}:{text}\n')
+    if failedUploads:
+        return None
+
     while True:
         status, responseText = http_request(urlImages, method='POST', headers={
             'Accept': 'application/json',
@@ -272,7 +283,7 @@ def main():
         print('Usage: python3 google-flow-images.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
-    print('Script v1.1')
+    print('Script v1.2')
     print('Python version is: ' + sys.version)
 
     start = datetime.now()
