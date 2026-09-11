@@ -4,13 +4,13 @@ Runnable Node.js and Python examples for the [Google Flow API](https://useapi.ne
 
 Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driven by a `prompts.json` you edit. Most are batch runners: they submit every prompt in the file and download every result, so you can queue a batch and come back to the winners. [`ugc-product-video/`](./ugc-product-video) is a pipeline instead — it chains six endpoints into one finished video, checkpointing as it goes.
 
-| Example | What it does | Tutorial |
-|---|---|---|
-| [`veo-video/`](./veo-video) | Batch-generate **Veo 3.1** video — text-to-video, first/last-frame image-to-video | [Generate Veo 3.1 video via curl](https://useapi.net/docs/articles/google-flow-bash) |
-| [`images/`](./images) | Batch-generate images with **Nano Banana 2 Lite** (default), **Nano Banana 2**, **Nano Banana Pro** | [Generate images via curl](https://useapi.net/docs/articles/google-flow-images-bash) |
-| [`nano-banana-compare/`](./nano-banana-compare) | Run one prompt through all three **Nano Banana** models (**2 Lite**, **2**, **Pro**) and compare | [Nano Banana 2 Lite vs 2 vs Pro compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare) |
-| [`omni-flash/`](./omni-flash) | Batch-generate **Gemini Omni Flash** audio-native video — text-to-video, first/last-frame image-to-video, reference-to-video, video-to-video edit | [Generate Omni Flash video via curl](https://useapi.net/docs/articles/omni-flash-bash) |
-| [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) |
+| Example | What it does | Tutorial | Tutorial date |
+|---|---|---|---|
+| [`veo-video/`](./veo-video) | Batch-generate **Veo 3.1** video — text-to-video, first/last-frame image-to-video | [Generate Veo 3.1 video via curl](https://useapi.net/docs/articles/google-flow-bash) | June 15, 2026 (September 11, 2026) |
+| [`images/`](./images) | Batch-generate images with **Nano Banana 2 Lite** (default), **Nano Banana 2**, **Nano Banana Pro** | [Generate images via curl](https://useapi.net/docs/articles/google-flow-images-bash) | June 15, 2026 (September 11, 2026) |
+| [`nano-banana-compare/`](./nano-banana-compare) | Run one prompt through all three **Nano Banana** models (**2 Lite**, **2**, **Pro**) and compare | [Nano Banana 2 Lite vs 2 vs Pro compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare) | July 2, 2026 (September 11, 2026) |
+| [`omni-flash/`](./omni-flash) | Batch-generate **Gemini Omni Flash** audio-native video — text-to-video, first/last-frame image-to-video, reference-to-video, video-to-video edit | [Generate Omni Flash video via curl](https://useapi.net/docs/articles/omni-flash-bash) | June 15, 2026 (September 11, 2026) |
+| [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) | September 4, 2026 |
 
 ## Quick start
 

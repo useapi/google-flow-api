@@ -2,7 +2,7 @@
 
 Run the **same prompt** through all three Google Flow Nano Banana image models — **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image, the default), **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), and **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image) — through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net), and download every result labeled by model.
 
-📖 Full walkthrough: **[Nano Banana 2 Lite vs 2 vs Pro: Google Flow Image Models Compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare)**
+📖 Full walkthrough: **[Nano Banana 2 Lite vs 2 vs Pro: Google Flow Image Models Compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare)** — July 2, 2026 (September 11, 2026)
 
 `google-flow-nano-banana-compare.mjs` (Node.js) and `google-flow-nano-banana-compare.py` (Python) are equivalent implementations — each reads `prompts.json` (one entry per model) and calls [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images). Because that endpoint is **synchronous**, the script writes each result image as soon as the call returns.
 

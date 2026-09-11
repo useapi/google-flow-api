@@ -2,7 +2,7 @@
 
 Batch-generate [Veo 3.1](https://aistudio.google.com/models/veo-3) video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net).
 
-📖 Full walkthrough: **[Generate AI video with Veo 3.1 via curl and the Google Flow API](https://useapi.net/docs/articles/google-flow-bash)**
+📖 Full walkthrough: **[How to Generate AI Video with Veo 3.1 via the Google Flow API](https://useapi.net/docs/articles/google-flow-bash)** — June 15, 2026 (September 11, 2026)
 
 `google-flow.mjs` (Node.js) and `google-flow.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any start/end-frame images, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
 

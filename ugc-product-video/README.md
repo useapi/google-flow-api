@@ -2,7 +2,7 @@
 
 Build a finished UGC product video end to end through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net): one invented presenter showing your products to the camera, in six steps, with nothing processed locally. No editor, no local ffmpeg — the joined MP4 comes back from the API.
 
-📖 Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video)**
+📖 Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video)** — September 4, 2026
 
 `ugc-product-video.mjs` (Node.js) and `ugc-product-video.py` (Python) are equivalent implementations — each reads `prompts.json` and runs the same six steps:
 

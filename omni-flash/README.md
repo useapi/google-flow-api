@@ -2,7 +2,7 @@
 
 Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net) — synced dialogue, reference images and characters, start/end frames, and video-to-video edits from a list of prompts.
 
-📖 Full walkthrough: **[Generate audio-native AI video with Gemini Omni Flash](https://useapi.net/docs/articles/omni-flash-bash)**
+📖 Full walkthrough: **[How to Generate Audio-Native AI Video with Gemini Omni Flash via the Google Flow API](https://useapi.net/docs/articles/omni-flash-bash)** — June 15, 2026 (September 11, 2026)
 
 `omni-flash.mjs` (Node.js) and `omni-flash.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any reference images, start/end frames or source videos, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode with `model: "omni-flash"`, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
 
