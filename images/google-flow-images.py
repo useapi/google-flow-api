@@ -84,7 +84,8 @@ def now_ms():
 # Perform an HTTP request and return (status, body_text). Network/HTTP errors
 # are surfaced as their HTTP status (mirroring fetch which does not throw on 4xx/5xx).
 def http_request(url, method='GET', headers=None, data=None):
-    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    # api.useapi.net's Cloudflare edge rejects urllib's default User-Agent (error 1010, HTTP 403).
+    req = urllib.request.Request(url, data=data, method=method, headers={'User-Agent': 'google-flow-images.py', **(headers or {})})
     try:
         with urllib.request.urlopen(req) as response:
             return response.status, response.read().decode('utf-8')
@@ -263,9 +264,9 @@ def submitImage(apiToken, email, prompt, index):
 
 # Main function
 def main():
-    apiToken = sys.argv[2] if len(sys.argv) > 2 else None
-    email = sys.argv[3] if len(sys.argv) > 3 else None
-    promptFile = sys.argv[4] if len(sys.argv) > 4 else DEFAULT_PROMPTS_FILE
+    apiToken = sys.argv[1] if len(sys.argv) > 1 else None
+    email = sys.argv[2] if len(sys.argv) > 2 else None
+    promptFile = sys.argv[3] if len(sys.argv) > 3 else DEFAULT_PROMPTS_FILE
 
     if not apiToken or not email:
         print('Usage: python3 google-flow-images.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
