@@ -1,9 +1,9 @@
 /*
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 10, 2026
 
 Script to batch-generate images using prompts with the Google Flow API v1 by useapi.net 🚀
-Uses the synchronous POST /images endpoint (default model: imagen-4) and downloads each fifeUrl.
+Uses the synchronous POST /images endpoint (default model: nano-banana-2-lite) and saves each image from fifeUrl, or from encodedImage when fifeUrl is absent.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-images
 
 Installation Instructions:
@@ -37,6 +37,7 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 10, 2026: Default model is now nano-banana-2-lite (Google removed Imagen from Flow, and imagen-4 now maps to nano-banana-2-lite). Saves encodedImage when fifeUrl is absent, and accepts .jpg reference images.
 
 */
 
@@ -48,7 +49,7 @@ import { Readable } from 'node:stream';
 // Constants
 const ERRORS_FILE = 'google-flow-images_errors.txt';
 const DEFAULT_PROMPTS_FILE = 'prompts.json';
-const DEFAULT_MODEL = 'imagen-4';
+const DEFAULT_MODEL = 'nano-banana-2-lite';
 const SLEEP_429 = 30 * 1000; // in milliseconds
 
 const urlAccounts = 'https://api.useapi.net/v1/google-flow/accounts';
@@ -56,7 +57,7 @@ const urlImages = 'https://api.useapi.net/v1/google-flow/images';
 const urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/';
 
 // Google Flow accepts png, jpeg and webp for reference images.
-const supportedFileExtensions = ['png', 'jpeg', 'webp'];
+const supportedFileExtensions = ['png', 'jpg', 'jpeg', 'webp'];
 
 // reference_1 .. reference_10 are accepted by POST /images.
 const referenceParams = Array.from({ length: 10 }, (_, i) => `reference_${i + 1}`);
@@ -101,7 +102,7 @@ async function uploadAsset(apiToken, email, filename) {
 
     const body = new Blob([await fs.readFile(filename)]);
 
-    const fileExt = filename.split('.').pop();
+    const fileExt = filename.split('.').pop().toLowerCase();
 
     const response = await fetch(`${urlUploadAsset}${encodeURIComponent(email)}`, {
         method: 'POST',
@@ -202,7 +203,11 @@ async function submitImage(apiToken, email, prompt, index) {
             for (let i = 0; i < media.length; i++) {
                 const img = media[i]?.image?.generatedImage;
                 const filename = `google-flow_${index}_${i + 1}.jpg`;
-                await downloadImage(img?.fifeUrl, filename);
+                // fifeUrl is normally present. When it is absent the image arrived inline as base64 in encodedImage.
+                if (!img?.fifeUrl && img?.encodedImage)
+                    await fs.writeFile(filename, Buffer.from(img.encodedImage, 'base64'));
+                else
+                    await downloadImage(img?.fifeUrl, filename);
             }
             return 200;
         }
@@ -244,7 +249,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.info('Script v1.0');
+    console.info('Script v1.1');
     console.info('Node version is: ' + process.version);
 
     const start = new Date();
@@ -303,7 +308,7 @@ async function execute(apiToken, email, promptFile) {
                     warnings.push(`⚠️  Image '${file}' does not exist. Prompt ${i}`);
                 }
 
-                const ext = file.split('.').pop();
+                const ext = file.split('.').pop().toLowerCase();
 
                 if (!supportedFileExtensions.includes(ext))
                     warnings.push(`⚠️  Image ${file} extension ${ext} not supported. Prompt ${i}`);

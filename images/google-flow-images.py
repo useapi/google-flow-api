@@ -1,9 +1,9 @@
 """
 
-Script version 1.0, June 15, 2026
+Script version 1.1, September 10, 2026
 
 Script to batch-generate images using prompts with the Google Flow API v1 by useapi.net 🚀
-Uses the synchronous POST /images endpoint (default model: imagen-4) and downloads each fifeUrl.
+Uses the synchronous POST /images endpoint (default model: nano-banana-2-lite) and saves each image from fifeUrl, or from encodedImage when fifeUrl is absent.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-images
 
 Installation Instructions:
@@ -37,9 +37,11 @@ Changelog:
 ==========
 
 - June 15, 2026: Initial release.
+- September 10, 2026: Default model is now nano-banana-2-lite (Google removed Imagen from Flow, and imagen-4 now maps to nano-banana-2-lite). Saves encodedImage when fifeUrl is absent, and accepts .jpg reference images.
 
 """
 
+import base64
 import json
 import os
 import sys
@@ -53,7 +55,7 @@ from datetime import datetime
 # Constants
 ERRORS_FILE = 'google-flow-images_errors.txt'
 DEFAULT_PROMPTS_FILE = 'prompts.json'
-DEFAULT_MODEL = 'imagen-4'
+DEFAULT_MODEL = 'nano-banana-2-lite'
 SLEEP_429 = 30  # in seconds
 
 urlAccounts = 'https://api.useapi.net/v1/google-flow/accounts'
@@ -61,7 +63,7 @@ urlImages = 'https://api.useapi.net/v1/google-flow/images'
 urlUploadAsset = 'https://api.useapi.net/v1/google-flow/assets/'
 
 # Google Flow accepts png, jpeg and webp for reference images.
-supportedFileExtensions = ['png', 'jpeg', 'webp']
+supportedFileExtensions = ['png', 'jpg', 'jpeg', 'webp']
 
 # reference_1 .. reference_10 are accepted by POST /images.
 referenceParams = [f'reference_{i + 1}' for i in range(10)]
@@ -142,7 +144,7 @@ def uploadAsset(apiToken, email, filename):
     with open(filename, 'rb') as f:
         body = f.read()
 
-    fileExt = filename.split('.').pop()
+    fileExt = filename.split('.').pop().lower()
 
     status, responseText = http_request(
         f'{urlUploadAsset}{urllib.parse.quote(email, safe="")}',
@@ -229,9 +231,14 @@ def submitImage(apiToken, email, prompt, index):
 
             # count > 1 returns multiple images in the media array.
             for i in range(len(media)):
-                img = ((media[i] or {}).get('image') or {}).get('generatedImage')
+                img = ((media[i] or {}).get('image') or {}).get('generatedImage') or {}
                 filename = f'google-flow_{index}_{i + 1}.jpg'
-                downloadImage((img or {}).get('fifeUrl'), filename)
+                # fifeUrl is normally present. When it is absent the image arrived inline as base64 in encodedImage.
+                if not img.get('fifeUrl') and img.get('encodedImage'):
+                    with open(filename, 'wb') as f:
+                        f.write(base64.b64decode(img['encodedImage']))
+                else:
+                    downloadImage(img.get('fifeUrl'), filename)
             return 200
 
         if status == 429:
@@ -264,7 +271,7 @@ def main():
         print('Usage: python3 google-flow-images.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
-    print('Script v1.0')
+    print('Script v1.1')
     print('Python version is: ' + sys.version)
 
     start = datetime.now()
@@ -320,7 +327,7 @@ def execute(apiToken, email, promptFile):
                 if not os.path.exists(file):
                     warnings.append(f"⚠️  Image '{file}' does not exist. Prompt {i}")
 
-                ext = file.split('.').pop()
+                ext = file.split('.').pop().lower()
 
                 if ext not in supportedFileExtensions:
                     warnings.append(f'⚠️  Image {file} extension {ext} not supported. Prompt {i}')
