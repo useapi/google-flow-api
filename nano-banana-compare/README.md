@@ -1,6 +1,6 @@
 # Nano Banana 2 Lite vs 2 vs Pro — Google Flow image model comparison (Node.js & Python)
 
-Run the **same prompt** through all three Google Flow Nano Banana image models — **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image, the default), **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), and **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image) — through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net), and download every result labeled by model.
+Run the **same prompt** through all three Google Flow Nano Banana image models — **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image, the default), **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), and **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image) — through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api), and download every result labeled by model.
 
 📖 Full walkthrough: **[Nano Banana 2 Lite vs 2 vs Pro: Google Flow Image Models Compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare)** — July 2, 2026 (September 11, 2026)
 
@@ -9,7 +9,7 @@ Run the **same prompt** through all three Google Flow Nano Banana image models �
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies)
-- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi)
+- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api)
 - A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email (image generation works with free Google AI accounts)
 
 ## Usage
