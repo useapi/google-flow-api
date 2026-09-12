@@ -1,6 +1,6 @@
 # Nano Banana 2 & Nano Banana Pro images — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate images with **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image), and **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image) through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api).
+Batch-generate images with **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image), and **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image) through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 📖 Full walkthrough: **[How to Generate Nano Banana 2 & Nano Banana Pro Images via the Google Flow API](https://useapi.net/docs/articles/google-flow-images-bash)** — June 15, 2026 (September 11, 2026)
 
@@ -9,7 +9,7 @@ Batch-generate images with **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies to install — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies to install)
-- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api)
+- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 - A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email (image generation works with free Google AI accounts)
 
 ## Usage

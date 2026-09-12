@@ -1,6 +1,6 @@
 # Gemini Omni Flash video — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api) — synced dialogue, reference images and characters, start/end frames, and video-to-video edits from a list of prompts.
+Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) — synced dialogue, reference images and characters, start/end frames, and video-to-video edits from a list of prompts.
 
 📖 Full walkthrough: **[How to Generate Audio-Native AI Video with Gemini Omni Flash via the Google Flow API](https://useapi.net/docs/articles/omni-flash-bash)** — June 15, 2026 (September 11, 2026)
 
@@ -9,7 +9,7 @@ Batch-generate **Gemini Omni Flash** audio-native video through the [Google Flow
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies to install — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies to install)
-- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api)
+- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 - A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email (Omni Flash runs on Plus, Pro, and Ultra plans)
 
 ## Usage

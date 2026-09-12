@@ -1,6 +1,6 @@
 # UGC product video — the whole pipeline in one run (Node.js & Python)
 
-Build a finished UGC product video end to end through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api): one invented presenter showing your products to the camera, in six steps, with nothing processed locally. No editor, no local ffmpeg — the joined MP4 comes back from the API.
+Build a finished UGC product video end to end through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api): one invented presenter showing your products to the camera, in six steps, with nothing processed locally. No editor, no local ffmpeg — the joined MP4 comes back from the API.
 
 📖 Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video)** — September 4, 2026
 
@@ -20,7 +20,7 @@ The shipped `prompts.json` reproduces the tutorial exactly — three products, t
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies)
-- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api)
+- A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 - A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email on a **paid** [Google AI](https://one.google.com/ai) plan — images and characters work on a free account, but Omni 1.1 Flash video and upscaling do not
 
 ## Usage

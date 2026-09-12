@@ -1,6 +1,6 @@
 # Google Flow API examples (useapi.net)
 
-Runnable Node.js and Python examples for the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api) — generate **Veo 3.1** video, **Gemini Omni Flash** audio-native video, and **Nano Banana 2 Lite** / **Nano Banana 2** / **Nano Banana Pro** images through a simple REST API that drives your own [Google Flow](https://flow.google.com) subscription (no Google Cloud project, API key, or per-call metering).
+Runnable Node.js and Python examples for the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) — generate **Veo 3.1** video, **Gemini Omni Flash** audio-native video, and **Nano Banana 2 Lite** / **Nano Banana 2** / **Nano Banana Pro** images through a simple REST API that drives your own [Google Flow](https://flow.google.com) subscription (no Google Cloud project, API key, or per-call metering).
 
 Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driven by a `prompts.json` you edit. Most are batch runners: they submit every prompt in the file and download every result, so you can queue a batch and come back to the winners. [`ugc-product-video/`](./ugc-product-video) is a pipeline instead — it chains six endpoints into one finished video, checkpointing as it goes.
 
@@ -14,7 +14,7 @@ Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driv
 
 ## Quick start
 
-You need [Node.js](https://nodejs.org) v21 or newer **or** [Python](https://www.python.org) 3.x (neither has any dependencies to install), a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api), and a connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) (one [$15/month subscription](https://useapi.net/docs/subscription?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api) covers every useapi.net API):
+You need [Node.js](https://nodejs.org) v21 or newer **or** [Python](https://www.python.org) 3.x (neither has any dependencies to install), a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), and a connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) (one [$15/month subscription](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) covers every useapi.net API):
 
 ```bash
 git clone https://github.com/useapi/google-flow-api.git
@@ -28,7 +28,7 @@ Edit `prompts.json` in each folder to queue your own prompts. Every supported pa
 
 ## About useapi.net
 
-[useapi.net](https://useapi.net/?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api) is an experimental REST API for AI services. The Google Flow API drives your own Google Flow / Google AI subscription, so you spend your plan's credits at consumer rates instead of metered developer-API pricing. See the [model matrix](https://useapi.net/model-matrix?utm_source=github&utm_medium=readme&utm_campaign=google-flow-api) and the pricing comparison on the [API overview](https://useapi.net/docs/api-google-flow-v1).
+[useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) is an experimental REST API for AI services. The Google Flow API drives your own Google Flow / Google AI subscription, so you spend your plan's credits at consumer rates instead of metered developer-API pricing. See the [model matrix](https://useapi.net/model-matrix?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) and the pricing comparison on the [API overview](https://useapi.net/docs/api-google-flow-v1).
 
 Visit our [Discord Server](https://discord.gg/w28uK3cnmF) or [Telegram Channel](https://t.me/use_api) for any support questions and concerns.
 
