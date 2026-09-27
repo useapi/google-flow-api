@@ -42,7 +42,7 @@ Edit `prompts.json` in each folder to queue your own prompts. Every supported pa
 - reCAPTCHA 由服务端自动处理（首个账号赠送 300 次免费打码，之后接入你自己的打码服务）。
 - 价格：useapi.net 每月 15 美元（含 3 个 Google Flow 账号及所有其他 API），加上你已有的 Google AI 订阅。图片生成在免费 Google 账号上也可使用。
 
-快速开始见上方 [Quick start](#quick-start)，完整文档：[Google Flow API](https://useapi.net/docs/api-google-flow-v1)。
+中文教程（Veo 3.1、Omni 1.1 Flash、Nano Banana Pro，含价格对比与示例）：[如何通过 Google Flow API 调用 Veo 3.1、Omni 1.1 Flash 和 Nano Banana Pro](https://useapi.net/docs/articles/google-flow-api-zh)。快速开始见上方 [Quick start](#quick-start)，完整文档：[Google Flow API](https://useapi.net/docs/api-google-flow-v1)。
 
 ## About useapi.net
 
