@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Runnable Node.js and Python examples for the Google Flow API by useapi.net — Veo 3.1 video, Gemini Omni Flash, Nano Banana images, and a full UGC product-video pipeline.",
   "author": "useapi.net",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "homepage": "https://useapi.net/docs/api-google-flow-v1"
 }
