@@ -11,6 +11,7 @@ Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driv
 | [`nano-banana-compare/`](./nano-banana-compare) | Run one prompt through all three **Nano Banana** models (**2 Lite**, **2**, **Pro**) and compare | [Nano Banana 2 Lite vs 2 vs Pro compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare) | July 2, 2026 (September 11, 2026) |
 | [`omni-flash/`](./omni-flash) | Batch-generate **Gemini Omni Flash** audio-native video — text-to-video, first/last-frame image-to-video, reference-to-video, video-to-video edit | [Generate Omni Flash video via curl](https://useapi.net/docs/articles/omni-flash-bash) | June 15, 2026 (September 11, 2026) |
 | [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) | September 4, 2026 |
+| [`n8n/`](./n8n) | Ready-to-import **n8n** workflow: a form that generates **Veo 3.1** video or **Nano Banana Pro** images and returns the files | [n8n template #19991](https://n8n.io/workflows/19991) | September 28, 2026 |
 
 ## Quick start
 
