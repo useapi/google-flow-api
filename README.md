@@ -29,7 +29,7 @@ Edit `prompts.json` in each folder to queue your own prompts. Every supported pa
 
 ## Common questions
 
-- **Does Google Flow have an official API or API key?** No. Flow is a web app only. Veo 3.1 and Nano Banana are sold separately on the metered Gemini API, and Omni Flash is Flow-only. This API drives your own Flow account with a useapi.net token instead.
+- **Does Google Flow have an official API or API key?** No. Flow is a web app only. Veo 3.1, Omni 1.1 Flash and Nano Banana are sold separately on the metered Gemini API (Omni since June 30, 2026, about $0.10 per second of 720p video). This API drives your own Flow account with a useapi.net token instead.
 - **What does it cost?** A flat $15/month to useapi.net plus the Google AI plan you already have. Images work even on a free Google account, and video spends your plan's Flow credits. See the [pricing comparison](https://useapi.net/docs/api-google-flow-v1#pricing).
 - More answers: [Google Flow API questions](https://useapi.net/docs/api-google-flow-v1#questions).
 
