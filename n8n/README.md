@@ -19,9 +19,9 @@ Open one form URL and build a short UGC-style video ad page by page. Every page 
 4. **Product images.** Four four-view sheets per product, or your own photo as is.
 5. **Scene.** The presenter and every product in one frame. The page shows the credit cost of the clips before you continue.
 6. **Clips.** One per product plus the intro and closing, filmed in that scene with the picked voice. Pick a take per clip, or edit the action and re-roll.
-7. **Your ad.** Optional free 1080p upscale, a player and an MP4 download, and the character ID to reuse.
+7. **Your ad.** Optional free 1080p upscale, a player and an MP4 download, cut points you can adjust per clip and re-join for free, and the character ID to reuse.
 
-Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix.
+Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid plan, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock.
 
 Setup is the same as below: import the file, create the Header Auth credential, select it on every HTTP Request node, activate the workflow and open the **Start form** URL. Tested on self-hosted n8n 2.41.
 
