@@ -13,7 +13,7 @@ Two ready-to-import [n8n](https://n8n.io) workflows. Both use only core n8n node
 
 Open one form URL and build a short UGC-style video ad page by page. Every page shows the results so you can pick one or re-roll before anything costs credits:
 
-1. **Setup.** 1 to 5 products, an optional intro and closing clip, vertical 9:16 or horizontal 16:9, 1 to 4 takes per clip, and how many requests go to Google at once (1 to 4, default 2).
+1. **Setup.** 1 to 5 products, an optional intro and closing clip, vertical 9:16 or horizontal 16:9, and 1 to 4 takes per clip.
 2. **Details.** Describe the presenter or upload photos of them, or paste a saved character ID. Describe each product or upload a photo of it, and write what is said in each clip.
 3. **Presenter, second angle and voice.** Four candidates each, plus four preset voices reading your sample line. Face and voice are saved as one character.
 4. **Product images.** Four four-view sheets per product, or your own photo as is.
@@ -21,7 +21,7 @@ Open one form URL and build a short UGC-style video ad page by page. Every page 
 6. **Clips.** One per product plus the intro and closing, filmed in that scene with the picked voice. Pick a take per clip, or edit the action and re-roll.
 7. **Your ad.** Optional free 1080p upscale, a player and an MP4 download, cut points you can adjust per clip and re-join for free, and the character ID to reuse.
 
-Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid plan, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock. The run lives on your n8n server, not in the browser: the pages before the long steps show a resume link, so you can close the tab while the clips render and come back to your picks and finished takes.
+Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid plan, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock. The run lives on your n8n server, not in the browser: the pages before the long steps show a resume link, so you can close the tab while the clips render and come back to your picks and finished takes. If the page does not load yet, the step is still running, so try again in a few minutes.
 
 Setup is the same as below: import the file, create the Header Auth credential, select it on every HTTP Request node, activate the workflow and open the **Start form** URL. Tested on self-hosted n8n 2.41.
 
