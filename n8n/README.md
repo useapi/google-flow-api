@@ -11,6 +11,8 @@ Two ready-to-import [n8n](https://n8n.io) workflows. Both use only core n8n node
 
 📖 Full walkthrough: [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads)
 
+📖 Published on n8n: [Create UGC video ads with Google Flow Omni 1.1 Flash and useapi.net](https://n8n.io/workflows/20392)
+
 Open one form URL and build a short UGC-style video ad page by page. Every page shows the results so you can pick one or re-roll before anything costs credits:
 
 1. **Setup.** 1 to 5 products, an optional intro and closing clip, vertical 9:16 or horizontal 16:9, and 1 to 4 takes per clip.
