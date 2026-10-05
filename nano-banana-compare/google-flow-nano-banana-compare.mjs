@@ -2,7 +2,7 @@
 
 Script version 1.1, September 11, 2026
 
-Batch-compare Google Flow's Nano Banana image models (2 Lite, 2, Pro) with the useapi.net API 🚀
+Batch-compare Google Flow's Nano Banana image models (2 Lite, 2.1, Pro) with the useapi.net API 🚀
 Reads prompts.json (one entry per model), submits each to the synchronous POST /images endpoint,
 and downloads every returned image with a model-labeled filename.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-images

@@ -1,8 +1,8 @@
-# Nano Banana 2 & Nano Banana Pro images — Google Flow API batch generation (Node.js & Python)
+# Nano Banana 2.1 & Nano Banana Pro images — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate images with **Nano Banana 2** (`nano-banana-2`, Gemini 3.1 Flash Image), **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image), and **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image) through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+Batch-generate images with **Nano Banana 2.1** (`nano-banana-2`), **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image), and **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image) through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
-📖 Full walkthrough: **[How to Generate Nano Banana 2 & Nano Banana Pro Images via the Google Flow API](https://useapi.net/docs/articles/google-flow-images-bash)** — June 15, 2026 (September 11, 2026)
+📖 Full walkthrough: **[How to Generate Nano Banana 2.1 & Nano Banana Pro Images via the Google Flow API](https://useapi.net/docs/articles/google-flow-images-bash)** — June 15, 2026 (October 5, 2026)
 
 `google-flow-images.mjs` (Node.js) and `google-flow-images.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any reference images, and calls [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images). Because that endpoint is **synchronous**, the script writes each result image as soon as the call returns — downloaded from `fifeUrl`, or decoded from `encodedImage` on the rare response where `fifeUrl` is absent.
 
