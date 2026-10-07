@@ -32,7 +32,9 @@ hint() {
   body=$(cat "$2" 2>/dev/null || true)
   case "$code" in
     400)
-      if grep -q 'SAFETY\|safety\|policy' <<< "$body"; then
+      if grep -q 'PAYGATE\|paid Google Flow plan' <<< "$body"; then
+        echo "Hint: this Google account has no paid Google AI plan, which this model needs. Connect an account with a paid plan, or set USEAPI_EMAIL to one." >&2
+      elif grep -q 'SAFETY\|safety\|policy' <<< "$body"; then
         echo "Hint: Google refused the content. Rephrase the prompt or change the reference images. Video-to-video moderation is not deterministic, so one plain resubmit can also clear it." >&2
       else
         echo "Hint: a parameter was rejected. The error names it; see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos" >&2
