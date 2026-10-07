@@ -14,7 +14,7 @@ These scripts call the [useapi.net Google Flow API](https://useapi.net/docs/api-
 
 ## Before you start
 
-1. `USEAPI_TOKEN` must be set. If it is missing, ask the user for their useapi.net API token (setup: https://useapi.net/docs/start-here/setup-useapi). Their Google account must already be connected (https://useapi.net/docs/start-here/setup-google-flow). Never print the token or write it to a file.
+1. `USEAPI_TOKEN` must be set. If it is missing, ask the user for their useapi.net API token (setup: https://useapi.net/docs/start-here/setup-useapi). Their Google account must already be connected (https://useapi.net/docs/start-here/setup-google-flow). To connect one by hand, the clean sign-in scripts at https://github.com/useapi/google-account-setup give cookies that keep working. Never print the token or write it to a file.
 2. `USEAPI_EMAIL` is optional: the connected Google account to use. Leave it unset and the API picks the healthiest account.
 3. `curl` and `jq` must be installed.
 
