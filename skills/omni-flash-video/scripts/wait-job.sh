@@ -8,7 +8,7 @@ JOBID="${1:?Usage: wait-job.sh <jobid>}"
 
 START=$(date +%s)
 while true; do
-  JOB=$(api_poll GET "jobs/$(enc "$JOBID")")
+  JOB=$(api_poll GET "jobs/$JOBID")
   STATUS=$(jq -r .status <<< "$JOB")
   if [ "$STATUS" = completed ] || [ "$STATUS" = failed ]; then break; fi
   log "job $STATUS ($(( $(date +%s) - START )) s)"
