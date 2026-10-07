@@ -16,3 +16,4 @@ _*.*
 # Pipeline run state (ugc-product-video)
 ugc_state.json
 ugc_errors.txt
+!skills/**/scripts/_common.sh

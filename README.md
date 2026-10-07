@@ -13,6 +13,7 @@ Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driv
 | [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) | September 4, 2026 |
 | [`n8n/`](./n8n) | Ready-to-import **n8n** workflow: a form that generates **Veo 3.1** video or **Nano Banana Pro** images and returns the files | [n8n template #19991](https://n8n.io/workflows/19991) | September 28, 2026 |
 | [`n8n/ugc-ad-factory.json`](./n8n/ugc-ad-factory.json) | Ready-to-import **n8n** form workflow that builds a whole **UGC video ad** with **Omni 1.1 Flash**: pick or re-roll at every step, upload your own product photos, 1–5 products, 1080p | [Make UGC video ads in n8n](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads) | October 3, 2026 |
+| [`skills/omni-flash-video/`](./skills/omni-flash-video) | **Agent skill** for Claude Code, Codex and Cursor: ask for a clip and the agent makes it with **Omni 1.1 Flash** or **Veo 3.1** (dialogue, voices, reference images, first/last frames) and downloads the `.mp4`. Install: `npx skills add useapi/google-flow-api --skill omni-flash-video` | [SKILL.md](./skills/omni-flash-video/SKILL.md) |
 
 ## Quick start
 
