@@ -25,11 +25,11 @@ Open one form URL and build a short UGC-style video ad page by page. Every page 
 
 Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid plan, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock. The run lives on your n8n server, not in the browser: the pages before the long steps show a resume link, so you can close the tab while the clips render and come back to your picks and finished takes. If the page does not load yet, the step is still running, so try again in a few minutes.
 
-Setup is the same as below: import the file, create the Header Auth credential, select it on every HTTP Request node, activate the workflow and open the **Start form** URL. Tested on self-hosted n8n 2.41.
+Setup is the same as below: import the file, create the Header Auth credential, select it on every HTTP Request node, create a **Basic Auth** credential (any username and password) and select it on **Start form** so only you can open the form and spend your allowance, then activate the workflow and open the **Start form** URL. Tested on self-hosted n8n 2.41.
 
 ## Veo 3.1 videos and Nano Banana Pro images
 
-📖 Published on n8n: [Generate Veo 3.1 videos and Nano Banana Pro images with Google Flow](https://n8n.io/workflows/19991)
+📖 Published on n8n: [Generate Veo 3.1 videos and Nano Banana Pro images with Google Flow](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/)
 
 Type a prompt into a form, pick **Image** or **Video**, and get the finished file back as binary data you can send to Google Drive, S3, Telegram or anything else n8n connects to. It uses only core n8n nodes (Form Trigger, HTTP Request, Code, Wait, Switch), with no community nodes.
 
@@ -39,8 +39,9 @@ Type a prompt into a form, pick **Image** or **Video**, and get the finished fil
 ## Setup
 
 1. Get a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi) and connect your Google account with the [automated setup](https://useapi.net/docs/start-here/setup-google-flow).
-2. In n8n, import [`google-flow-veo-nano-banana.json`](./google-flow-veo-nano-banana.json) (**Workflows → Import from File**), or open the [n8n listing](https://n8n.io/workflows/19991) and click **Use workflow**.
+2. In n8n, import [`google-flow-veo-nano-banana.json`](./google-flow-veo-nano-banana.json) (**Workflows → Import from File**), or open the [n8n listing](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/) and click **Use workflow**.
 3. Create a **Header Auth** credential: Name `Authorization`, Value `Bearer <your API token>`, and select it on the three HTTP Request nodes.
-4. Open the form URL (or click **Test workflow**) and submit a prompt.
+4. Create a **Basic Auth** credential (any username and password) and select it on **Prompt form**, so only you can open the form and spend your allowance.
+5. Open the form URL (or click **Test workflow**) and submit a prompt.
 
 Change the models, the number of results and the optional `email` in the **Settings** node. Images work on any Google AI plan, including a free one. Video needs a paid plan and spends its Flow credits.
