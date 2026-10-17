@@ -45,6 +45,7 @@
   const newChat = chatId => ({
     id: chatId, title: '', status: 'idle', runningSince: 0, turns: new Map(), seen: new Set(), fromHistory: new Set(),
     media: new Map(), approval: null, stream: null, refreshTimer: 0,
+    placeholders: new Map(),  // the agent's placeholder id of a result -> its mediaId (choices name results by placeholder)
   });
   const state = {
     token: '', email: '', accounts: {}, chats: [], chatsAt: 0, chat: newChat(null),
@@ -401,6 +402,7 @@
   const mediaFromResult = (item, turn) => {
     const r = item.result || {};
     if (!r.media_id || !/^(generate|edit|extend)_/.test(item.tool)) return null;
+    if (r.placeholder_frontend_id) state.chat.placeholders.set(r.placeholder_frontend_id, r.media_id);
     return {
       mediaId: r.media_id, type: item.tool === 'generate_image' ? 'image' : 'video', status: r.status === 'success' ? 'completed' : r.status || 'pending',
       displayName: r.display_name, model: r.model_key || r.model_usage_key, error: r.error_code, turn,
@@ -415,11 +417,18 @@
     for (const item of items) {
       if (item.kind === 'text') {
         if (item.text) a.parts.append(renderMarkdown(el('div', { class: 'gf-text' }), item.text));
-        if (item.choices && item.choices.length)
-          a.parts.append(el('div', { class: 'gf-choices' }, item.choices.map(c => el('button', {
+        const choices = item.choices || [];
+        /* a choice that names one of the agent's images (mediaId) is a compact image tile; the others stay buttons. Either way a
+           click sends the choice's label as your next message. */
+        const tiles = choices.filter(c => c.mediaId);
+        const plain = choices.filter(c => !c.mediaId);
+        if (tiles.length) a.parts.append(el('div', { class: 'gf-choice-tiles' }, tiles.map(choiceTile)));
+        if (plain.length)
+          a.parts.append(el('div', { class: 'gf-choices' }, plain.map(c => el('button', {
             type: 'button', class: 'gf-btn gf-btn-sm', title: 'Send this as your next message', onclick: () => sendText(c.label),
           }, [el('span', { text: c.label }), c.description ? el('small', { text: c.description }) : null]))));
-        if (item.choices && item.choices.length || item.text && item.text.length > 400) a.node.classList.add('gf-wide');
+        if (choices.length || item.text && item.text.length > 400) a.node.classList.add('gf-wide');
+        if (tiles.length) fillChoiceTiles();
       } else if (item.kind === 'thinking' || item.kind === 'tool_call' || item.kind === 'tool_result') {
         a.stepsBody.append(renderStep(item));
         if (item.kind === 'thinking') a.counts.thinking++;
@@ -433,6 +442,32 @@
       } else if (item.kind === 'error') a.parts.append(el('div', { class: 'gf-agent-error', text: `The agent reported an error (code ${item.code}).` }));
     }
     scrollDown();
+  };
+
+  /* A choice tile: the image (once the agent's result for it is known), the label, and the description on one line (all of it
+     in the tooltip). choice.mediaId is the agent's placeholder id for the result, or the media id itself. */
+  const choiceTile = c => el('button', {
+    type: 'button', class: 'gf-choice-tile', 'data-ref': c.mediaId, onclick: () => sendText(c.label),
+    title: `${c.description ? `${c.description}\n\n` : ''}Click to send "${c.label}" as your next message`,
+  }, [
+    el('span', { class: 'gf-choice-thumb gf-loading', 'aria-hidden': 'true' }),
+    el('span', { class: 'gf-choice-text' }, [el('strong', { text: c.label }), c.description ? el('small', { text: c.description }) : null]),
+  ]);
+  /* Put each tile's image in as soon as its result has a link (results arrive after the choices) */
+  const fillChoiceTiles = () => {
+    const chat = state.chat;
+    for (const tile of log().querySelectorAll('.gf-choice-tile[data-ref]')) {
+      const ref = tile.dataset.ref;
+      const m = chat.media.get(ref) || chat.media.get(chat.placeholders.get(ref));
+      const thumb = tile.querySelector('.gf-choice-thumb');
+      if (!m || !m.url || thumb.dataset.url === m.url) continue;
+      thumb.dataset.url = m.url;
+      thumb.classList.remove('gf-loading');
+      /* a video tile is its first frame, muted, with a play badge */
+      thumb.replaceChildren(...(m.type === 'video'
+        ? [el('video', { src: `${m.url}#t=0.1`, preload: 'metadata', muted: true, playsinline: true }), el('span', { class: 'gf-tile-play', 'aria-hidden': 'true' })]
+        : [el('img', { src: m.url, alt: '', loading: 'lazy' })]));
+    }
   };
 
   /* A message from the stream: each id once; turns drawn from GET are skipped */
@@ -472,6 +507,7 @@
     else if (next.turn) answerOf(next.turn).results.append(figure);
     next.figure = figure;
     renderMediaPanel();
+    fillChoiceTiles();
     scrollDown();
   };
   /* A link that stopped loading (expired): GET /assets/{referenceId} once for a fresh one */
@@ -859,7 +895,7 @@
     }
     if (state.attachments.length && !$('gf-composer-msg').textContent)
       showMsg($('gf-composer-msg'), 'Attached to your next message. Mention one by clicking its @ name, or just send.');
-    else if (!state.attachments.length && /^Attached to your next message/.test($('gf-composer-msg').textContent)) showMsg($('gf-composer-msg'), '');
+    else if (!state.attachments.length && /^Attached (to your next message|as @)/.test($('gf-composer-msg').textContent)) showMsg($('gf-composer-msg'), '');
   };
 
   /* Upload images from disk, a drop or a paste: POST /assets/{email}; each shows as a chip and is attached when ready. */

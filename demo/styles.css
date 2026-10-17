@@ -15,6 +15,7 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
   --gf-ok: #18794a; --gf-warn: #9a5b00; --gf-warn-soft: #fff6e3; --gf-warn-border: #f0c97a;
   --gf-shadow: 0 1px 2px rgba(20, 22, 40, 0.06), 0 4px 16px rgba(20, 22, 40, 0.06);
   --gf-left: 250px; --gf-right: 260px;
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   .gf-app {
@@ -23,6 +24,8 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
     --gf-user: #1f3050; --gf-agent: #1f2129; --gf-danger: #ff7a86; --gf-danger-soft: rgba(255, 122, 134, 0.12);
     --gf-ok: #57d095; --gf-warn: #f2bd61; --gf-warn-soft: #2e2615; --gf-warn-border: #6b5220;
     --gf-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.25);
+    /* native scrollbars and form controls (the message box) follow the dark theme */
+    color-scheme: dark;
   }
 }
 
@@ -122,8 +125,8 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
 .gf-chat-item { position: relative; min-width: 0; border-radius: 9px; margin-bottom: 2px; }
 .gf-chat-item:hover { background: var(--gf-sunk); }
 .gf-chat-item.gf-current { background: var(--gf-accent-soft); }
-.gf-chat-open { display: block; width: 100%; min-width: 0; padding: 8px 60px 8px 10px; border: 0; background: transparent; text-align: left; cursor: pointer; border-radius: 9px; }
-.gf-chat-title { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-chat-open { display: block; width: 100%; min-width: 0; padding: 8px 10px; border: 0; background: transparent; text-align: left; cursor: pointer; border-radius: 9px; }
+.gf-chat-title { display: block; padding-right: 54px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gf-chat-meta { display: flex; align-items: center; gap: 6px; min-width: 0; margin-top: 2px; font-size: 11.5px; color: var(--gf-muted); white-space: nowrap; overflow: hidden; }
 .gf-chat-date { flex: none; margin-left: auto; }
 .gf-chat-actions { position: absolute; top: 6px; right: 4px; display: flex; gap: 2px; opacity: 0; }
@@ -137,6 +140,7 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
 .gf-convo { background: var(--gf-bg); position: relative; }
 .gf-convo-title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
 .gf-convo-title h3 { flex: 0 1 auto; }
+.gf-convo-title .gf-pill, .gf-chat-meta .gf-pill { flex: none; overflow: visible; }
 .gf-media-toggle { flex: none; }
 .gf-media-toggle[aria-expanded=true] { border-color: var(--gf-accent); color: var(--gf-accent); }
 .gf-count { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--gf-accent); color: var(--gf-on-accent); font-size: 10.5px; line-height: 16px; text-align: center; }
@@ -183,6 +187,17 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
 .gf-choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .gf-choices .gf-btn { flex-direction: column; align-items: flex-start; max-width: 280px; white-space: normal; text-align: left; }
 .gf-choices small { font-weight: 400; color: var(--gf-muted); }
+.gf-choice-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-top: 4px; }
+#gf-app .gf-choice-tile { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 10px 6px 6px; border: 1px solid var(--gf-border); border-radius: 10px; background: var(--gf-panel); color: var(--gf-text); text-align: left; cursor: pointer; }
+#gf-app .gf-choice-tile:hover { border-color: var(--gf-accent); }
+.gf-choice-thumb { flex: none; width: 64px; height: 40px; border-radius: 6px; overflow: hidden; background: var(--gf-sunk); }
+.gf-choice-thumb { position: relative; }
+.gf-choice-thumb img, .gf-choice-thumb video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gf-tile-play { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.gf-tile-play::before { content: "\25B6"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 9px; padding-left: 2px; }
+.gf-choice-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.gf-choice-text strong { font-size: 13px; }
+.gf-choice-text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gf-muted); font-size: 11.5px; }
 .gf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .gf-chips:empty { display: none; }
 .gf-msg .gf-chips { margin-top: 6px; }
@@ -221,6 +236,8 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
 .gf-figcap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gf-muted); min-width: 0; }
 .gf-figcap > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gf-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+/* a result's buttons wrap inside its column (a phone shows two narrow columns) */
+#gf-app .gf-figure .gf-actions .gf-btn { flex: 1 1 auto; min-width: 0; max-width: 100%; white-space: normal; text-align: center; line-height: 1.25; }
 .gf-actions:empty { display: none; }
 .gf-loading { background: linear-gradient(90deg, var(--gf-sunk) 0%, var(--gf-border) 50%, var(--gf-sunk) 100%); background-size: 200% 100%; animation: gf-shimmer 1.4s ease-in-out infinite; }
 
@@ -236,13 +253,14 @@ html, body { margin: 0; height: 100%; background: #f6f7fb; }
 .gf-statusbar span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gf-spinner { flex: none; width: 12px; height: 12px; border: 2px solid var(--gf-accent); border-top-color: transparent; border-radius: 50%; animation: gf-spin 0.8s linear infinite; }
 .gf-spinner[hidden] { display: none; }
-.gf-composer { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--gf-border); background: var(--gf-panel); }
+.gf-composer { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--gf-border); background: var(--gf-panel); }
 .gf-composer textarea { width: 100%; min-height: 44px; max-height: 180px; resize: none; line-height: 1.45; }
 .gf-composer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .gf-composer-row .gf-item-msg { flex: 1 1 120px; }
 #gf-send { margin-left: auto; }
-.gf-attach-wrap { position: relative; }
-.gf-menu { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20; display: flex; flex-direction: column; min-width: 220px; padding: 4px; border: 1px solid var(--gf-border); border-radius: 10px; background: var(--gf-panel); box-shadow: var(--gf-shadow); }
+/* the Attach menu opens above the whole composer (positioned on .gf-composer), so it never covers the attachment chips */
+.gf-attach-wrap { position: static; }
+.gf-menu { position: absolute; bottom: calc(100% + 6px); left: 12px; z-index: 20; display: flex; flex-direction: column; min-width: 220px; padding: 4px; border: 1px solid var(--gf-border); border-radius: 10px; background: var(--gf-panel); box-shadow: var(--gf-shadow); }
 .gf-menu[hidden] { display: none; }
 .gf-menu button { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 7px 10px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; text-align: left; }
 .gf-menu button:hover, .gf-menu button:focus-visible { background: var(--gf-sunk); }

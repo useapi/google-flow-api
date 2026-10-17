@@ -16,6 +16,8 @@
       if (key === 'text') node.textContent = value;
       else if (key === 'class') node.className = value;
       else if (key === 'value') node.value = value;
+      /* the muted attribute alone does not mute a video made by script: set the property too */
+      else if (key === 'muted') { node.muted = true; node.setAttribute('muted', ''); }
       else if (key.startsWith('on')) node.addEventListener(key.slice(2), value);
       else node.setAttribute(key, value === true ? '' : value);
     }
@@ -39,7 +41,7 @@
     if (d.toDateString() === now.toDateString()) return fmtClock(d);
     return d.toLocaleDateString([], d.getFullYear() === now.getFullYear() ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' });
   };
-  const STATUS_LABELS = { idle: 'Done', running: 'Working', waiting_approval: 'Waiting for approval', failed: 'Failed', queued: 'Queued', pending: 'In progress', completed: 'Done', success: 'Done', error: 'Failed' };
+  const STATUS_LABELS = { idle: 'Done', running: 'Working', waiting_approval: 'Needs approval', failed: 'Failed', queued: 'Queued', pending: 'In progress', completed: 'Done', success: 'Done', error: 'Failed' };
   const statusLabel = s => STATUS_LABELS[s] || String(s || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
