@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google Flow Agent API demo</title>
+<meta name="description" content="A browser chat client for the useapi.net Google Flow Agent API: chat with Flow's agent, see its images and videos inline, attach uploads, characters and voices.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a73e8'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E">
+<!--
+  Google Flow Agent API demo (useapi.net): plain HTML, CSS and JavaScript in a few readable files. No framework, no build step,
+  no dependencies. Open index.html in a browser (or serve the folder), paste your useapi.net API token, pick a Google Flow account.
+  Docs: https://useapi.net/docs/api-google-flow-v1   Source: https://github.com/useapi/google-flow-api/tree/main/demo
+  Files: api.js (API client), sse.js (the chat stream), render.js (messages, media, Markdown), app.js (the app), styles.css.
+-->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="gf-app" class="gf-app">
+  <header class="gf-top">
+    <div class="gf-brand"><span class="gf-logo" aria-hidden="true">F</span>Google Flow Agent demo <span id="gf-dev-badge" class="gf-dev-badge" title="Calls go to the development API (api.useapi.net/v1-dev/google-flow)" hidden>DEV API</span> <a class="gf-doclink" href="https://useapi.net/docs/api-google-flow-v1" target="_blank" rel="noopener">Docs</a> <a class="gf-doclink gf-wide-only" href="https://github.com/useapi/google-flow-api/tree/main/demo" target="_blank" rel="noopener noreferrer" title="This page's source code on GitHub">Source code</a></div>
+    <form id="gf-connect-form" class="gf-connect">
+      <label class="gf-sr" for="gf-token">useapi.net API token</label>
+      <input id="gf-token" type="password" placeholder="useapi.net API token" autocomplete="off" spellcheck="false">
+      <label class="gf-check" title="Keeps the token in this browser tab (sessionStorage) until the tab closes"><input id="gf-remember" type="checkbox">Remember</label>
+      <button id="gf-connect" class="gf-btn gf-btn-primary" type="submit">Connect</button>
+    </form>
+    <label class="gf-sr" for="gf-account">Google Flow account</label>
+    <div class="gf-acct"><select id="gf-account" disabled><option value="">No account loaded</option></select></div>
+    <div class="gf-tabs" role="tablist" aria-label="Demo sections">
+      <button id="gf-tab-chat" class="gf-tab" type="button" role="tab" aria-controls="gf-panel-chat" aria-selected="true">Chat</button>
+      <button id="gf-tab-library" class="gf-tab" type="button" role="tab" aria-controls="gf-panel-library" aria-selected="false" tabindex="-1">Library</button>
+      <button id="gf-tab-settings" class="gf-tab" type="button" role="tab" aria-controls="gf-panel-settings" aria-selected="false" tabindex="-1">Agent settings</button>
+    </div>
+  </header>
+  <div id="gf-top-msg" class="gf-top-msg" role="status" aria-live="polite" hidden></div>
+
+  <section id="gf-panel-chat" class="gf-tabpanel" role="tabpanel" aria-labelledby="gf-tab-chat">
+    <div id="gf-cols" class="gf-cols">
+      <aside id="gf-pane-chats" class="gf-pane" aria-label="Chats">
+        <div class="gf-pane-head">
+          <h3>Chats</h3>
+          <button id="gf-chats-close" class="gf-icon-btn gf-narrow-only" type="button" aria-label="Close the chat list" title="Close">&#x2715;</button>
+          <button id="gf-new-chat" class="gf-btn gf-btn-sm gf-btn-primary" type="button">New chat</button>
+        </div>
+        <div class="gf-pane-body">
+          <div id="gf-chats-caption" class="gf-list-caption" hidden><span id="gf-chats-age"></span> &middot; <button id="gf-refresh-chats" class="gf-link-btn" type="button" aria-label="Refresh the chat list" title="Refresh">&#x21bb;</button></div>
+          <div id="gf-chat-list" class="gf-chat-list" role="list"></div>
+          <div id="gf-chats-state" class="gf-state" role="status">Connect to see your chats.</div>
+        </div>
+      </aside>
+      <div class="gf-split" data-side="left" role="separator" tabindex="0" aria-orientation="vertical" aria-controls="gf-pane-chats" aria-label="Resize the chat list (arrow keys)"></div>
+      <section id="gf-convo" class="gf-pane gf-convo" aria-label="Conversation">
+        <div class="gf-pane-head">
+          <button id="gf-chats-toggle" class="gf-icon-btn gf-narrow-only" type="button" aria-controls="gf-pane-chats" aria-expanded="false" aria-label="Show the chat list" title="Chats">&#x2630;</button>
+          <div class="gf-convo-title"><h3 id="gf-chat-title">New chat</h3><span id="gf-chat-status" class="gf-pill" hidden></span></div>
+          <span id="gf-conn" class="gf-conn gf-conn-off" role="status"><span class="gf-dot"></span><span id="gf-conn-text" class="gf-conn-text">Offline</span></span>
+          <button id="gf-reload" class="gf-icon-btn" type="button" title="Read the chat again (fresh media links)" aria-label="Read the chat again" disabled>&#x21bb;</button>
+          <button id="gf-media-toggle" class="gf-btn gf-btn-sm gf-media-toggle" type="button" aria-controls="gf-pane-media" aria-expanded="true" title="Show or hide this chat's images and videos">Media <span id="gf-media-count" class="gf-count"></span></button>
+        </div>
+        <div id="gf-log" class="gf-log" tabindex="0" aria-label="Messages"></div>
+        <div id="gf-drop" class="gf-drop" hidden>Drop images to attach them</div>
+        <div class="gf-statusbar" role="status" aria-live="polite"><span id="gf-spinner" class="gf-spinner" hidden></span><span id="gf-activity">Ready</span></div>
+        <div class="gf-composer">
+          <div id="gf-attachments" class="gf-chips" aria-label="Attached to the next message"></div>
+          <label class="gf-sr" for="gf-input">Message</label>
+          <textarea id="gf-input" rows="2" placeholder="Message Flow's agent. Enter sends, Shift+Enter adds a line. Paste or drop images to attach them."></textarea>
+          <div class="gf-composer-row">
+            <div class="gf-attach-wrap">
+              <button id="gf-attach" class="gf-btn gf-btn-sm" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="gf-attach-menu" title="Attach images, a video, voices or characters">&#x1F4CE; Attach</button>
+              <div id="gf-attach-menu" class="gf-menu" role="menu" hidden>
+                <button type="button" role="menuitem" data-attach="upload">Upload image<small>JPEG, PNG or WebP, up to 20 MB</small></button>
+                <button type="button" role="menuitem" data-attach="media">Earlier images and videos<small>from your Flow project</small></button>
+                <button type="button" role="menuitem" data-attach="characters">Characters<small>saved on the account</small></button>
+                <button type="button" role="menuitem" data-attach="voices">Voices<small>built-in and your own</small></button>
+              </div>
+              <input id="gf-upload" class="gf-sr" type="file" accept="image/jpeg,image/png,image/webp" multiple tabindex="-1">
+            </div>
+            <span id="gf-composer-msg" class="gf-item-msg" role="status"></span>
+            <button id="gf-send" class="gf-btn gf-btn-primary" type="button">Send</button>
+          </div>
+        </div>
+      </section>
+      <div class="gf-split" data-side="right" role="separator" tabindex="0" aria-orientation="vertical" aria-controls="gf-pane-media" aria-label="Resize the media panel (arrow keys)"></div>
+      <aside id="gf-pane-media" class="gf-pane" aria-label="Images and videos in this chat">
+        <div class="gf-pane-head"><h3>Media in this chat</h3><button id="gf-media-close" class="gf-icon-btn gf-narrow-only" type="button" aria-label="Close the media panel" title="Close">&#x2715;</button></div>
+        <div class="gf-pane-body">
+          <div id="gf-chat-media" class="gf-file-list" role="list"></div>
+          <div id="gf-chat-media-state" class="gf-state">Images and videos the agent makes in this chat show up here. Links expire about 6 hours after they are issued; &#x21bb; gets fresh ones.</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="gf-panel-library" class="gf-tabpanel gf-scroll" role="tabpanel" aria-labelledby="gf-tab-library" hidden>
+    <div class="gf-toolbar">
+      <label>Project<select id="gf-l-project"><option value="">Main project (API generations)</option></select></label>
+      <label>Type<select id="gf-l-type"><option value="">Images and videos</option><option value="IMAGE">Images</option><option value="VIDEO">Videos</option></select></label>
+      <label class="gf-check"><input id="gf-l-uploads" type="checkbox">Uploads only</label>
+      <button id="gf-l-refresh" class="gf-btn" type="button">Refresh</button>
+      <span class="gf-grow"></span>
+      <label class="gf-btn gf-btn-primary gf-file-btn">Upload image<input id="gf-l-upload" class="gf-sr" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+    </div>
+    <div id="gf-l-msg" class="gf-state" role="status"></div>
+    <div id="gf-l-grid" class="gf-grid" role="list"></div>
+    <div id="gf-l-state" class="gf-state" role="status">Connect to see the account's images and videos.</div>
+    <button id="gf-l-more" class="gf-btn gf-btn-sm gf-more" type="button" hidden>Show more</button>
+  </section>
+
+  <section id="gf-panel-settings" class="gf-tabpanel gf-scroll" role="tabpanel" aria-labelledby="gf-tab-settings" hidden>
+    <div class="gf-settings">
+      <div class="gf-card">
+        <div class="gf-card-head"><h3>Spending credits</h3><span id="gf-s-project" class="gf-muted gf-mono"></span><button id="gf-s-refresh" class="gf-btn gf-btn-sm" type="button">Refresh</button></div>
+        <div class="gf-radio">
+          <label><input type="radio" name="gf-approval" value="ask"><span>Ask first<small>The agent shows the cost and waits for Approve before it makes images or videos.</small></span></label>
+          <label><input type="radio" name="gf-approval" value="auto"><span>Spend automatically<small>The agent makes images and videos without asking. Flow credits are spent at once.</small></span></label>
+        </div>
+      </div>
+      <div class="gf-card">
+        <div class="gf-card-head"><h3>Instructions</h3><span class="gf-muted">up to 3, followed in every chat</span></div>
+        <div id="gf-s-instructions"></div>
+      </div>
+      <div class="gf-card">
+        <div class="gf-card-head"><h3>Default models</h3></div>
+        <div class="gf-defaults">
+          <label>Image model<select id="gf-s-img-model"></select></label>
+          <label>Aspect ratio<select id="gf-s-img-aspect"></select></label>
+          <label>Count<select id="gf-s-img-count"></select></label>
+          <label>Video model<select id="gf-s-vid-model"></select></label>
+          <label>Aspect ratio<select id="gf-s-vid-aspect"></select></label>
+          <label>Count<select id="gf-s-vid-count"></select></label>
+        </div>
+        <p id="gf-s-models-note" class="gf-item-msg" role="status"></p>
+        <p class="gf-note">The agent picks its own model when nothing is set. The project here is the account's agent project, made with its first chat.</p>
+      </div>
+      <div class="gf-save-row"><button id="gf-s-save" class="gf-btn gf-btn-primary" type="button">Save settings</button><span id="gf-s-msg" class="gf-item-msg" role="status"></span></div>
+    </div>
+  </section>
+
+  <dialog id="gf-picker" class="gf-dialog" aria-labelledby="gf-picker-title">
+    <div class="gf-dialog-inner">
+      <div class="gf-pane-head">
+        <h3 id="gf-picker-title">Attach</h3>
+        <div class="gf-tabs" role="tablist" aria-label="What to attach">
+          <button class="gf-tab" type="button" role="tab" data-pick="media" aria-selected="true">Images and videos</button>
+          <button class="gf-tab" type="button" role="tab" data-pick="characters" aria-selected="false" tabindex="-1">Characters</button>
+          <button class="gf-tab" type="button" role="tab" data-pick="voices" aria-selected="false" tabindex="-1">Voices</button>
+        </div>
+        <button id="gf-picker-close" class="gf-icon-btn" type="button" aria-label="Close" title="Close">&#x2715;</button>
+      </div>
+      <div class="gf-toolbar" id="gf-picker-tools"></div>
+      <div class="gf-dialog-body">
+        <div id="gf-picker-msg" class="gf-state" role="status"></div>
+        <div id="gf-picker-grid" class="gf-pick-grid" role="list"></div>
+        <button id="gf-picker-more" class="gf-btn gf-btn-sm gf-more" type="button" hidden>Show more</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="gf-lightbox" class="gf-lightbox" aria-label="Preview">
+    <div class="gf-lb">
+      <div class="gf-lb-bar">
+        <span id="gf-lb-title" class="gf-lb-title"></span>
+        <button id="gf-lb-prev" class="gf-icon-btn" type="button" aria-label="Previous" title="Previous (Left arrow)">&#x2039;</button>
+        <button id="gf-lb-next" class="gf-icon-btn" type="button" aria-label="Next" title="Next (Right arrow)">&#x203A;</button>
+        <button id="gf-lb-use" class="gf-btn gf-btn-sm" type="button">Use in next message</button>
+        <button id="gf-lb-download" class="gf-btn gf-btn-sm" type="button">Download</button>
+        <button id="gf-lb-close" class="gf-icon-btn" type="button" aria-label="Close" title="Close (Escape)">&#x2715;</button>
+      </div>
+      <div id="gf-lb-msg" class="gf-lb-msg" role="status"></div>
+      <div id="gf-lb-stage" class="gf-lb-stage"></div>
+    </div>
+  </dialog>
+</div>
+<script src="api.js"></script>
+<script src="sse.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
