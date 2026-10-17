@@ -12,7 +12,7 @@ Each example ships JavaScript and Python implementations (`.mjs` and `.py`) driv
 | [`nano-banana-compare/`](./nano-banana-compare) | Run one prompt through all three **Nano Banana** models (**2 Lite**, **2.1**, **Pro**) and compare | [Nano Banana 2 Lite vs 2.1 vs Pro compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare) | July 2, 2026 (October 5, 2026) |
 | [`omni-flash/`](./omni-flash) | Batch-generate **Gemini Omni Flash** audio-native video — text-to-video, first/last-frame image-to-video, reference-to-video, video-to-video edit | [Generate Omni Flash video via curl](https://useapi.net/docs/articles/omni-flash-bash) | June 15, 2026 (October 5, 2026) |
 | [`ugc-product-video/`](./ugc-product-video) | Build a whole **UGC product video** — product sheets, a presenter, one still, an **Omni 1.1 Flash** clip per product, upscaled and joined | [Make a UGC product video](https://useapi.net/docs/articles/google-flow-ugc-product-video) | September 4, 2026 |
-| [`n8n/`](./n8n) | Ready-to-import **n8n** workflow: a form that generates **Veo 3.1** video or **Nano Banana Pro** images and returns the files | [n8n template #19991](https://n8n.io/workflows/19991) | September 28, 2026 |
+| [`n8n/`](./n8n) | Ready-to-import **n8n** workflow: a form that generates **Veo 3.1** video or **Nano Banana Pro** images and returns the files | [n8n template #19991](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/) | September 28, 2026 |
 | [`n8n/ugc-ad-factory.json`](./n8n/ugc-ad-factory.json) | Ready-to-import **n8n** form workflow that builds a whole **UGC video ad** with **Omni 1.1 Flash**: pick or re-roll at every step, upload your own product photos, 1–5 products, 1080p | [Make UGC video ads in n8n](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads) | October 3, 2026 |
 | [`skills/omni-flash-video/`](./skills/omni-flash-video) | **Agent skill** for Claude Code, Codex and Cursor: ask for a clip and the agent makes it with **Omni 1.1 Flash** or **Veo 3.1** (dialogue, voices, reference images, first/last frames) and downloads the `.mp4`. Install: `npx skills add useapi/google-flow-api --skill omni-flash-video` | [SKILL.md](./skills/omni-flash-video/SKILL.md) |
 
@@ -29,6 +29,23 @@ python3 ./google-flow.py <API_TOKEN> <EMAIL>
 ```
 
 Edit `prompts.json` in each folder to queue your own prompts. Every supported parameter is documented on the [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) and [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images) endpoint pages.
+
+## MCP server
+
+useapi.net also runs a hosted [Model Context Protocol](https://modelcontextprotocol.io) server for Google Flow, so an AI assistant such as Claude Code, Cursor or VS Code Copilot can use it on your own account. It has 12 tools: chat with Google Flow Agent, attach images, a video, voices and characters, answer its requests to spend credits, manage chats, set the project's approval mode, instructions and default models, list the account's characters, voices, images and videos, and upload images. Nothing to install or run locally.
+
+- Endpoint: `https://api.useapi.net/v1/google-flow/mcp`
+- Transport: Streamable HTTP
+- Authorization: your useapi.net API token in the `Authorization: Bearer …` header, and an account connected with the [Google Flow setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
+- Listed in the official MCP Registry as `net.useapi/google-flow`
+
+Claude Code:
+
+```bash
+claude mcp add --transport http useapi-google-flow https://api.useapi.net/v1/google-flow/mcp --header "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+Cursor, VS Code, Windsurf and the full tool list: [Google Flow MCP server docs](https://useapi.net/docs/api-google-flow-v1/mcp?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). useapi.net is a third-party API, not affiliated with Google.
 
 ## Common questions
 
