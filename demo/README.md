@@ -12,6 +12,38 @@ A complete chat client for **Google Flow's creative agent**, built on the [Googl
 - **Library**: the account's images and videos, project by project (the main project, or the agent's own), with previews, upload, download, copy id and delete.
 - **Agent settings**: whether the agent asks before spending credits, up to 3 instructions it follows in every chat, and the default image and video models, picked from the models your Google plan has with what one generation costs (for example "Veo 3.1 - Fast · 20 credits", "Nano Banana Pro · free").
 
+## Screenshots
+
+Taken on the live demo with a real account: three Nano Banana 2.1 images, and a Veo 3.1 Lite request that was rejected at the cost card.
+
+<img src="screenshots/google-flow-agent-demo-1-new-chat.png" alt="New chat: Hi greeting, three starter cards and the message box" width="900">
+
+*1. A new chat greets you and offers three starter cards.*
+
+<img src="screenshots/google-flow-agent-demo-2-chat-results.webp" alt="A finished turn: three moodboard images inline under the agent's answer, the Steps toggle, and the media panel on the right" width="900">
+
+*2. The agent's images appear inline, with Download and Use in next message. Its tool calls sit in the collapsed Steps toggle.*
+
+<img src="screenshots/google-flow-agent-demo-3-approval.webp" alt="The agent asks to spend 10 credits for one video, with Approve, Always approve and Reject" width="900">
+
+*3. Before spending credits the agent asks, and the card shows the cost.*
+
+<img src="screenshots/google-flow-agent-demo-4-full-size.webp" alt="Full-size view of a moodboard image with Use in next message and Download" width="900">
+
+*4. Click a result to see it full size.*
+
+<img src="screenshots/google-flow-agent-demo-5-attach.webp" alt="The Attach menu open, with a voice, a character and an earlier image attached above the message" width="900">
+
+*5. Attach uploads, earlier images and videos, characters and voices, each with its @-mention.*
+
+<img src="screenshots/google-flow-agent-demo-6-settings.png" alt="Agent settings: approval mode, instructions, and default models with their credits" width="900">
+
+*6. Agent settings: approval, instructions, and the plan's models with what one generation costs.*
+
+<img src="screenshots/google-flow-agent-demo-7-phone-dark.webp" alt="Phone, dark theme: the chat with its images" width="300">
+
+*7. On a phone, in the dark theme.*
+
 ## Run it
 
 You need a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) and a Google account added with the [Google Flow setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
