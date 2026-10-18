@@ -4,6 +4,8 @@ Build a finished UGC product video end to end through the [Google Flow API](http
 
 📖 Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video)** — September 4, 2026
 
+Video on YouTube: [Make a UGC product video with the Google Flow API](https://youtube.com/shorts/wbUROtDIfGA)
+
 `ugc-product-video.mjs` (Node.js) and `ugc-product-video.py` (Python) are equivalent implementations — each reads `prompts.json` and runs the same six steps:
 
 | Step | Endpoint | What it makes | Credits |
