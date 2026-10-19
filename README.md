@@ -47,12 +47,41 @@ claude mcp add --transport http useapi-google-flow https://api.useapi.net/v1/goo
 
 Cursor, VS Code, Windsurf and the full tool list: [Google Flow MCP server docs](https://useapi.net/docs/api-google-flow-v1/mcp?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). useapi.net is a third-party API, not affiliated with Google.
 
+## Use with Claude Code
+
+This repo is also a Claude Code plugin marketplace. The plugin adds the hosted Google Flow MCP server and the `omni-flash-video` agent skill, and reads your token from the `USEAPI_TOKEN` environment variable, so set it before you start Claude Code:
+
+```bash
+export USEAPI_TOKEN=user:12345-...      # your useapi.net API token
+```
+
+Then, inside Claude Code:
+
+```
+/plugin marketplace add useapi/google-flow-api
+/plugin install google-flow@useapi-google-flow
+```
+
+On Claude Code 2.1.275 or later, `/plugin install google-flow --marketplace useapi/google-flow-api` does both in one step. Run `/mcp` to check that `useapi-google-flow` is connected.
+
+## Use with Gemini CLI
+
+This repo is also a Gemini CLI extension with the same MCP server and the `omni-flash-video` agent skill:
+
+```bash
+gemini extensions install https://github.com/useapi/google-flow-api
+```
+
+The install asks for your useapi.net API token and keeps it in the system keychain. Change it later with `gemini extensions config useapi-google-flow`, and check the connection with `gemini mcp list`. The `omni-flash-video` skill's scripts read `USEAPI_TOKEN` from your shell, so export it as well if you use the skill.
+
 ## Common questions
 
-- **Does Google Flow have an official API or API key?** No. Flow is a web app only, and Google doesn't issue a Google Flow API key. Veo 3.1, Omni 1.1 Flash and Nano Banana are sold separately on the metered Gemini API (Omni since June 30, 2026, about $0.10 per second of 720p video). This API drives your own Flow account instead.
+<!-- Official API figures in these answers, verified 2026-10-18: https://ai.google.dev/gemini-api/docs/pricing (Veo 3.1 Fast $0.10/s, Lite $0.05/s, Omni 1.1 Flash ~$0.10/s at 720p, Nano Banana Pro $0.134). Flow figures: useapi-docs _data/google_flow_prices.yml. -->
+
+- **Does Google Flow have an official API or API key?** No, so this repo uses the useapi.net Google Flow API, which drives your own Flow account with a useapi.net token: an 8-second Veo 3.1 Fast clip costs about $0.10 in Flow credits on Ultra, against $0.80 on Google's metered Gemini API (as of October 2026). Flow is a web app only, and Google doesn't issue a Google Flow API key. Veo 3.1, Omni 1.1 Flash and Nano Banana are sold separately on the Gemini API (Omni since June 30, 2026, about $0.10 per second of 720p video).
 - **So what do I use as the API key?** A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Then connect your own Google account once through the [Google Flow setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api): sign in with Google, with no cookies to copy and no Google Cloud project or Gemini API key. The only other key is a captcha provider's, which you add once the 300 free solves on your first account run out.
 - **Connecting an account by hand instead?** The [Google Account Setup](https://github.com/useapi/google-account-setup) scripts (Windows, macOS, Linux) open a clean, single-use Brave profile with device-bound sessions switched off, so the cookies you copy keep working.
-- **What does the Google Flow API cost?** A flat [$15/month](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) to useapi.net, which covers 3 Google Flow accounts and every other useapi.net API, plus the Google AI plan you already have. Images work even on a free Google account, and video spends your plan's Flow credits. For an 8-second clip, the official Gemini API charges $0.80 for Veo 3.1 Fast, $3.20 for Veo 3.1 Quality, $0.40 for Veo 3.1 Lite and about $0.81 for Omni 1.1 Flash at 720p. Through Flow, the same clips cost about $0.40, $2.00, $0.20 and $0.24 in credits on the Pro plan, or $0.10, $1.00, $0.05 and $0.12 on the Ultra $99 plan (less on Ultra $199). A Nano Banana Pro image is $0.134 on the Gemini API and included in Flow. Captcha solves cost about $0.80–$3.00 per 1,000 through your own provider. See the [pricing comparison](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api#pricing).
+- **What does the Google Flow API cost?** A flat [$15/month](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) to useapi.net, which covers 3 Google Flow accounts and every other useapi.net API, plus the Google AI plan you already have. Images work even on a free Google account, and video spends your plan's Flow credits. For an 8-second clip, the official Gemini API charges $0.80 for Veo 3.1 Fast, $3.20 for Veo 3.1 Quality, $0.40 for Veo 3.1 Lite and about $0.81 for Omni 1.1 Flash at 720p (as of October 2026). Through Flow, the same clips cost about $0.40, $2.00, $0.20 and $0.24 in credits on the Pro plan, or $0.10, $1.00, $0.05 and $0.12 on the Ultra $99 plan (less on Ultra $199). A Nano Banana Pro image is $0.134 on the Gemini API and included in Flow. Captcha solves cost about $0.80–$3.00 per 1,000 through your own provider. See the [pricing comparison](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api#pricing).
 - **Is there a second Omni allowance?** Yes: Google Vids, on the same Google AI plan, with its own monthly allowance separate from Flow credits and no captcha. Examples: [useapi/google-vids-api](https://github.com/useapi/google-vids-api).
 - More answers: [Google Flow API questions](https://useapi.net/docs/api-google-flow-v1#questions).
 
