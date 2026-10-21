@@ -9,9 +9,9 @@ Two ready-to-import [n8n](https://n8n.io) workflows. Both use only core n8n node
 
 ## UGC Ad Factory
 
-📖 Full walkthrough: [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads)
+Full walkthrough: [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads)
 
-📖 Published on n8n: [Create UGC video ads with Google Flow Omni 1.1 Flash and useapi.net](https://n8n.io/workflows/20392)
+Published on n8n: [Create UGC video ads with Google Flow Omni 1.1 Flash and useapi.net](https://n8n.io/workflows/20392)
 
 An ad made with this workflow, on YouTube: [How to Make UGC Video Ads in n8n with the Google Flow API](https://youtube.com/shorts/1vPpoNdWHJw)
 
@@ -31,7 +31,7 @@ Setup is the same as below: import the file, create the Header Auth credential, 
 
 ## Veo 3.1 videos and Nano Banana Pro images
 
-📖 Published on n8n: [Generate Veo 3.1 videos and Nano Banana Pro images with Google Flow](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/)
+Published on n8n: [Generate Veo 3.1 videos and Nano Banana Pro images with Google Flow](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/)
 
 Type a prompt into a form, pick **Image** or **Video**, and get the finished file back as binary data you can send to Google Drive, S3, Telegram or anything else n8n connects to. It uses only core n8n nodes (Form Trigger, HTTP Request, Code, Wait, Switch), with no community nodes.
 
