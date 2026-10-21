@@ -275,12 +275,15 @@ def submitImage(apiToken, email, prompt, index):
 
 # Main function
 def main():
-    apiToken = sys.argv[1] if len(sys.argv) > 1 else None
-    email = sys.argv[2] if len(sys.argv) > 2 else None
+    # Prefer environment variables so credentials are not exposed via process listings
+    # (ps aux) or shell history. Positional arguments remain supported for backward
+    # compatibility but are no longer the recommended way to pass secrets.
+    apiToken = os.environ.get('GOOGLE_FLOW_API_TOKEN') or (sys.argv[1] if len(sys.argv) > 1 else None)
+    email = os.environ.get('GOOGLE_FLOW_EMAIL') or (sys.argv[2] if len(sys.argv) > 2 else None)
     promptFile = sys.argv[3] if len(sys.argv) > 3 else DEFAULT_PROMPTS_FILE
 
     if not apiToken or not email:
-        print('Usage: python3 google-flow-images.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
+        print('Usage: GOOGLE_FLOW_API_TOKEN=<API_TOKEN> GOOGLE_FLOW_EMAIL=<EMAIL> python3 google-flow-images.py [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
     print('Script v1.2')
