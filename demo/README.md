@@ -1,6 +1,6 @@
 # Google Flow agent chat in the browser — Google Flow Agent API demo app
 
-▶️ Live: **[useapi.net/demos/google-flow](https://useapi.net/demos/google-flow/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)** — these exact files, full screen, also on phones · [what each feature calls](https://useapi.net/docs/api-google-flow-v1/agent-demo?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
+Live: [useapi.net/demos/google-flow](https://useapi.net/demos/google-flow/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) — these exact files, full screen, also on phones · [what each feature calls](https://useapi.net/docs/api-google-flow-v1/agent-demo?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 
 A complete chat client for **Google Flow's creative agent**, built on the [Google Flow Agent API](https://useapi.net/docs/api-google-flow-v1/agent?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). You start a chat, keep talking to the agent, and the images and videos it makes appear right in the conversation. It is plain HTML, CSS and JavaScript in five small files: no framework, no build step, no dependencies. Read them top to bottom to see how each feature maps to one API call.
 
@@ -10,7 +10,7 @@ A complete chat client for **Google Flow's creative agent**, built on the [Googl
 - **Attach along the way**: the **Attach** menu uploads images from disk, or picks earlier images and videos, characters and voices (built-in or your own) from the account. You can also drop images on the conversation or paste them. Each attachment shows as a chip above the message box with its `@referenceImage_1` style name: click it to put the mention in your text, or just send.
 - **Spending credits**: when the agent asks before generating, a card shows the cost and the number of images and videos, with **Approve**, **Always approve** and **Reject**.
 - **Library**: the account's images and videos, project by project (the main project, or the agent's own), with previews, upload, download, copy id and delete.
-- **Agent settings**: whether the agent asks before spending credits, up to 3 instructions it follows in every chat, and the default image and video models, picked from the models your Google plan has with what one generation costs (for example "Veo 3.1 - Fast · 20 credits", "Nano Banana Pro · free").
+- **Agent settings**: whether the agent asks before spending credits, up to 3 instructions it follows in every chat, and the default image and video models, picked from the models your Google AI subscription includes, with what one generation costs (for example "Veo 3.1 - Fast · 20 credits", "Nano Banana Pro · free").
 
 ## Screenshots
 
@@ -91,7 +91,7 @@ Base URL `https://api.useapi.net/v1/google-flow`, header `Authorization: Bearer 
 | Library: Delete | [DELETE /assets/{email}](https://useapi.net/docs/api-google-flow-v1/delete-google-flow-assets-email?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `{mediaGenerationIds, projectId}` |
 | Attach: characters | [GET /characters](https://useapi.net/docs/api-google-flow-v1/get-google-flow-characters?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `?email=` |
 | Attach: voices | [GET /voices](https://useapi.net/docs/api-google-flow-v1/get-google-flow-voices?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `?email=` |
-| Agent settings, and the default-model lists (`models`: the plan's image and video models with their credits) | [GET /agent/settings](https://useapi.net/docs/api-google-flow-v1/get-google-flow-agent-settings?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `?email=` |
+| Agent settings, and the default-model lists (`models`: the subscription's image and video models with their credits) | [GET /agent/settings](https://useapi.net/docs/api-google-flow-v1/get-google-flow-agent-settings?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `?email=` |
 | Save settings | [PUT /agent/settings](https://useapi.net/docs/api-google-flow-v1/put-google-flow-agent-settings?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) `{email, approval, instructions, imageDefaults, videoDefaults}` (only what changed) |
 | Download | the image's or video's signed link, read as a file (no token needed) |
 
@@ -172,6 +172,6 @@ sequenceDiagram
 
 ## About useapi.net
 
-[useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) is an experimental REST API for AI services. The Google Flow API drives your own Google Flow / Google AI subscription for a flat [$15/month](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), so the agent spends your plan's Flow credits at consumer rates. It is an independent, third-party API, not affiliated with or endorsed by Google.
+[useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) is a third-party REST API for AI services, not affiliated with or endorsed by Google. The [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) runs on your Google AI subscription, so the agent spends its Flow credits, and chatting with the agent costs no credits. One [$15/month subscription](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) covers every useapi.net API.
 
 Visit our [Discord Server](https://discord.gg/w28uK3cnmF) or [Telegram Channel](https://t.me/use_api) for support.

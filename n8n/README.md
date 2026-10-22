@@ -1,6 +1,6 @@
 # n8n workflows for the Google Flow API
 
-Two ready-to-import [n8n](https://n8n.io) workflows. Both use only core n8n nodes, with no community nodes.
+Two ready-to-import [n8n](https://n8n.io) workflows for the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by useapi.net. Both use only core n8n nodes, with no community nodes.
 
 | Workflow | What it does |
 |---|---|
@@ -9,7 +9,7 @@ Two ready-to-import [n8n](https://n8n.io) workflows. Both use only core n8n node
 
 ## UGC Ad Factory
 
-Full walkthrough: [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads)
+Full walkthrough: [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 
 Published on n8n: [Create UGC video ads with Google Flow Omni 1.1 Flash and useapi.net](https://n8n.io/workflows/20392)
 
@@ -25,7 +25,7 @@ Open one form URL and build a short UGC-style video ad page by page. Every page 
 6. **Clips.** One per product plus the intro and closing, filmed in that scene with the picked voice. Pick a take per clip, or edit the action and re-roll.
 7. **Your ad.** Optional free 1080p upscale, a player and an MP4 download, cut points you can adjust per clip and re-join for free, and the character ID to reuse.
 
-Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid plan, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock. The run lives on your n8n server, not in the browser: the pages before the long steps show a resume link, so you can close the tab while the clips render and come back to your picks and finished takes. If the page does not load yet, the step is still running, so try again in a few minutes.
+Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for a 4, 6, 8 or 10 second clip. Right after the details page the workflow checks the Google account (connected, on a paid Google AI subscription, enough credits for the clips you chose) and stops at once if something is wrong, before anything is generated. Captcha and temporary errors are retried automatically, refusals ask you to change the action, and account problems stop with a page that says what to fix. While a step runs, the page shows what is being made, how long it usually takes and a running clock. The run lives on your n8n server, not in the browser: the pages before the long steps show a resume link, so you can close the tab while the clips render and come back to your picks and finished takes. If the page does not load yet, the step is still running, so try again in a few minutes.
 
 Setup is the same as below: import the file, create the Header Auth credential, select it on every HTTP Request node, create a **Basic Auth** credential (any username and password) and select it on **Start form** so only you can open the form and spend your allowance, then activate the workflow and open the **Start form** URL. Tested on self-hosted n8n 2.41.
 
@@ -35,15 +35,15 @@ Published on n8n: [Generate Veo 3.1 videos and Nano Banana Pro images with Googl
 
 Type a prompt into a form, pick **Image** or **Video**, and get the finished file back as binary data you can send to Google Drive, S3, Telegram or anything else n8n connects to. It uses only core n8n nodes (Form Trigger, HTTP Request, Code, Wait, Switch), with no community nodes.
 
-- **Images:** one synchronous call to [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images) with `nano-banana-pro` (or `nano-banana-2` / `nano-banana-2-lite`).
-- **Video:** an async [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) job with `veo-3.1-fast` (or `veo-3.1-lite`, `veo-3.1-quality`, `omni-flash`), then a wait → [GET /jobs](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs-jobid) → loop until `completed` or `failed`.
+- **Images:** one synchronous call to [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) with `nano-banana-pro` (or `nano-banana-2` / `nano-banana-2-lite`).
+- **Video:** an async [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) job with `veo-3.1-fast` (or `veo-3.1-lite`, `veo-3.1-quality`, `omni-flash`), then a wait → [GET /jobs](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs-jobid?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) → loop until `completed` or `failed`.
 
 ## Setup
 
-1. Get a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi) and connect your Google account with the [automated setup](https://useapi.net/docs/start-here/setup-google-flow).
+1. Get a useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) and connect your Google account with the [automated setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 2. In n8n, import [`google-flow-veo-nano-banana.json`](./google-flow-veo-nano-banana.json) (**Workflows → Import from File**), or open the [n8n listing](https://n8n.io/workflows/19991-generate-veo-31-videos-and-nano-banana-pro-images-with-google-flow/) and click **Use workflow**.
 3. Create a **Header Auth** credential: Name `Authorization`, Value `Bearer <your API token>`, and select it on the three HTTP Request nodes.
 4. Create a **Basic Auth** credential (any username and password) and select it on **Prompt form**, so only you can open the form and spend your allowance.
 5. Open the form URL (or click **Test workflow**) and submit a prompt.
 
-Change the models, the number of results and the optional `email` in the **Settings** node. Images work on any Google AI plan, including a free one. Video needs a paid plan and spends its Flow credits.
+Change the models, the number of results and the optional `email` in the **Settings** node. Images work on every Google AI subscription, a free account included, and use no Flow credits. Video spends Flow credits: a free account gets 50 a day, enough for 2 Veo 3.1 Fast or 5 Lite videos, and Omni 1.1 Flash needs a paid subscription.

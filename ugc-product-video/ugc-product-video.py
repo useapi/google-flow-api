@@ -2,7 +2,7 @@
 
 Script version 1.1, September 11, 2026
 
-Build a UGC product video end to end with the Google Flow API v1 by useapi.net 🚀
+Build a UGC product video end to end with the Google Flow API by useapi.net
 
 Runs the whole six-step pipeline from the tutorial: a product sheet per item and a presenter
 via POST /images and POST /characters, one still that carries them all, one Omni 1.1 Flash clip

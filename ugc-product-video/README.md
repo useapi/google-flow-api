@@ -1,8 +1,8 @@
 # UGC product video — the whole pipeline in one run (Node.js & Python)
 
-Build a finished UGC product video end to end through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api): one invented presenter showing your products to the camera, in six steps, with nothing processed locally. No editor, no local ffmpeg — the joined MP4 comes back from the API.
+Build a finished UGC product video end to end through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api): one invented presenter showing your products to the camera, in six steps, with nothing processed locally. No editor, no local ffmpeg — the joined MP4 comes back from the API.
 
-Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video)** — September 4, 2026 (October 20, 2026)
+Full walkthrough: **[How to Make a UGC Product Video with the Google Flow API](https://useapi.net/docs/articles/google-flow-ugc-product-video?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)** — September 4, 2026 (October 20, 2026)
 
 Video on YouTube: [Make a UGC product video with the Google Flow API](https://youtube.com/shorts/wbUROtDIfGA)
 
@@ -10,12 +10,12 @@ Video on YouTube: [Make a UGC product video with the Google Flow API](https://yo
 
 | Step | Endpoint | What it makes | Credits |
 |---|---|---|---|
-| 1 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images) | a four-view **product sheet** per item | 0 |
-| 2 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images) ×2 + [`POST /characters`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters) | two portraits and a **character** built from both | 0 |
-| 3 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images) | the **still** — presenter and every product in one frame | 0 |
-| 4 | [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) (async) | one **Omni 1.1 Flash clip** per product, from that still | 15 each |
-| 5 | [`POST /videos/upscale`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-upscale) | each clip to **1080p** | 0 |
-| 6 | [`POST /videos/concatenate`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-concatenate) | the clips **joined** into the final MP4 | 0 |
+| 1 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | a four-view **product sheet** per item | 0 |
+| 2 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) ×2 + [`POST /characters`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | two portraits and a **character** built from both | 0 |
+| 3 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | the **still** — presenter and every product in one frame | 0 |
+| 4 | [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) (async) | one **Omni 1.1 Flash clip** per product, from that still | 15 each |
+| 5 | [`POST /videos/upscale`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-upscale?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | each clip to **1080p** | 0 |
+| 6 | [`POST /videos/concatenate`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-concatenate?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | the clips **joined** into the final MP4 | 0 |
 
 The shipped `prompts.json` reproduces the tutorial exactly — three products, three 10-second clips, 45 credits in total.
 
@@ -23,7 +23,7 @@ The shipped `prompts.json` reproduces the tutorial exactly — three products, t
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies)
 - A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
-- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email on a **paid** [Google AI](https://one.google.com/ai) plan — images and characters work on a free account, but Omni 1.1 Flash video and upscaling do not
+- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) email on a paid [Google AI subscription](https://gemini.google/subscriptions/) — images and characters work on a free account, but Omni 1.1 Flash video and upscaling do not
 
 ## Usage
 
@@ -67,7 +67,7 @@ Some things worth knowing before you rewrite the prompts, all learned the hard w
 - **Trim to the sound, not the picture.** The presenter goes still before she stops talking, so a cut placed at the first still frame takes the end of a line with it.
 - **Keep the presenter invented.** Google's moderation is stricter with real, identifiable people.
 
-Every parameter is documented on [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images), [POST /characters](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters) and [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos).
+Every parameter is documented on [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), [POST /characters](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) and [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 ---
 

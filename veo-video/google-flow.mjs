@@ -2,7 +2,7 @@
 
 Script version 1.1, September 11, 2026
 
-Script to batch-generate videos using prompts with the Google Flow API v1 by useapi.net 🚀
+Script to batch-generate videos using prompts with the Google Flow API by useapi.net
 Uses the POST /videos endpoint in async mode (default model: veo-3.1-fast) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 

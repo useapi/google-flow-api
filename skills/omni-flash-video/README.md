@@ -1,8 +1,8 @@
 # Omni 1.1 Flash video: an agent skill
 
-An [Agent Skill](https://agentskills.io) that lets Claude Code, Codex and other coding agents make AI video with Google's **Omni 1.1 Flash** (Gemini Omni Flash, audio-native: spoken dialogue, preset voices, reference images of people and products, video-to-video edits) or **Veo 3.1**, and download the `.mp4`. Ask your agent "make a 6-second portrait clip of the woman in presenter.jpg holding up our mug and saying it's the best coffee she's had" and it runs the scripts in this folder.
+An [Agent Skill](https://agentskills.io) that lets Claude Code, Codex and other coding agents make AI video with Google's Omni 1.1 Flash (Gemini Omni Flash, audio-native: spoken dialogue, preset voices, reference images of people and products, video-to-video edits) or Veo 3.1 Fast, Quality and Lite, and download the `.mp4`. Ask your agent "make a 6-second portrait clip of the woman in presenter.jpg holding up our mug and saying it's the best coffee she's had" and it runs the scripts in this folder.
 
-It calls the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill), a third-party REST API that runs on your own Google Flow account. Each clip spends Flow credits from your Google AI plan.
+It calls the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill), a third-party REST API that runs on your Google Flow account. Each clip spends Flow credits from your Google AI subscription.
 
 ## Install
 
@@ -32,7 +32,7 @@ export USEAPI_EMAIL=you@gmail.com       # optional: which connected Google accou
 You need:
 
 1. A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill). One [$15/month subscription](https://useapi.net/docs/subscription?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill) covers every useapi.net API.
-2. A Google account with a Google AI Plus, Pro or Ultra plan, connected with the [Google Flow setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill). An 8-second 720p Omni clip costs 12 Flow credits, a 360p draft about half.
+2. A Google account with a Google AI Plus, Pro or Ultra subscription, connected with the [Google Flow setup](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill). An 8-second 720p Omni clip costs 12 Flow credits, a 360p draft about half.
 3. `bash`, `curl` and [`jq`](https://jqlang.org/download/).
 
 ## Use it without an agent

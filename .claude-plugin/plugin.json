@@ -1,7 +1,7 @@
 {
   "name": "google-flow",
   "displayName": "Google Flow (useapi.net)",
-  "description": "Hosted Google Flow MCP server by useapi.net (12 tools): chat with Google Flow Agent to make images and Veo 3.1 or Omni 1.1 Flash video, answer its credit approvals, manage chats and settings, list characters, voices and media, and upload images, on your own Google account (Google AI plan for video). Third-party paid service, not affiliated with Google. Includes the repo's agent skill.",
+  "description": "Hosted Google Flow MCP server by useapi.net (12 tools): chat with Google Flow Agent to make images and Veo 3.1 or Omni 1.1 Flash video, answer its credit approvals, manage chats and settings, list characters, voices and media, and upload images, on your Google AI subscription (a free account works too, Omni 1.1 Flash needs a paid one). Third-party paid service, not affiliated with Google. Includes the repo's agent skill.",
   "author": {
     "name": "useapi.net",
     "url": "https://useapi.net"

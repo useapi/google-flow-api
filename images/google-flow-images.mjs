@@ -2,7 +2,7 @@
 
 Script version 1.2, September 11, 2026
 
-Script to batch-generate images using prompts with the Google Flow API v1 by useapi.net 🚀
+Script to batch-generate images using prompts with the Google Flow API by useapi.net
 Uses the synchronous POST /images endpoint (default model: nano-banana-2-lite) and saves each image from fifeUrl, or from encodedImage when fifeUrl is absent.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-images
 

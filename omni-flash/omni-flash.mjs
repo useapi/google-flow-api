@@ -2,7 +2,7 @@
 
 Script version 1.1, September 11, 2026
 
-Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API v1 by useapi.net 🚀
+Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API by useapi.net
 Uses the POST /videos endpoint in async mode (model: omni-flash) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 

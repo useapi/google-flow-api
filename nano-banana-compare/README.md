@@ -1,16 +1,16 @@
 # Nano Banana 2 Lite vs 2.1 vs Pro — Google Flow image model comparison (Node.js & Python)
 
-Run the **same prompt** through all three Google Flow Nano Banana image models — **Nano Banana 2 Lite** (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image, the default), **Nano Banana 2.1** (`nano-banana-2`), and **Nano Banana Pro** (`nano-banana-pro`, Gemini 3 Pro Image) — through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), and download every result labeled by model.
+Run the same prompt through all three Google Flow Nano Banana image models — Nano Banana 2 Lite (`nano-banana-2-lite`, Gemini 3.1 Flash-Lite Image, the default), Nano Banana 2.1 (`nano-banana-2`), and Nano Banana Pro (`nano-banana-pro`, Gemini 3 Pro Image) — through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), and download every result labeled by model.
 
-Full walkthrough: **[Nano Banana 2 Lite vs 2.1 vs Pro: Google Flow Image Models Compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare)** — July 2, 2026 (October 20, 2026)
+Full walkthrough: **[Nano Banana 2 Lite vs 2.1 vs Pro: Google Flow Image Models Compared](https://useapi.net/docs/articles/google-flow-nano-banana-compare?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)** — July 2, 2026 (October 20, 2026)
 
-`google-flow-nano-banana-compare.mjs` (Node.js) and `google-flow-nano-banana-compare.py` (Python) are equivalent implementations — each reads `prompts.json` (one entry per model) and calls [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images). Because that endpoint is **synchronous**, the script writes each result image as soon as the call returns.
+`google-flow-nano-banana-compare.mjs` (Node.js) and `google-flow-nano-banana-compare.py` (Python) are equivalent implementations — each reads `prompts.json` (one entry per model) and calls [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Because that endpoint is **synchronous**, the script writes each result image as soon as the call returns.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies)
 - A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
-- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email (image generation works with free Google AI accounts)
+- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) email (images work on a free Google account too, and use no Flow credits)
 
 ## Usage
 
@@ -23,9 +23,9 @@ python3 ./google-flow-nano-banana-compare.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 
 ## Prompts
 
-`prompts.json` is an array of prompt objects — one per model, all with the same `prompt` so you can compare interpretations. `prompt` is the only required field; `model`, `aspectRatio`, `count`, and `seed` fall back to the API defaults (model `nano-banana-2-lite`, four variations, 16:9). All three models accept up to 10 reference images (`reference_1`…`reference_10`), the `auto` aspect ratio in image-to-image mode, and [2K/4K upscaling](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images-upscale).
+`prompts.json` is an array of prompt objects — one per model, all with the same `prompt` so you can compare interpretations. `prompt` is the only required field; `model`, `aspectRatio`, `count`, and `seed` fall back to the API defaults (model `nano-banana-2-lite`, four variations, 16:9). All three models accept up to 10 reference images (`reference_1`…`reference_10`), the `auto` aspect ratio in image-to-image mode, and [2K/4K upscaling](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images-upscale?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
-Every parameter is documented on [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images).
+Every parameter is documented on [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 ---
 

@@ -1,16 +1,16 @@
 # Veo 3.1 video — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate [Veo 3.1](https://aistudio.google.com/models/veo-3) video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+Batch-generate [Veo 3.1](https://aistudio.google.com/models/veo-3) video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
-Full walkthrough: **[How to Use the Veo 3.1 API: Generate Video with curl via the Google Flow API](https://useapi.net/docs/articles/google-flow-bash)** — June 15, 2026 (October 20, 2026)
+Full walkthrough: **[How to Use the Veo 3.1 API: Generate Video with curl via the Google Flow API](https://useapi.net/docs/articles/google-flow-bash?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)** — June 15, 2026 (October 20, 2026)
 
-`google-flow.mjs` (Node.js) and `google-flow.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any start/end-frame images, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos) in async mode, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs), and downloads every finished MP4.
+`google-flow.mjs` (Node.js) and `google-flow.py` (Python) are equivalent implementations — each reads prompts from `prompts.json`, uploads any start/end-frame images, submits each job to [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) in async mode, polls [`GET /jobs/{jobId}`](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), and downloads every finished MP4.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v21 or newer (no dependencies to install — uses built-in `fetch`), or [Python](https://www.python.org) 3.x (standard library only — no dependencies to install)
 - A useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
-- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow) email
+- A connected [Google Flow account](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) email
 
 ## Usage
 
@@ -27,7 +27,7 @@ python3 ./google-flow.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 
 - **Image-to-video:** set `startImage` (and optionally `endImage`) to a **local file path** — the script uploads it for you.
 
-Every parameter is documented on [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos). Local image paths in `prompts.json` (e.g. `./first_image.jpeg`) are inputs **you** supply — they are not included in this repo.
+Every parameter is documented on [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Local image paths in `prompts.json` (e.g. `./first_image.jpeg`) are inputs **you** supply — they are not included in this repo.
 
 ---
 

@@ -1,8 +1,8 @@
 ---
 name: omni-flash-video
-description: Generate AI video with Google's Omni 1.1 Flash (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 through the useapi.net Google Flow API, on the user's own Google AI plan. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
+description: Generate AI video with Google's Omni 1.1 Flash (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 through the useapi.net Google Flow API, on the user's Google AI subscription. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
 license: MIT
-compatibility: Needs bash, curl, jq and network access to api.useapi.net. Requires a useapi.net API token (USEAPI_TOKEN) and a Google account with a Google AI Plus, Pro or Ultra plan connected to useapi.net.
+compatibility: Needs bash, curl, jq and network access to api.useapi.net. Requires a useapi.net API token (USEAPI_TOKEN) and a Google account with a Google AI Plus, Pro or Ultra subscription connected to useapi.net.
 metadata:
   author: useapi.net
   homepage: https://github.com/useapi/google-flow-api
@@ -10,7 +10,7 @@ metadata:
 
 # Omni 1.1 Flash and Veo 3.1 video with the useapi.net Google Flow API
 
-These scripts call the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1), a third-party REST API that drives the user's own Google Flow account. Each clip spends Flow credits from the user's Google AI plan. Every script is in `scripts/` next to this file. Run them with bash.
+These scripts call the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1), a third-party REST API that drives the user's Google Flow account. Each clip spends Flow credits from the user's Google AI subscription. Every script is in `scripts/` next to this file. Run them with bash.
 
 ## Before you start
 
@@ -54,7 +54,7 @@ scripts/video.sh "..." resolution=360p duration=4
 | Video-to-video edit | 20 | 10 |
 
 - `aspectRatio`: `landscape` (default) or `portrait`. Ask the user which one; for phone video it is `portrait`, and forgetting it is the most common wasted generation.
-- Omni tops out at 720p. `count` (1 to 4) multiplies the cost.
+- Omni generates at 360p or 720p, and POST /videos/upscale takes a clip to 1080p for free, or to 4K on Ultra. `count` (1 to 4) multiplies the cost.
 - Veo 3.1 (`model=veo-3.1-fast`, `veo-3.1-quality`, `veo-3.1-lite`) has no 360p, takes up to 3 reference images and one voice (neither on `veo-3.1-quality`), and also accepts 1:1, 4:3 and 3:4.
 - Tell the user the credit cost before generating more than one clip or anything over 8 s.
 
@@ -105,8 +105,8 @@ Every failed request prints the API's error and a one-line hint. The common ones
 
 - `HTTP 400`: a parameter was rejected (the message names it), or Google refused the content. For a content refusal, rephrase the prompt or change the image. Video-to-video moderation is not deterministic, so one plain resubmit can also clear it.
 - `HTTP 401`: the token is wrong. `HTTP 404`: `USEAPI_EMAIL` is not a connected account.
-- `HTTP 402`: the account has no Plus, Pro or Ultra plan, or no Flow credits left.
-- `HTTP 403`: Google rejected the captcha on every try (wait a minute, try once more), or `MODEL_ACCESS_DENIED` (the plan does not include the model).
+- `HTTP 402`: the account has no Google AI Plus, Pro or Ultra subscription, or no Flow credits left.
+- `HTTP 403`: Google rejected the captcha on every try (wait a minute, try once more), or `MODEL_ACCESS_DENIED` (the account's Google AI subscription does not include the model).
 - `HTTP 429`: the account is busy or out of quota. `retryAfter` says when to try again; or unset `USEAPI_EMAIL` so the API uses another account. Do not loop on it.
 - `HTTP 503`: Google is temporarily overloaded. Try again in a minute or two, with fewer references or a lower `count`.
 - `HTTP 596`: the Google account needs reconnecting: https://useapi.net/docs/start-here/setup-google-flow
