@@ -1,0 +1,1541 @@
+{
+  "id": "flowSheetBatch01",
+  "name": "Batch-generate Veo 3.1 videos and Nano Banana Pro images from a Google Sheet",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run batch now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Every hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- Settings you can edit -----------------------------------------------------------------------------\nconst settings = {\n  sheetId: '',                  // the Google Sheet id: the long part of its URL between /d/ and /edit\n  sheetName: 'Flow batch',      // the tab with the columns listed in the main note's Setup\n  maxRowsPerRun: 10,            // rows taken per run. Each video takes about 1 to 3 minutes\n  defaultType: 'image+video',   // used when a row leaves type empty: image, video or image+video\n  imageModel: 'nano-banana-pro',// nano-banana-pro, nano-banana-2 (Nano Banana 2.1) or nano-banana-2-lite\n  videoModel: 'veo-3.1-fast',   // veo-3.1-fast, veo-3.1-lite, veo-3.1-quality, veo-3.1-lite-low-priority, omni-flash\n  aspectRatio: '16:9',          // 16:9, 9:16, 1:1, 4:3 or 3:4 (omni-flash: 16:9 or 9:16)\n  firstFrame: true,             // image+video rows: the new image becomes the video's first frame\n  upscale: false,               // true = upscale every video to 1080p (free on paid Google AI plans)\n  saveToDrive: true,            // false = only write the links (they expire after about 6 hours)\n  driveFolderId: '',            // empty = the root of My Drive\n  maxRetries: 3,                // tries per step when every account is busy (429) or Google is down (503)\n  maxWaitSeconds: 60,           // longest wait before a retry. Longer cooldowns leave the row for the next run\n  pollSeconds: 20,              // how often a running video job is checked\n  maxVideoMinutes: 15,          // give up on a video job after this long\n};\n// ---------------------------------------------------------------------------------------------------------\nif (!settings.sheetId) throw new Error('Set sheetId in the Settings node: the id of your Google Sheet.');\nreturn [{ json: settings }];\n"
+      },
+      "name": "Settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.sheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetName }}"
+        },
+        "options": {}
+      },
+      "name": "Read sheet rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        560,
+        100
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "googleSheetsCred",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rows with a prompt and an empty status, oldest first, at most maxRowsPerRun. Marked \"running\" before any work,\n// so a run that overlaps this one never takes the same row twice.\nconst S = $('Settings').first().json;\nconst blank = v => String(v == null ? '' : v).trim() === '';\nreturn $input.all().map(i => i.json)\n  .filter(r => r && r.row_number && blank(r.status) && !blank(r.prompt))\n  .slice(0, S.maxRowsPerRun)\n  .map(r => ({ json: { row_number: r.row_number, status: 'running', error: '' } }));\n"
+      },
+      "name": "Pick pending rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.sheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetName }}"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image_model",
+              "displayName": "image_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_model",
+              "displayName": "video_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspect_ratio",
+              "displayName": "aspect_ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "use_image_as_first_frame",
+              "displayName": "use_image_as_first_frame",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "upscale",
+              "displayName": "upscale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "drive_link",
+              "displayName": "drive_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Mark rows running",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        100
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "googleSheetsCred",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One state object per picked row: the row's cells checked and filled from Settings. A row that fails a check\n// goes straight to the write-back with the reason, and costs nothing.\nconst S = $('Settings').first().json;\nconst picked = new Set($('Pick pending rows').all().map(i => String(i.json.row_number)));\nconst IMAGE_MODELS = ['nano-banana-pro', 'nano-banana-2', 'nano-banana-2-lite'];\nconst VIDEO_MODELS = ['veo-3.1-fast', 'veo-3.1-lite', 'veo-3.1-quality', 'veo-3.1-lite-low-priority', 'omni-flash'];\nconst IMAGE_RATIO = { '16:9': '16:9', '9:16': '9:16', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: '16:9', portrait: '9:16' };\nconst VIDEO_RATIO = { '16:9': 'landscape', '9:16': 'portrait', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: 'landscape', portrait: 'portrait' };\nconst cell = v => String(v == null ? '' : v).trim();\nconst yes = (v, dflt) => { const t = cell(v).toLowerCase(); if (!t) return dflt; return ['yes', 'y', 'true', '1'].includes(t); };\nreturn $('Read sheet rows').all().map(i => i.json).filter(r => picked.has(String(r.row_number))).map(r => {\n  const bad = [];\n  let type = cell(r.type).toLowerCase().replace(/\\s+/g, '') || S.defaultType;\n  if (type === 'both' || type === 'video+image') type = 'image+video';\n  if (!['image', 'video', 'image+video'].includes(type)) bad.push(`type \"${cell(r.type)}\" must be image, video or image+video`);\n  const imageModel = cell(r.image_model).toLowerCase() || S.imageModel;\n  const videoModel = cell(r.video_model).toLowerCase() || S.videoModel;\n  const wantsImage = type !== 'video', wantsVideo = type !== 'image';\n  if (wantsImage && !IMAGE_MODELS.includes(imageModel)) bad.push(`image_model \"${imageModel}\" must be one of ${IMAGE_MODELS.join(', ')}`);\n  if (wantsVideo && !VIDEO_MODELS.includes(videoModel)) bad.push(`video_model \"${videoModel}\" must be one of ${VIDEO_MODELS.join(', ')}`);\n  const ratio = cell(r.aspect_ratio).toLowerCase() || S.aspectRatio;\n  if (!IMAGE_RATIO[ratio]) bad.push(`aspect_ratio \"${ratio}\" must be 16:9, 9:16, 1:1, 4:3 or 3:4`);\n  else if (wantsVideo && videoModel === 'omni-flash' && !['landscape', 'portrait'].includes(VIDEO_RATIO[ratio])) bad.push('omni-flash videos are 16:9 or 9:16 only');\n  const up = cell(r.upscale).toLowerCase();\n  if (up && !['none', 'no', '1080p', 'yes'].includes(up)) bad.push(`upscale \"${cell(r.upscale)}\" must be none or 1080p`);\n  const email = cell(r.email);\n  if (email && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) bad.push(`email \"${email}\" is not an email address`);\n  const state = {\n    row: r.row_number, prompt: cell(r.prompt), videoPrompt: cell(r.video_prompt), type, imageModel, videoModel,\n    imageRatio: IMAGE_RATIO[ratio], videoRatio: VIDEO_RATIO[ratio], email,\n    firstFrame: type === 'image+video' && yes(r.use_image_as_first_frame, S.firstFrame),\n    upscale: wantsVideo && (up ? ['1080p', 'yes'].includes(up) : !!S.upscale),\n    tries: {}, polls: 0, made: false, notes: [],\n  };\n  if (bad.length) { state.status = 'failed: ' + bad.join('; '); state.route = 'write'; }\n  else state.route = wantsImage ? 'image' : 'video';\n  return { json: { state } };\n});\n"
+      },
+      "name": "Rows to run",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Loop over rows",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once, after the last row. The rows themselves hold the details.\nconst st = $input.all().map(i => String(i.json.status || ''));\nconst done = st.filter(s => s === 'done').length, failed = st.filter(s => s.startsWith('failed')).length;\nreturn [{ json: { rows: st.length, done, failed, queuedAgain: st.length - done - failed } }];\n"
+      },
+      "name": "Batch summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 3,
+        "output": "={{ {\"image\": 0, \"video\": 1, \"write\": 2}[$json.state.route] ?? 2 }}"
+      },
+      "name": "Row type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2040,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// POST /images body. No email = the API picks the healthiest connected account (load balancing).\nconst s = $input.first().json.state;\nconst body = { prompt: s.prompt, model: s.imageModel, aspectRatio: s.imageRatio, count: 1 };\nif (s.email) body.email = s.email;\nreturn [{ json: { state: s, body } }];\n"
+      },
+      "name": "Image request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.useapi.net/v1/google-flow/images",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}"
+      },
+      "name": "Generate image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "useapiHeaderAuth",
+          "name": "useapi.net API token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst S = $('Settings').first().json;\nconst res = j => {\n  if (j && j.statusCode !== undefined) {\n    let body = j.body;\n    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = { error: body }; } }\n    return { code: Number(j.statusCode) || 0, body: body || {}, headers: j.headers || {} };\n  }\n  const e = j && j.error;\n  return { code: 0, body: {}, headers: {}, net: String((e && (e.message || e.description)) || e || 'no answer').slice(0, 200) };\n};\n// The useapi.net error text, or Google's reason when the error is Google's own object\nconst reasonOf = b => {\n  if (!b) return '';\n  const parts = [];\n  const e = b.error;\n  if (typeof e === 'string' && !/^API error: \\d+$/.test(e)) parts.push(e);\n  const g = (e && typeof e === 'object') ? e : (b.response && b.response.error) || null;\n  if (g) { const r = (g.details || []).map(d => d.reason).filter(Boolean); parts.push(r.length ? r.join(', ') : (g.message || g.status || '')); }\n  if (b.response && Array.isArray(b.response.failureReasons)) parts.push(b.response.failureReasons.join(', '));\n  if (b.message && e === 'no_eligible_account') parts.push(b.message);\n  if (!parts.length && typeof e === 'string') parts.push(e);\n  // useapi.net's own text often names Google's reason already: say it once\n  const kept = parts.filter(Boolean).filter((p, i, a) => !a.some((q, k) => k !== i && q.includes(p) && (q !== p || k < i)));\n  return kept.join(': ').replace(/\\s+/g, ' ').trim().slice(0, 300);\n};\n// Seconds to wait before the next try: the Retry-After header, else the body's retryAfter timestamp\nconst waitOf = (r, fallback) => {\n  const h = r.headers['retry-after'] ?? r.headers['Retry-After'];\n  if (h !== undefined && !isNaN(Number(h))) return Number(h);\n  const t = r.body && r.body.retryAfter ? Date.parse(r.body.retryAfter) : NaN;\n  if (!isNaN(t)) return Math.max(0, (t - Date.now()) / 1000);\n  return fallback;\n};\nconst untilOf = r => {\n  if (r.body && r.body.retryAfter) return String(r.body.retryAfter).slice(0, 16).replace('T', ' ') + ' UTC';\n  return '';\n};\n// ok | busy (nothing was made: wait and try again) | unknown (no answer: it may have run) | fail\nconst classify = r => {\n  if (r.code >= 200 && r.code < 300) return { kind: 'ok' };\n  const why = reasonOf(r.body) || r.net || `HTTP ${r.code}`;\n  if (r.code === 429) return { kind: 'busy', wait: waitOf(r, 30), until: untilOf(r), why: `every account is busy (429 ${why})` };\n  // 503 is a Google outage (retry in 5-10 s) unless the captcha provider failed, which a retry does not fix\n  if (r.code === 503 && !/Captcha service failed/i.test(why)) return { kind: 'busy', wait: 10, until: '', why: `Google is temporarily unavailable (503)` };\n  if (!r.code) return { kind: 'unknown', why };\n  return { kind: 'fail', code: r.code, why: explain(r.code, why) };\n};\nconst explain = (code, why) => {\n  if (code === 401) return 'the useapi.net API token was refused: check the Header Auth credential (Name Authorization, Value Bearer <token>)';\n  if (code === 402) return `${why}. Check your useapi.net subscription`;\n  if (code === 404) return `${why}. The email column must be a Google Flow account connected at useapi.net`;\n  if (code === 596) return `${why}. The Google session expired: reconnect the account with Setup Google Flow`;\n  if (code === 403 && /MODEL_ACCESS_DENIED/.test(why)) return `${why}: this Google AI plan cannot use the model. Pick another model`;\n  if (code === 403) return `${why} (Google rejected the captcha on every try)`;\n  if (code === 500) return `${why || 'moderated'}: Google's content filter. Try again, change the prompt or switch model`;\n  if (code === 408) return `${why} (useapi.net stopped waiting)`;\n  if (/IP_PROHIBITED|IP_INPUT_IMAGE/.test(why)) return `${why}: Google flagged the image as protected content. Change the image or the prompt`;\n  return `${why} (HTTP ${code})`;\n};\n// Busy: wait and retry while within the limits. Otherwise give up on this row for this run.\n// A row that made nothing yet stays queued (status empty); a row with a finished image keeps it and fails.\nconst giveUpOrRetry = (s, step, c, label) => {\n  if (c.kind === 'busy') {\n    s.tries[step] = (s.tries[step] || 0) + 1;\n    const wait = Math.max(5, Math.ceil(c.wait));\n    if (s.tries[step] <= S.maxRetries && wait <= S.maxWaitSeconds) { s.waitSeconds = wait; s.route = 'retry'; return s; }\n    if (!s.made) {\n      s.status = '';\n      s.notes.push(`${stamp()}: ${label}: ${c.why}. Nothing was made, so the row stays queued for the next run${c.until ? ` (free again around ${c.until})` : ''}.`);\n      s.route = 'write';\n      return s;\n    }\n    s.status = `failed: ${label}: ${c.why}`;\n    s.route = 'save';\n    return s;\n  }\n  s.status = c.kind === 'unknown' ? `failed: ${label}: no answer from useapi.net (${c.why})` : `failed: ${label}: ${c.why}`;\n  s.route = s.made ? 'save' : 'write';\n  return s;\n};\nconst stamp = () => new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';\n\nconst s = $('Image request').first().json.state;\nconst r = res($input.first().json), c = classify(r);\nif (c.kind === 'ok') {\n  const g = (((r.body.media || [])[0] || {}).image || {}).generatedImage;\n  if (!g || !g.mediaGenerationId) { s.status = 'failed: image: the answer had no image'; s.route = 'write'; }\n  else {\n    // fifeUrl is a signed link (about 6 hours). When it is missing the image arrives inline as base64.\n    s.image = { id: g.mediaGenerationId, url: g.fifeUrl || '', b64: g.fifeUrl ? '' : (g.encodedImage || '') };\n    s.made = true;\n    s.route = s.type === 'image+video' ? 'video' : 'save';\n  }\n} else giveUpOrRetry(s, 'image', c, 'image');\nreturn [{ json: { state: s } }];\n"
+      },
+      "name": "Image result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 4,
+        "output": "={{ {\"retry\": 0, \"video\": 1, \"save\": 2, \"write\": 3}[$json.state.route] ?? 3 }}"
+      },
+      "name": "Image next",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        3080,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.state.waitSeconds }}",
+        "unit": "seconds"
+      },
+      "name": "Image retry wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        300
+      ],
+      "webhookId": "6e187e22-b45f-5020-9ff8-2a6c09acfd8e"
+    },
+    {
+      "parameters": {
+        "jsCode": "// POST /videos body, async: the answer is a job id right away. With startImage the clip opens on the row's\n// new image, and the API runs it on the account that holds that image.\nconst s = $input.first().json.state;\nconst body = { prompt: s.videoPrompt || s.prompt, model: s.videoModel, aspectRatio: s.videoRatio, count: 1, async: true };\nif (s.firstFrame && s.image && s.image.id) body.startImage = s.image.id;\nif (s.email) body.email = s.email;\nreturn [{ json: { state: s, body } }];\n"
+      },
+      "name": "Video request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.useapi.net/v1/google-flow/videos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}"
+      },
+      "name": "Start video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        760
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "useapiHeaderAuth",
+          "name": "useapi.net API token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst S = $('Settings').first().json;\nconst res = j => {\n  if (j && j.statusCode !== undefined) {\n    let body = j.body;\n    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = { error: body }; } }\n    return { code: Number(j.statusCode) || 0, body: body || {}, headers: j.headers || {} };\n  }\n  const e = j && j.error;\n  return { code: 0, body: {}, headers: {}, net: String((e && (e.message || e.description)) || e || 'no answer').slice(0, 200) };\n};\n// The useapi.net error text, or Google's reason when the error is Google's own object\nconst reasonOf = b => {\n  if (!b) return '';\n  const parts = [];\n  const e = b.error;\n  if (typeof e === 'string' && !/^API error: \\d+$/.test(e)) parts.push(e);\n  const g = (e && typeof e === 'object') ? e : (b.response && b.response.error) || null;\n  if (g) { const r = (g.details || []).map(d => d.reason).filter(Boolean); parts.push(r.length ? r.join(', ') : (g.message || g.status || '')); }\n  if (b.response && Array.isArray(b.response.failureReasons)) parts.push(b.response.failureReasons.join(', '));\n  if (b.message && e === 'no_eligible_account') parts.push(b.message);\n  if (!parts.length && typeof e === 'string') parts.push(e);\n  // useapi.net's own text often names Google's reason already: say it once\n  const kept = parts.filter(Boolean).filter((p, i, a) => !a.some((q, k) => k !== i && q.includes(p) && (q !== p || k < i)));\n  return kept.join(': ').replace(/\\s+/g, ' ').trim().slice(0, 300);\n};\n// Seconds to wait before the next try: the Retry-After header, else the body's retryAfter timestamp\nconst waitOf = (r, fallback) => {\n  const h = r.headers['retry-after'] ?? r.headers['Retry-After'];\n  if (h !== undefined && !isNaN(Number(h))) return Number(h);\n  const t = r.body && r.body.retryAfter ? Date.parse(r.body.retryAfter) : NaN;\n  if (!isNaN(t)) return Math.max(0, (t - Date.now()) / 1000);\n  return fallback;\n};\nconst untilOf = r => {\n  if (r.body && r.body.retryAfter) return String(r.body.retryAfter).slice(0, 16).replace('T', ' ') + ' UTC';\n  return '';\n};\n// ok | busy (nothing was made: wait and try again) | unknown (no answer: it may have run) | fail\nconst classify = r => {\n  if (r.code >= 200 && r.code < 300) return { kind: 'ok' };\n  const why = reasonOf(r.body) || r.net || `HTTP ${r.code}`;\n  if (r.code === 429) return { kind: 'busy', wait: waitOf(r, 30), until: untilOf(r), why: `every account is busy (429 ${why})` };\n  // 503 is a Google outage (retry in 5-10 s) unless the captcha provider failed, which a retry does not fix\n  if (r.code === 503 && !/Captcha service failed/i.test(why)) return { kind: 'busy', wait: 10, until: '', why: `Google is temporarily unavailable (503)` };\n  if (!r.code) return { kind: 'unknown', why };\n  return { kind: 'fail', code: r.code, why: explain(r.code, why) };\n};\nconst explain = (code, why) => {\n  if (code === 401) return 'the useapi.net API token was refused: check the Header Auth credential (Name Authorization, Value Bearer <token>)';\n  if (code === 402) return `${why}. Check your useapi.net subscription`;\n  if (code === 404) return `${why}. The email column must be a Google Flow account connected at useapi.net`;\n  if (code === 596) return `${why}. The Google session expired: reconnect the account with Setup Google Flow`;\n  if (code === 403 && /MODEL_ACCESS_DENIED/.test(why)) return `${why}: this Google AI plan cannot use the model. Pick another model`;\n  if (code === 403) return `${why} (Google rejected the captcha on every try)`;\n  if (code === 500) return `${why || 'moderated'}: Google's content filter. Try again, change the prompt or switch model`;\n  if (code === 408) return `${why} (useapi.net stopped waiting)`;\n  if (/IP_PROHIBITED|IP_INPUT_IMAGE/.test(why)) return `${why}: Google flagged the image as protected content. Change the image or the prompt`;\n  return `${why} (HTTP ${code})`;\n};\n// Busy: wait and retry while within the limits. Otherwise give up on this row for this run.\n// A row that made nothing yet stays queued (status empty); a row with a finished image keeps it and fails.\nconst giveUpOrRetry = (s, step, c, label) => {\n  if (c.kind === 'busy') {\n    s.tries[step] = (s.tries[step] || 0) + 1;\n    const wait = Math.max(5, Math.ceil(c.wait));\n    if (s.tries[step] <= S.maxRetries && wait <= S.maxWaitSeconds) { s.waitSeconds = wait; s.route = 'retry'; return s; }\n    if (!s.made) {\n      s.status = '';\n      s.notes.push(`${stamp()}: ${label}: ${c.why}. Nothing was made, so the row stays queued for the next run${c.until ? ` (free again around ${c.until})` : ''}.`);\n      s.route = 'write';\n      return s;\n    }\n    s.status = `failed: ${label}: ${c.why}`;\n    s.route = 'save';\n    return s;\n  }\n  s.status = c.kind === 'unknown' ? `failed: ${label}: no answer from useapi.net (${c.why})` : `failed: ${label}: ${c.why}`;\n  s.route = s.made ? 'save' : 'write';\n  return s;\n};\nconst stamp = () => new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';\n\nconst s = $('Video request').first().json.state;\nconst r = res($input.first().json), c = classify(r);\nif (c.kind === 'ok') {\n  const job = r.body.jobid || r.body.jobId;\n  if (!job) { s.status = 'failed: video: the answer had no job id'; s.route = s.made ? 'save' : 'write'; }\n  else { s.jobId = job; s.polls = 0; s.waitSeconds = S.pollSeconds; s.route = 'poll'; }\n} else {\n  giveUpOrRetry(s, 'video', c, 'video');\n  // No answer at all: the job may exist and spend credits, so it is never sent again automatically\n  if (c.kind === 'unknown') s.notes.push('The video job may still have started: check your Google Flow library before you clear the status.');\n}\nreturn [{ json: { state: s } }];\n"
+      },
+      "name": "Video started",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 4,
+        "output": "={{ {\"retry\": 0, \"poll\": 1, \"save\": 2, \"write\": 3}[$json.state.route] ?? 3 }}"
+      },
+      "name": "Video next",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1220,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.state.waitSeconds }}",
+        "unit": "seconds"
+      },
+      "name": "Video retry wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        960
+      ],
+      "webhookId": "526f83dd-8afd-5238-9ce2-37b4ead5aa17"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.state.waitSeconds }}",
+        "unit": "seconds"
+      },
+      "name": "Wait for job",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1580,
+        760
+      ],
+      "webhookId": "4b65c5a3-7729-51c7-be15-2abf81d65cc8"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.useapi.net/v1/google-flow/jobs/' + $json.state.jobId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "name": "Check job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        760
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "useapiHeaderAuth",
+          "name": "useapi.net API token"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst S = $('Settings').first().json;\nconst res = j => {\n  if (j && j.statusCode !== undefined) {\n    let body = j.body;\n    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = { error: body }; } }\n    return { code: Number(j.statusCode) || 0, body: body || {}, headers: j.headers || {} };\n  }\n  const e = j && j.error;\n  return { code: 0, body: {}, headers: {}, net: String((e && (e.message || e.description)) || e || 'no answer').slice(0, 200) };\n};\n// The useapi.net error text, or Google's reason when the error is Google's own object\nconst reasonOf = b => {\n  if (!b) return '';\n  const parts = [];\n  const e = b.error;\n  if (typeof e === 'string' && !/^API error: \\d+$/.test(e)) parts.push(e);\n  const g = (e && typeof e === 'object') ? e : (b.response && b.response.error) || null;\n  if (g) { const r = (g.details || []).map(d => d.reason).filter(Boolean); parts.push(r.length ? r.join(', ') : (g.message || g.status || '')); }\n  if (b.response && Array.isArray(b.response.failureReasons)) parts.push(b.response.failureReasons.join(', '));\n  if (b.message && e === 'no_eligible_account') parts.push(b.message);\n  if (!parts.length && typeof e === 'string') parts.push(e);\n  // useapi.net's own text often names Google's reason already: say it once\n  const kept = parts.filter(Boolean).filter((p, i, a) => !a.some((q, k) => k !== i && q.includes(p) && (q !== p || k < i)));\n  return kept.join(': ').replace(/\\s+/g, ' ').trim().slice(0, 300);\n};\n// Seconds to wait before the next try: the Retry-After header, else the body's retryAfter timestamp\nconst waitOf = (r, fallback) => {\n  const h = r.headers['retry-after'] ?? r.headers['Retry-After'];\n  if (h !== undefined && !isNaN(Number(h))) return Number(h);\n  const t = r.body && r.body.retryAfter ? Date.parse(r.body.retryAfter) : NaN;\n  if (!isNaN(t)) return Math.max(0, (t - Date.now()) / 1000);\n  return fallback;\n};\nconst untilOf = r => {\n  if (r.body && r.body.retryAfter) return String(r.body.retryAfter).slice(0, 16).replace('T', ' ') + ' UTC';\n  return '';\n};\n// ok | busy (nothing was made: wait and try again) | unknown (no answer: it may have run) | fail\nconst classify = r => {\n  if (r.code >= 200 && r.code < 300) return { kind: 'ok' };\n  const why = reasonOf(r.body) || r.net || `HTTP ${r.code}`;\n  if (r.code === 429) return { kind: 'busy', wait: waitOf(r, 30), until: untilOf(r), why: `every account is busy (429 ${why})` };\n  // 503 is a Google outage (retry in 5-10 s) unless the captcha provider failed, which a retry does not fix\n  if (r.code === 503 && !/Captcha service failed/i.test(why)) return { kind: 'busy', wait: 10, until: '', why: `Google is temporarily unavailable (503)` };\n  if (!r.code) return { kind: 'unknown', why };\n  return { kind: 'fail', code: r.code, why: explain(r.code, why) };\n};\nconst explain = (code, why) => {\n  if (code === 401) return 'the useapi.net API token was refused: check the Header Auth credential (Name Authorization, Value Bearer <token>)';\n  if (code === 402) return `${why}. Check your useapi.net subscription`;\n  if (code === 404) return `${why}. The email column must be a Google Flow account connected at useapi.net`;\n  if (code === 596) return `${why}. The Google session expired: reconnect the account with Setup Google Flow`;\n  if (code === 403 && /MODEL_ACCESS_DENIED/.test(why)) return `${why}: this Google AI plan cannot use the model. Pick another model`;\n  if (code === 403) return `${why} (Google rejected the captcha on every try)`;\n  if (code === 500) return `${why || 'moderated'}: Google's content filter. Try again, change the prompt or switch model`;\n  if (code === 408) return `${why} (useapi.net stopped waiting)`;\n  if (/IP_PROHIBITED|IP_INPUT_IMAGE/.test(why)) return `${why}: Google flagged the image as protected content. Change the image or the prompt`;\n  return `${why} (HTTP ${code})`;\n};\n// Busy: wait and retry while within the limits. Otherwise give up on this row for this run.\n// A row that made nothing yet stays queued (status empty); a row with a finished image keeps it and fails.\nconst giveUpOrRetry = (s, step, c, label) => {\n  if (c.kind === 'busy') {\n    s.tries[step] = (s.tries[step] || 0) + 1;\n    const wait = Math.max(5, Math.ceil(c.wait));\n    if (s.tries[step] <= S.maxRetries && wait <= S.maxWaitSeconds) { s.waitSeconds = wait; s.route = 'retry'; return s; }\n    if (!s.made) {\n      s.status = '';\n      s.notes.push(`${stamp()}: ${label}: ${c.why}. Nothing was made, so the row stays queued for the next run${c.until ? ` (free again around ${c.until})` : ''}.`);\n      s.route = 'write';\n      return s;\n    }\n    s.status = `failed: ${label}: ${c.why}`;\n    s.route = 'save';\n    return s;\n  }\n  s.status = c.kind === 'unknown' ? `failed: ${label}: no answer from useapi.net (${c.why})` : `failed: ${label}: ${c.why}`;\n  s.route = s.made ? 'save' : 'write';\n  return s;\n};\nconst stamp = () => new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';\n\n// GET /jobs/{jobid}: created / started -> check again, completed -> the video, failed -> Google's reasons\nconst s = $('Wait for job').first().json.state;\nconst r = res($input.first().json);\nconst maxPolls = Math.ceil(S.maxVideoMinutes * 60 / S.pollSeconds);\ns.polls += 1;\ns.waitSeconds = S.pollSeconds;\nconst again = why => {\n  if (s.polls < maxPolls) { s.route = 'poll'; return; }\n  s.status = `failed: video: ${why} after ${S.maxVideoMinutes} minutes (job ${s.jobId}). Check your Google Flow library before you clear the status`;\n  s.route = s.made ? 'save' : 'write';\n};\nif (r.code === 200) {\n  const j = r.body;\n  if (j.status === 'completed') {\n    const ok = ((j.response || {}).media || []).filter(m => {\n      const st = m.mediaMetadata && m.mediaMetadata.mediaStatus && m.mediaMetadata.mediaStatus.mediaGenerationStatus;\n      return !st || /SUCCESSFUL/.test(st);\n    });\n    const m = ok[0];\n    if (!m) { s.status = `failed: video: ${reasonOf(j) || 'Google returned no video'}`; s.route = s.made ? 'save' : 'write'; }\n    else if (!m.videoUrl && s.polls < maxPolls) { s.waitSeconds = Math.max(60, S.pollSeconds); s.route = 'poll'; }  // link not ready yet: at least a minute between checks\n    else {\n      s.video = { id: m.mediaGenerationId, url: m.videoUrl || '' };\n      if (!m.videoUrl) s.notes.push('The video finished but Google gave no download link yet: it is in your Google Flow library.');\n      s.made = true;\n      s.route = s.upscale && m.mediaGenerationId ? 'upscale' : 'save';\n    }\n  } else if (j.status === 'failed') {\n    s.status = 'failed: video: ' + explain(Number(j.code) || 0, reasonOf(j) || j.error || 'no reason given');\n    s.route = s.made ? 'save' : 'write';\n  } else again(`still ${j.status || 'running'}`);\n} else if ([401, 403, 404, 410].includes(r.code)) {\n  s.status = `failed: video: job ${s.jobId}: ${reasonOf(r.body) || 'HTTP ' + r.code}`;\n  s.route = s.made ? 'save' : 'write';\n} else again(`the job could not be read (${reasonOf(r.body) || r.net || 'HTTP ' + r.code})`);\nreturn [{ json: { state: s } }];\n"
+      },
+      "name": "Job status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2020,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 4,
+        "output": "={{ {\"poll\": 0, \"upscale\": 1, \"save\": 2, \"write\": 3}[$json.state.route] ?? 3 }}"
+      },
+      "name": "Job next",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2240,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// POST /videos/upscale takes the video's mediaGenerationId. 1080p is free on paid Google AI plans.\nconst s = $input.first().json.state;\nreturn [{ json: { state: s, body: { mediaGenerationId: s.video.id, resolution: '1080p' } } }];\n"
+      },
+      "name": "Upscale request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2600,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.useapi.net/v1/google-flow/videos/upscale",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 660000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}"
+      },
+      "name": "Upscale video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2820,
+        760
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "useapiHeaderAuth",
+          "name": "useapi.net API token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst S = $('Settings').first().json;\nconst res = j => {\n  if (j && j.statusCode !== undefined) {\n    let body = j.body;\n    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = { error: body }; } }\n    return { code: Number(j.statusCode) || 0, body: body || {}, headers: j.headers || {} };\n  }\n  const e = j && j.error;\n  return { code: 0, body: {}, headers: {}, net: String((e && (e.message || e.description)) || e || 'no answer').slice(0, 200) };\n};\n// The useapi.net error text, or Google's reason when the error is Google's own object\nconst reasonOf = b => {\n  if (!b) return '';\n  const parts = [];\n  const e = b.error;\n  if (typeof e === 'string' && !/^API error: \\d+$/.test(e)) parts.push(e);\n  const g = (e && typeof e === 'object') ? e : (b.response && b.response.error) || null;\n  if (g) { const r = (g.details || []).map(d => d.reason).filter(Boolean); parts.push(r.length ? r.join(', ') : (g.message || g.status || '')); }\n  if (b.response && Array.isArray(b.response.failureReasons)) parts.push(b.response.failureReasons.join(', '));\n  if (b.message && e === 'no_eligible_account') parts.push(b.message);\n  if (!parts.length && typeof e === 'string') parts.push(e);\n  // useapi.net's own text often names Google's reason already: say it once\n  const kept = parts.filter(Boolean).filter((p, i, a) => !a.some((q, k) => k !== i && q.includes(p) && (q !== p || k < i)));\n  return kept.join(': ').replace(/\\s+/g, ' ').trim().slice(0, 300);\n};\n// Seconds to wait before the next try: the Retry-After header, else the body's retryAfter timestamp\nconst waitOf = (r, fallback) => {\n  const h = r.headers['retry-after'] ?? r.headers['Retry-After'];\n  if (h !== undefined && !isNaN(Number(h))) return Number(h);\n  const t = r.body && r.body.retryAfter ? Date.parse(r.body.retryAfter) : NaN;\n  if (!isNaN(t)) return Math.max(0, (t - Date.now()) / 1000);\n  return fallback;\n};\nconst untilOf = r => {\n  if (r.body && r.body.retryAfter) return String(r.body.retryAfter).slice(0, 16).replace('T', ' ') + ' UTC';\n  return '';\n};\n// ok | busy (nothing was made: wait and try again) | unknown (no answer: it may have run) | fail\nconst classify = r => {\n  if (r.code >= 200 && r.code < 300) return { kind: 'ok' };\n  const why = reasonOf(r.body) || r.net || `HTTP ${r.code}`;\n  if (r.code === 429) return { kind: 'busy', wait: waitOf(r, 30), until: untilOf(r), why: `every account is busy (429 ${why})` };\n  // 503 is a Google outage (retry in 5-10 s) unless the captcha provider failed, which a retry does not fix\n  if (r.code === 503 && !/Captcha service failed/i.test(why)) return { kind: 'busy', wait: 10, until: '', why: `Google is temporarily unavailable (503)` };\n  if (!r.code) return { kind: 'unknown', why };\n  return { kind: 'fail', code: r.code, why: explain(r.code, why) };\n};\nconst explain = (code, why) => {\n  if (code === 401) return 'the useapi.net API token was refused: check the Header Auth credential (Name Authorization, Value Bearer <token>)';\n  if (code === 402) return `${why}. Check your useapi.net subscription`;\n  if (code === 404) return `${why}. The email column must be a Google Flow account connected at useapi.net`;\n  if (code === 596) return `${why}. The Google session expired: reconnect the account with Setup Google Flow`;\n  if (code === 403 && /MODEL_ACCESS_DENIED/.test(why)) return `${why}: this Google AI plan cannot use the model. Pick another model`;\n  if (code === 403) return `${why} (Google rejected the captcha on every try)`;\n  if (code === 500) return `${why || 'moderated'}: Google's content filter. Try again, change the prompt or switch model`;\n  if (code === 408) return `${why} (useapi.net stopped waiting)`;\n  if (/IP_PROHIBITED|IP_INPUT_IMAGE/.test(why)) return `${why}: Google flagged the image as protected content. Change the image or the prompt`;\n  return `${why} (HTTP ${code})`;\n};\n// Busy: wait and retry while within the limits. Otherwise give up on this row for this run.\n// A row that made nothing yet stays queued (status empty); a row with a finished image keeps it and fails.\nconst giveUpOrRetry = (s, step, c, label) => {\n  if (c.kind === 'busy') {\n    s.tries[step] = (s.tries[step] || 0) + 1;\n    const wait = Math.max(5, Math.ceil(c.wait));\n    if (s.tries[step] <= S.maxRetries && wait <= S.maxWaitSeconds) { s.waitSeconds = wait; s.route = 'retry'; return s; }\n    if (!s.made) {\n      s.status = '';\n      s.notes.push(`${stamp()}: ${label}: ${c.why}. Nothing was made, so the row stays queued for the next run${c.until ? ` (free again around ${c.until})` : ''}.`);\n      s.route = 'write';\n      return s;\n    }\n    s.status = `failed: ${label}: ${c.why}`;\n    s.route = 'save';\n    return s;\n  }\n  s.status = c.kind === 'unknown' ? `failed: ${label}: no answer from useapi.net (${c.why})` : `failed: ${label}: ${c.why}`;\n  s.route = s.made ? 'save' : 'write';\n  return s;\n};\nconst stamp = () => new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';\n\n// The upscale answers when it is done (usually 30 to 60 s). If it fails, the 720p video is kept.\nconst s = $('Upscale request').first().json.state;\nconst r = res($input.first().json), c = classify(r);\nif (c.kind === 'ok') {\n  const m = (r.body.media || [])[0] || {}, op = (r.body.operations || [])[0] || {};\n  const v = ((op.operation || {}).metadata || {}).video || {};\n  const url = m.videoUrl || v.fifeUrl || '', b64 = url ? '' : (op.rawBytes || '');\n  if (url || b64) { s.upscaled = { id: m.mediaGenerationId || op.mediaGenerationId || '', url, b64 }; s.notes.push('Upscaled to 1080p.'); }\n  else s.notes.push('The upscale returned no video, so the 720p video was kept.');\n  s.route = 'save';\n} else if (c.kind === 'busy' && (s.tries.upscale || 0) < S.maxRetries && Math.ceil(c.wait) <= S.maxWaitSeconds) {\n  s.tries.upscale = (s.tries.upscale || 0) + 1;\n  s.waitSeconds = Math.max(5, Math.ceil(c.wait));\n  s.route = 'retry';\n} else {\n  s.notes.push(`Upscale skipped (${c.why}), so the 720p video was kept.`);\n  s.route = 'save';\n}\nreturn [{ json: { state: s } }];\n"
+      },
+      "name": "Upscale result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 2,
+        "output": "={{ {\"retry\": 0, \"save\": 1}[$json.state.route] ?? 1 }}"
+      },
+      "name": "Upscale next",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        3260,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.state.waitSeconds }}",
+        "unit": "seconds"
+      },
+      "name": "Upscale retry wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2820,
+        960
+      ],
+      "webhookId": "eb5e03da-877d-5bb1-8527-cecedbfaff2a"
+    },
+    {
+      "parameters": {
+        "jsCode": "// One binary item per file: the image and the (upscaled) video, read from their signed links or inline base64.\nconst S = $('Settings').first().json;\nconst s = $input.first().json.state;\nif (!S.saveToDrive) return [{ json: { state: s, upload: false } }];\nconst files = [];\nif (s.image) files.push({ kind: 'image', src: s.image, name: `row-${s.row}-image.jpg`, mime: 'image/jpeg' });\nconst v = s.upscaled || s.video;\nif (v) files.push({ kind: 'video', src: v, name: `row-${s.row}-video${s.upscaled ? '-1080p' : ''}.mp4`, mime: 'video/mp4' });\nconst out = [];\nfor (const f of files) {\n  try {\n    const buf = f.src.url\n      ? Buffer.from(await this.helpers.httpRequest({ url: f.src.url, encoding: 'arraybuffer', json: false }))\n      : Buffer.from(f.src.b64 || '', 'base64');\n    if (!buf.length) throw new Error('no data');\n    out.push({ json: { state: s, upload: true, kind: f.kind, fileName: f.name },\n               binary: { data: await this.helpers.prepareBinaryData(buf, f.name, f.mime) } });\n  } catch (e) { s.notes.push(`The ${f.kind} could not be downloaded for Drive (${String(e.message || e).slice(0, 120)}).`); }\n}\nif (!out.length) return [{ json: { state: s, upload: false } }];\nreturn out;\n"
+      },
+      "name": "Files to save",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "019143cf-4030-5b01-8f2a-7d25887e7ee9",
+              "leftValue": "={{ $json.upload }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Save to Drive?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.driveFolderId || 'root' }}"
+        },
+        "options": {}
+      },
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        1340
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "googleDriveCred",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Back to one item per row, with a Drive link per uploaded file\nconst files = $('Files to save').all();\nconst s = files[0].json.state;\ns.links = [];\n$input.all().forEach((it, i) => {\n  const f = (files[i] || {}).json || {};\n  if (it.json.id) s.links.push({ kind: f.kind, url: `https://drive.google.com/file/d/${it.json.id}/view` });\n  else s.notes.push(`The Drive upload of the ${f.kind || 'file'} failed (${String((it.json.error && it.json.error.message) || 'no answer').slice(0, 120)}).`);\n});\nreturn [{ json: { state: s } }];\n"
+      },
+      "name": "Drive links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only these columns are written, matched on row_number\nconst s = $input.first().json.state;\nconst clip = (t, n) => String(t == null ? '' : t).replace(/\\s+/g, ' ').trim().slice(0, n);\nconst v = (s.upscaled && s.upscaled.url) ? s.upscaled : s.video;\nreturn [{ json: {\n  row_number: s.row,\n  status: s.status === undefined ? 'done' : clip(s.status, 300),\n  image_url: (s.image && s.image.url) || '',\n  video_url: (v && v.url) || '',\n  drive_link: (s.links || []).map(l => l.url).join('\\n'),\n  error: clip(s.notes.join(' '), 500),\n} }];\n"
+      },
+      "name": "Row update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.sheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheetName }}"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_prompt",
+              "displayName": "video_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image_model",
+              "displayName": "image_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_model",
+              "displayName": "video_model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspect_ratio",
+              "displayName": "aspect_ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "use_image_as_first_frame",
+              "displayName": "use_image_as_first_frame",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "upscale",
+              "displayName": "upscale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "drive_link",
+              "displayName": "drive_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Update row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1800,
+        1440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "googleSheetsCred",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Batch-generate Veo 3.1 videos and Nano Banana Pro images from a Google Sheet\n\n### How it works\nFor marketers and creators who need many images or clips at once, made with Google Flow on your Google AI plan (Plus, Pro or Ultra) through the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), a third-party API, not affiliated with Google.\n\n1. Each row is one job: a prompt, a `type` (`image`, `video` or `image+video`) and optional models, aspect ratio and upscale.\n2. Run by hand or hourly; rows with an empty `status` are marked `running`, then run one by one.\n3. Nano Banana Pro makes images, Veo 3.1 videos; an `image+video` row can use its image as the first frame.\n4. Busy answers (`429`) wait and retry; one failed row never stops the batch.\n5. Files go to Google Drive; the row gets `done` or `failed: <reason>` and the links.\n\nFlow credits per 8-second Veo 3.1 video (Google's list): Fast 20 (Ultra 10), Lite 10 (Ultra 5), Quality 100; upscaling is free. Limit: result links expire after about 6 hours, so keep `drive_link`.\n\n### Setup\n- [ ] A [useapi.net subscription and API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), with your Google account connected through [Setup Google Flow](https://useapi.net/docs/start-here/setup-google-flow?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch).\n- [ ] A Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on the four useapi.net HTTP nodes.\n- [ ] Google Sheets and Drive OAuth2 credentials, and `sheetId` in **Settings**.\n- [ ] A tab with these columns in row 1: `prompt`, `video_prompt`, `type`, `image_model`, `video_model`, `aspect_ratio`, `use_image_as_first_frame`, `upscale`, `email`, `status`, `image_url`, `video_url`, `drive_link`, `error`.\n- [ ] Click **Run batch now**, or publish for the hourly run.\n\n### Customization\n**Settings** holds the defaults (with allowed values), batch size, retries and Drive folder. Clear a `status` to rerun that row.",
+        "width": 700,
+        "height": 906
+      },
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Start\nRun it by hand, or publish the workflow for an hourly run. One node holds the sheet id and every default.",
+        "width": 460,
+        "height": 548,
+        "color": 7
+      },
+      "name": "Note: start",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -70,
+        -158
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Read the sheet and loop\nRows with an empty `status` are marked `running` at once, so overlapping runs never take a row twice. The cells are checked, then the rows run one at a time.",
+        "width": 1340,
+        "height": 426,
+        "color": 7
+      },
+      "name": "Note: sheet",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        490,
+        -136
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Route\nThe row's `type` picks the first step. A row that failed a check goes straight to the write-back.",
+        "width": 360,
+        "height": 370,
+        "color": 7
+      },
+      "name": "Note: route",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1910,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Nano Banana Pro image\nOne image per row, usually in 10 to 20 seconds. A busy (`429`) or unavailable (`503`) answer waits as the API asks and tries again.",
+        "width": 900,
+        "height": 548,
+        "color": 7
+      },
+      "name": "Note: image",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2350,
+        -58
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Veo 3.1 video\nStarts an async job, optionally with the row's image as the first frame. A submit that got no answer is never resent, since the job may exist.",
+        "width": 900,
+        "height": 548,
+        "color": 7
+      },
+      "name": "Note: video",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        490,
+        602
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Wait for the job\nChecks the video job until it completes or fails, up to a time limit. Google's failure reason goes into the row.",
+        "width": 900,
+        "height": 326,
+        "color": 7
+      },
+      "name": "Note: poll",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1510,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Upscale to 1080p\nOnly for rows that ask for it, and free on paid Google AI plans. If it fails, the 720p video is kept and the row says why.",
+        "width": 900,
+        "height": 548,
+        "color": 7
+      },
+      "name": "Note: upscale",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2530,
+        602
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Save to Google Drive\nDownloads the image and the video from their signed links and uploads them to your Drive folder. It can be turned off in Settings.",
+        "width": 900,
+        "height": 448,
+        "color": 7
+      },
+      "name": "Note: drive",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        490,
+        1182
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Write back\nOne update per row, matched on its row number: the status, the links and any notes. Then the loop takes the next row.",
+        "width": 460,
+        "height": 370,
+        "color": 7
+      },
+      "name": "Note: write",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1510,
+        1260
+      ]
+    }
+  ],
+  "connections": {
+    "Run batch now": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every hour": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Read sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Pick pending rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick pending rows": {
+      "main": [
+        [
+          {
+            "node": "Mark rows running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rows running": {
+      "main": [
+        [
+          {
+            "node": "Rows to run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rows to run": {
+      "main": [
+        [
+          {
+            "node": "Loop over rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over rows": {
+      "main": [
+        [
+          {
+            "node": "Batch summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Row type": {
+      "main": [
+        [
+          {
+            "node": "Image request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image request": {
+      "main": [
+        [
+          {
+            "node": "Generate image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate image": {
+      "main": [
+        [
+          {
+            "node": "Image result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image result": {
+      "main": [
+        [
+          {
+            "node": "Image next",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image next": {
+      "main": [
+        [
+          {
+            "node": "Image retry wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Video request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Files to save",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image retry wait": {
+      "main": [
+        [
+          {
+            "node": "Image request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video request": {
+      "main": [
+        [
+          {
+            "node": "Start video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start video": {
+      "main": [
+        [
+          {
+            "node": "Video started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video started": {
+      "main": [
+        [
+          {
+            "node": "Video next",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video next": {
+      "main": [
+        [
+          {
+            "node": "Video retry wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Files to save",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video retry wait": {
+      "main": [
+        [
+          {
+            "node": "Video request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for job": {
+      "main": [
+        [
+          {
+            "node": "Check job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check job": {
+      "main": [
+        [
+          {
+            "node": "Job status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job status": {
+      "main": [
+        [
+          {
+            "node": "Job next",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job next": {
+      "main": [
+        [
+          {
+            "node": "Wait for job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upscale request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Files to save",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscale request": {
+      "main": [
+        [
+          {
+            "node": "Upscale video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscale video": {
+      "main": [
+        [
+          {
+            "node": "Upscale result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscale result": {
+      "main": [
+        [
+          {
+            "node": "Upscale next",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscale next": {
+      "main": [
+        [
+          {
+            "node": "Upscale retry wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Files to save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upscale retry wait": {
+      "main": [
+        [
+          {
+            "node": "Upscale request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Files to save": {
+      "main": [
+        [
+          {
+            "node": "Save to Drive?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Drive?": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Drive links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive links": {
+      "main": [
+        [
+          {
+            "node": "Row update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Row update": {
+      "main": [
+        [
+          {
+            "node": "Update row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row": {
+      "main": [
+        [
+          {
+            "node": "Loop over rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

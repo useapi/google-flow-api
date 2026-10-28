@@ -140,7 +140,7 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.2,
       "position": [
-        0,
+        -240,
         0
       ],
       "credentials": {
@@ -153,13 +153,28 @@
     },
     {
       "parameters": {
-        "jsCode": "\nconst f = $json;\n// Everything later stages need travels in `state`. Change the image model or the captcha attempts here.\nconst s = {\n  email: f['Google Flow account email'].trim(),\n  presenterMode: { 'Generate a new presenter': 'generate', 'Upload photos of the presenter': 'upload', 'Use a saved character': 'character' }[f['Presenter']],\n  productCount: Number(f['Number of products'] || 1), intro: f['Intro clip'] === 'Yes', closing: f['Closing clip'] === 'Yes',\n  vertical: f['Format'] !== 'Horizontal 16:9', takes: Number(f['Takes per clip'] || 4),\n  imageModel: 'nano-banana-pro', captchaRetry: 8,\n};\nconst D = {\"presenter\": \"a friendly woman, late twenties, natural makeup, shoulder-length brown hair, a casual cream knit sweater, in a bright modern bathroom with soft daylight\", \"voiceDelivery\": \"Warm, friendly and natural, like talking to a close friend\", \"voiceSample\": \"Okay, I have to tell you about the serum I've been using every morning.\", \"scene\": \"The presenter sits facing the camera at a bright bathroom vanity, relaxed and smiling, hands resting on the counter.\", \"intro\": \"Looking into the lens, the presenter says with a small excited smile: \\\"Okay, I have to show you my morning skincare routine.\\\"\", \"closing\": \"The presenter smiles into the lens and says: \\\"The link is below. Try it, you'll thank me later.\\\" Then gives a small wave.\"};\nconst P = [[\"Vitamin C serum\", \"a small amber glass dropper bottle with a white label reading GLOW C SERUM and a black rubber dropper top\", \"The presenter picks up the serum, holds it up so the label faces the camera, and says: \\\"This vitamin C serum goes on first every morning. Two drops, and my skin looks so much brighter.\\\"\"], [\"Moisturizer\", \"a white frosted glass jar with a silver lid and a minimal label reading DAILY CLOUD CREAM\", \"The presenter picks up the moisturizer jar, lifts the lid to show the cream, and says: \\\"Then this moisturizer. It's light, it sinks in fast, and it lasts all day.\\\"\"], [\"Sunscreen\", \"a slim white squeeze tube with an orange cap and a label reading SPF 50 DAILY SHIELD\", \"The presenter picks up the sunscreen tube, shows the label to the camera, and says: \\\"And I never skip sunscreen. This one leaves no white cast at all.\\\"\"], [\"Cleanser\", \"a clear pump bottle of pale blue gel cleanser with a label reading GENTLE FOAM CLEANSER\", \"The presenter taps the top of the cleanser bottle and says: \\\"At night I start with this gentle cleanser. It takes everything off without drying my skin.\\\"\"], [\"Face roller\", \"a green jade facial roller with a gold-colored metal handle\", \"The presenter picks up the jade roller, rolls it gently along one cheek, and says: \\\"And this jade roller is my little treat. Cold, calming, and great for puffiness.\\\"\"]];\nconst lengths = [{\"option\": \"4 s\"}, {\"option\": \"6 s\"}, {\"option\": \"8 s\"}, {\"option\": \"10 s\"}];\nconst fields = [];\nif (s.presenterMode === 'generate') fields.push({ fieldLabel: 'Presenter', fieldType: 'textarea', requiredField: true, defaultValue: D.presenter });\nif (s.presenterMode === 'upload') fields.push(\n  { fieldType: 'html', html: '<p>Use a clear, front-facing photo. Google screens real faces, so a photo of a real person may be refused in video.</p>' },\n  { fieldLabel: 'Presenter photo', fieldType: 'file', requiredField: true, multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n  { fieldLabel: 'Second presenter photo', fieldType: 'file', multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n  { fieldType: 'html', html: '<p>Optional: a three-quarter view. Without it, the next pages generate one from the first photo.</p>' });\nif (s.presenterMode === 'character') fields.push(\n  { fieldLabel: 'Character ID', fieldType: 'text', requiredField: true, placeholder: 'user:...-character:...  (shown on the last page of an earlier run)' },\n  { fieldType: 'html', html: '<p>The saved character brings its own face and voice.</p>' });\nif (s.presenterMode !== 'character') fields.push(\n  { fieldLabel: 'Voice', fieldType: 'dropdown', requiredField: true, defaultValue: 'Female', fieldOptions: { values: [{ option: 'Female' }, { option: 'Male' }] } },\n  { fieldLabel: 'Voice delivery', fieldType: 'text', requiredField: true, defaultValue: D.voiceDelivery },\n  { fieldLabel: 'Voice sample line', fieldType: 'text', requiredField: true, defaultValue: D.voiceSample });\nfields.push({ fieldLabel: 'Scene', fieldType: 'textarea', requiredField: true, defaultValue: D.scene });\nif (s.intro) fields.push({ fieldType: 'html', html: '<h3>Intro clip</h3>' },\n  { fieldLabel: 'Intro: what the presenter does and says', fieldType: 'textarea', requiredField: true, defaultValue: D.intro },\n  { fieldLabel: 'Intro length', fieldType: 'dropdown', requiredField: true, defaultValue: '6 s', fieldOptions: { values: lengths } });\nfor (let i = 0; i < s.productCount; i++) { const [name, desc, action] = P[i]; const n = i + 1;\n  fields.push({ fieldType: 'html', html: `<h3>Product ${n}</h3>` },\n    { fieldLabel: `Product ${n} name`, fieldType: 'text', requiredField: true, defaultValue: name },\n    { fieldLabel: `Product ${n} description`, fieldType: 'textarea', defaultValue: desc, placeholder: 'What it looks like. Can stay empty if you upload a photo.' },\n    { fieldLabel: `Product ${n} photo`, fieldType: 'file', multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n    { fieldLabel: `Product ${n} 4-view sheet from the photo`, fieldType: 'dropdown', defaultValue: 'No', fieldOptions: { values: [{ option: 'No' }, { option: 'Yes' }] } },\n    { fieldLabel: `Product ${n} clip: what the presenter does and says`, fieldType: 'textarea', requiredField: true, defaultValue: action },\n    { fieldLabel: `Product ${n} clip length`, fieldType: 'dropdown', requiredField: true, defaultValue: '10 s', fieldOptions: { values: lengths } }); }\nif (s.closing) fields.push({ fieldType: 'html', html: '<h3>Closing clip</h3>' },\n  { fieldLabel: 'Closing: what the presenter does and says', fieldType: 'textarea', requiredField: true, defaultValue: D.closing },\n  { fieldLabel: 'Closing length', fieldType: 'dropdown', requiredField: true, defaultValue: '6 s', fieldOptions: { values: lengths } });\nreturn [{ json: { state: s, fields } }];\n"
+        "action": "generate",
+        "dataPropertyName": "secretCandidate",
+        "encodingType": "hex",
+        "stringLength": 64
+      },
+      "name": "New secret",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst f = $('Start form').first().json;   // read the trigger itself: \"New secret\" runs in between\n// Everything later stages need travels in `state`. Change the image model or the captcha attempts here.\nconst s = {\n  email: f['Google Flow account email'].trim(),\n  presenterMode: { 'Generate a new presenter': 'generate', 'Upload photos of the presenter': 'upload', 'Use a saved character': 'character' }[f['Presenter']],\n  productCount: Number(f['Number of products'] || 1), intro: f['Intro clip'] === 'Yes', closing: f['Closing clip'] === 'Yes',\n  vertical: f['Format'] !== 'Horizontal 16:9', takes: Number(f['Takes per clip'] || 4),\n  imageModel: 'nano-banana-pro', captchaRetry: 8,\n};\nconst D = {\"presenter\": \"a friendly woman, late twenties, natural makeup, shoulder-length brown hair, a casual cream knit sweater, in a bright modern bathroom with soft daylight\", \"voiceDelivery\": \"Warm, friendly and natural, like talking to a close friend\", \"voiceSample\": \"Okay, I have to tell you about the serum I've been using every morning.\", \"scene\": \"The presenter sits facing the camera at a bright bathroom vanity, relaxed and smiling, hands resting on the counter.\", \"intro\": \"Looking into the lens, the presenter says with a small excited smile: \\\"Okay, I have to show you my morning skincare routine.\\\"\", \"closing\": \"The presenter smiles into the lens and says: \\\"The link is below. Try it, you'll thank me later.\\\" Then gives a small wave.\"};\nconst P = [[\"Vitamin C serum\", \"a small amber glass dropper bottle with a white label reading GLOW C SERUM and a black rubber dropper top\", \"The presenter picks up the serum, holds it up so the label faces the camera, and says: \\\"This vitamin C serum goes on first every morning. Two drops, and my skin looks so much brighter.\\\"\"], [\"Moisturizer\", \"a white frosted glass jar with a silver lid and a minimal label reading DAILY CLOUD CREAM\", \"The presenter picks up the moisturizer jar, lifts the lid to show the cream, and says: \\\"Then this moisturizer. It's light, it sinks in fast, and it lasts all day.\\\"\"], [\"Sunscreen\", \"a slim white squeeze tube with an orange cap and a label reading SPF 50 DAILY SHIELD\", \"The presenter picks up the sunscreen tube, shows the label to the camera, and says: \\\"And I never skip sunscreen. This one leaves no white cast at all.\\\"\"], [\"Cleanser\", \"a clear pump bottle of pale blue gel cleanser with a label reading GENTLE FOAM CLEANSER\", \"The presenter taps the top of the cleanser bottle and says: \\\"At night I start with this gentle cleanser. It takes everything off without drying my skin.\\\"\"], [\"Face roller\", \"a green jade facial roller with a gold-colored metal handle\", \"The presenter picks up the jade roller, rolls it gently along one cheek, and says: \\\"And this jade roller is my little treat. Cold, calming, and great for puffiness.\\\"\"]];\nconst lengths = [{\"option\": \"4 s\"}, {\"option\": \"6 s\"}, {\"option\": \"8 s\"}, {\"option\": \"10 s\"}];\nconst fields = [];\nif (s.presenterMode === 'generate') fields.push({ fieldLabel: 'Presenter', fieldType: 'textarea', requiredField: true, defaultValue: D.presenter });\nif (s.presenterMode === 'upload') fields.push(\n  { fieldType: 'html', html: '<p>Use a clear, front-facing photo. Google screens real faces, so a photo of a real person may be refused in video.</p>' },\n  { fieldLabel: 'Presenter photo', fieldType: 'file', requiredField: true, multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n  { fieldLabel: 'Second presenter photo', fieldType: 'file', multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n  { fieldType: 'html', html: '<p>Optional: a three-quarter view. Without it, the next pages generate one from the first photo.</p>' });\nif (s.presenterMode === 'character') fields.push(\n  { fieldLabel: 'Character ID', fieldType: 'text', requiredField: true, placeholder: 'user:...-character:...  (shown on the last page of an earlier run)' },\n  { fieldType: 'html', html: '<p>The saved character brings its own face and voice.</p>' });\nif (s.presenterMode !== 'character') fields.push(\n  { fieldLabel: 'Voice', fieldType: 'dropdown', requiredField: true, defaultValue: 'Female', fieldOptions: { values: [{ option: 'Female' }, { option: 'Male' }] } },\n  { fieldLabel: 'Voice delivery', fieldType: 'text', requiredField: true, defaultValue: D.voiceDelivery },\n  { fieldLabel: 'Voice sample line', fieldType: 'text', requiredField: true, defaultValue: D.voiceSample });\nfields.push({ fieldLabel: 'Scene', fieldType: 'textarea', requiredField: true, defaultValue: D.scene });\nif (s.intro) fields.push({ fieldType: 'html', html: '<h3>Intro clip</h3>' },\n  { fieldLabel: 'Intro: what the presenter does and says', fieldType: 'textarea', requiredField: true, defaultValue: D.intro },\n  { fieldLabel: 'Intro length', fieldType: 'dropdown', requiredField: true, defaultValue: '6 s', fieldOptions: { values: lengths } });\nfor (let i = 0; i < s.productCount; i++) { const [name, desc, action] = P[i]; const n = i + 1;\n  fields.push({ fieldType: 'html', html: `<h3>Product ${n}</h3>` },\n    { fieldLabel: `Product ${n} name`, fieldType: 'text', requiredField: true, defaultValue: name },\n    { fieldLabel: `Product ${n} description`, fieldType: 'textarea', defaultValue: desc, placeholder: 'What it looks like. Can stay empty if you upload a photo.' },\n    { fieldLabel: `Product ${n} photo`, fieldType: 'file', multipleFiles: false, acceptFileTypes: '.png,.jpg,.jpeg,.webp' },\n    { fieldLabel: `Product ${n} 4-view sheet from the photo`, fieldType: 'dropdown', defaultValue: 'No', fieldOptions: { values: [{ option: 'No' }, { option: 'Yes' }] } },\n    { fieldLabel: `Product ${n} clip: what the presenter does and says`, fieldType: 'textarea', requiredField: true, defaultValue: action },\n    { fieldLabel: `Product ${n} clip length`, fieldType: 'dropdown', requiredField: true, defaultValue: '10 s', fieldOptions: { values: lengths } }); }\nif (s.closing) fields.push({ fieldType: 'html', html: '<h3>Closing clip</h3>' },\n  { fieldLabel: 'Closing: what the presenter does and says', fieldType: 'textarea', requiredField: true, defaultValue: D.closing },\n  { fieldLabel: 'Closing length', fieldType: 'dropdown', requiredField: true, defaultValue: '6 s', fieldOptions: { values: lengths } });\nreturn [{ json: { state: s, fields } }];\n"
       },
       "name": "Settings",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        220,
+        440,
         0
       ]
     },
@@ -179,7 +194,7 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 2.5,
       "position": [
-        440,
+        660,
         0
       ],
       "webhookId": "620e2372-5ae1-57c1-98f0-0f71e42694f5"
@@ -192,7 +207,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        660,
+        880,
         0
       ]
     },
@@ -225,7 +240,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        880,
+        1100,
         0
       ]
     },
@@ -233,12 +248,12 @@
       "parameters": {
         "jsCode": "\nconst d = $input.first();  // straight from Read details through the IF: a file read via $('Read details') arrives empty\nconst s = d.json.state;\nreturn d.json.uploads.map(u => ({ json: { email: s.email, role: u.role, index: u.index }, binary: { file: d.binary[u.key] } }));\n"
       },
-      "name": "Upload files",
+      "name": "Photos to upload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
-        -100
+        1320,
+        -140
       ]
     },
     {
@@ -263,12 +278,12 @@
         "contentType": "binaryData",
         "inputDataFieldName": "file"
       },
-      "name": "Upload",
+      "name": "Upload photos",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1320,
-        -100
+        1540,
+        -140
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -295,8 +310,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
-        -100
+        1760,
+        -140
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -311,13 +326,13 @@
     },
     {
       "parameters": {
-        "jsCode": "\nconst raw = j => { const e = j && j.error; return !e ? '' : typeof e === 'string' ? e : String(e.message || e.description || JSON.stringify(e)); };\nconst errText = j => { const e = j && j.error; if (!e) return 'no result'; let m = raw(j);  // message carries the API's own error; description is n8n's generic hint\n  const code = m.match(/^(\\d{3})\\b/), reason = m.match(/\\\\?\"reason\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/), inner = m.match(/\\\\?\"error\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/);\n  const msg = reason ? reason[1] + (inner && !/^API error/.test(inner[1]) ? ` (${inner[1]})` : '') : inner ? inner[1] : null;\n  if (msg) m = (code ? code[1] + ': ' : '') + msg;  // keep the HTTP status: it decides the error kind\n  return String(m).slice(0, 240); };\n// temporary: worth retrying as is. refused: Google's content filters, change the input. deadend: fix the account or input.\nconst kind = j => { const t = errText(j) + ' ' + raw(j);\n  if (/ACCESS_DENIED|PAYGATE|paid Google|unauthori|\\b401\\b|not found|\\b404\\b|not connected/i.test(t)) return 'deadend';\n  // a refusal is matched before the retry check, so captcha details inside a refusal body never cause paid resubmits\n  if (/PUBLIC_ERROR_(?!UNUSUAL_ACTIVITY)|IP_PROHIBITED|MINOR|DANGER|PROMINENT|SAFETY|FILTER|UNSAFE|SEXUAL|CHILD|VIOLEN|refus|blocked/i.test(t)) return 'refused';\n  if (/captcha|UNUSUAL_ACTIVITY|\\b429\\b|\\b50[0234]\\b|NO_RPC_ANSWER|timed? ?out|ETIMEDOUT|ECONNRESET|socket hang up|temporar/i.test(t)) return 'temporary';\n  if (/\\b40[03]\\b|forbidden|token|account|credit|quota|insufficient|subscription|parameter|required|invalid|unsupported/i.test(t)) return 'deadend';\n  return 'temporary'; };\nconst hint = t => /PAYGATE|paid Google|free plan|tier/i.test(t) ? 'This Google account needs a paid Google AI plan for Omni 1.1 Flash video. Use an account on a paid plan, or upgrade this one.'\n  : /unauthori|\\b401\\b|token/i.test(t) ? 'Check the API token in the n8n Header Auth credential.'\n  : /credit|quota|insufficient/i.test(t) ? 'The Google account is out of Flow credits.'\n  : /ACCESS_DENIED|subscription/i.test(t) ? 'This Google AI plan cannot use the model; Omni 1.1 Flash needs a paid plan.'\n  : /not found|not connected|account|\\b404\\b/i.test(t) ? 'Check that this Google Flow account email is connected at useapi.net, and that any ID you pasted belongs to it.'\n  : 'Fix the input or the account, then open the start form again.';\nconst MAX_RETRIES = 5;\n// Call when results are in. Returns a route when every request failed with a temporary or dead-end error, otherwise null.\nconst decide = (s, stage, failures, total) => { s.tries = s.tries || {};\n  if (!failures.length || failures.length < total) { s.tries[stage] = 0; return null; }\n  const j = failures[0], t = errText(j), k = kind(j);\n  if (k === 'deadend') return [{ json: { route: 'stop', state: s, message: `${t}. ${hint(t)}` } }];\n  if (k === 'temporary') { s.tries[stage] = (s.tries[stage] || 0) + 1; if (s.tries[stage] <= MAX_RETRIES) return [{ json: { route: 'retry', state: s } }]; }\n  s.tries[stage] = 0; return null; };\nconst failNote = (j, what) => kind(j) === 'refused'\n  ? `<p><b>Google refused the ${what}:</b> ${errText(j)}</p><p>Change the description and re-roll. Refusals also vary between attempts.</p>`\n  : `<p><b>The ${what} failed:</b> ${errText(j)}</p><p>Nothing was charged. Re-roll to try again. If captcha keeps failing, add a second captcha provider to your useapi.net account.</p>`;\nconst show = (s, fields) => [{ json: { route: 'show', state: s, fields } }];\nconst img = (url, label) => `<td>${label}<br>${url ? `<a href=\"${url}\" target=\"_blank\" rel=\"noopener\"><img src=\"${url}\" alt=\"${label}\"></a><br><a href=\"${url}\" target=\"_blank\" rel=\"noopener\">open full size</a>` : '(no preview)'}</td>`;\n\nconst s = $('Read details').first().json.state;\nlet ups = [];\ntry { ups = $('Upload files').all().map(i => i.json); } catch (e) { ups = []; }  // the upload branch did not run\nif ($('Read details').first().json.hasUploads && ups.length) {\n  const res = $('Upload').all().map(i => i.json), prev = $('Upload preview').all().map(i => i.json);\n  const bad = res.filter(j => !(j.mediaGenerationId && j.mediaGenerationId.mediaGenerationId));\n  if (bad.length) return [{ json: { route: 'stop', state: s, message: `A photo could not be uploaded: ${errText(bad[0])}. Use PNG, JPEG or WebP up to 20 MB, then open the start form again.` } }];\n  ups.forEach((u, k) => { const ref = { id: res[k].mediaGenerationId.mediaGenerationId, url: (prev[k] && prev[k].url) || '' };\n    if (u.role === 'presenter1') s.persona = ref; else if (u.role === 'presenter2') s.angle = ref; else s.products[u.index].upload = ref; });\n}\nconst route = s.presenterMode === 'character' ? 'character' : s.presenterMode === 'generate' ? 'generate' : (s.angle ? 'photos' : 'photo');\nreturn [{ json: { route, state: s } }];\n"
+        "jsCode": "\nconst raw = j => { const e = j && j.error; return !e ? '' : typeof e === 'string' ? e : String(e.message || e.description || JSON.stringify(e)); };\nconst errText = j => { const e = j && j.error; if (!e) return 'no result'; let m = raw(j);  // message carries the API's own error; description is n8n's generic hint\n  const code = m.match(/^(\\d{3})\\b/), reason = m.match(/\\\\?\"reason\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/), inner = m.match(/\\\\?\"error\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/);\n  const msg = reason ? reason[1] + (inner && !/^API error/.test(inner[1]) ? ` (${inner[1]})` : '') : inner ? inner[1] : null;\n  if (msg) m = (code ? code[1] + ': ' : '') + msg;  // keep the HTTP status: it decides the error kind\n  return String(m).slice(0, 240); };\n// temporary: worth retrying as is. refused: Google's content filters, change the input. deadend: fix the account or input.\nconst kind = j => { const t = errText(j) + ' ' + raw(j);\n  if (/ACCESS_DENIED|PAYGATE|paid Google|unauthori|\\b401\\b|not found|\\b404\\b|not connected/i.test(t)) return 'deadend';\n  // a refusal is matched before the retry check, so captcha details inside a refusal body never cause paid resubmits\n  if (/PUBLIC_ERROR_(?!UNUSUAL_ACTIVITY)|IP_PROHIBITED|MINOR|DANGER|PROMINENT|SAFETY|FILTER|UNSAFE|SEXUAL|CHILD|VIOLEN|refus|blocked/i.test(t)) return 'refused';\n  if (/captcha|UNUSUAL_ACTIVITY|\\b429\\b|\\b50[0234]\\b|NO_RPC_ANSWER|timed? ?out|ETIMEDOUT|ECONNRESET|socket hang up|temporar/i.test(t)) return 'temporary';\n  if (/\\b40[03]\\b|forbidden|token|account|credit|quota|insufficient|subscription|parameter|required|invalid|unsupported/i.test(t)) return 'deadend';\n  return 'temporary'; };\nconst hint = t => /PAYGATE|paid Google|free plan|tier/i.test(t) ? 'This Google account needs a paid Google AI plan for Omni 1.1 Flash video. Use an account on a paid plan, or upgrade this one.'\n  : /unauthori|\\b401\\b|token/i.test(t) ? 'Check the API token in the n8n Header Auth credential.'\n  : /credit|quota|insufficient/i.test(t) ? 'The Google account is out of Flow credits.'\n  : /ACCESS_DENIED|subscription/i.test(t) ? 'This Google AI plan cannot use the model; Omni 1.1 Flash needs a paid plan.'\n  : /not found|not connected|account|\\b404\\b/i.test(t) ? 'Check that this Google Flow account email is connected at useapi.net, and that any ID you pasted belongs to it.'\n  : 'Fix the input or the account, then open the start form again.';\nconst MAX_RETRIES = 5;\n// Call when results are in. Returns a route when every request failed with a temporary or dead-end error, otherwise null.\nconst decide = (s, stage, failures, total) => { s.tries = s.tries || {};\n  if (!failures.length || failures.length < total) { s.tries[stage] = 0; return null; }\n  const j = failures[0], t = errText(j), k = kind(j);\n  if (k === 'deadend') return [{ json: { route: 'stop', state: s, message: `${t}. ${hint(t)}` } }];\n  if (k === 'temporary') { s.tries[stage] = (s.tries[stage] || 0) + 1; if (s.tries[stage] <= MAX_RETRIES) return [{ json: { route: 'retry', state: s } }]; }\n  s.tries[stage] = 0; return null; };\nconst failNote = (j, what) => kind(j) === 'refused'\n  ? `<p><b>Google refused the ${what}:</b> ${errText(j)}</p><p>Change the description and re-roll. Refusals also vary between attempts.</p>`\n  : `<p><b>The ${what} failed:</b> ${errText(j)}</p><p>Nothing was charged. Re-roll to try again. If captcha keeps failing, add a second captcha provider to your useapi.net account.</p>`;\nconst show = (s, fields) => [{ json: { route: 'show', state: s, fields } }];\nconst img = (url, label) => `<td>${label}<br>${url ? `<a href=\"${url}\" target=\"_blank\" rel=\"noopener\"><img src=\"${url}\" alt=\"${label}\"></a><br><a href=\"${url}\" target=\"_blank\" rel=\"noopener\">open full size</a>` : '(no preview)'}</td>`;\n\nconst s = $('Read details').first().json.state;\nlet ups = [];\ntry { ups = $('Photos to upload').all().map(i => i.json); } catch (e) { ups = []; }  // the upload branch did not run\nif ($('Read details').first().json.hasUploads && ups.length) {\n  const res = $('Upload photos').all().map(i => i.json), prev = $('Upload preview').all().map(i => i.json);\n  const bad = res.filter(j => !(j.mediaGenerationId && j.mediaGenerationId.mediaGenerationId));\n  if (bad.length) return [{ json: { route: 'stop', state: s, message: `A photo could not be uploaded: ${errText(bad[0])}. Use PNG, JPEG or WebP up to 20 MB, then open the start form again.` } }];\n  ups.forEach((u, k) => { const ref = { id: res[k].mediaGenerationId.mediaGenerationId, url: (prev[k] && prev[k].url) || '' };\n    if (u.role === 'presenter1') s.persona = ref; else if (u.role === 'presenter2') s.angle = ref; else s.products[u.index].upload = ref; });\n}\nconst route = s.presenterMode === 'character' ? 'character' : s.presenterMode === 'generate' ? 'generate' : (s.angle ? 'photos' : 'photo');\nreturn [{ json: { route, state: s } }];\n"
       },
       "name": "Uploads done",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1760,
+        1980,
         0
       ]
     },
@@ -335,8 +350,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1980,
-        120
+        2200,
+        0
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -357,8 +372,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2200,
-        120
+        2420,
+        0
       ]
     },
     {
@@ -371,7 +386,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        2420,
+        2640,
         0
       ]
     },
@@ -391,8 +406,8 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 2.5,
       "position": [
-        2640,
-        120
+        2860,
+        -140
       ],
       "webhookId": "c9cf757a-7f81-537c-8078-eb3b74286d7e"
     },
@@ -405,7 +420,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        420
+        480
       ]
     },
     {
@@ -426,7 +441,7 @@
       "typeVersion": 4.2,
       "position": [
         220,
-        420
+        480
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -448,7 +463,7 @@
       "typeVersion": 2,
       "position": [
         440,
-        420
+        480
       ]
     },
     {
@@ -462,7 +477,7 @@
       "typeVersion": 3.2,
       "position": [
         660,
-        420
+        480
       ]
     },
     {
@@ -474,7 +489,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        280
+        340
       ],
       "webhookId": "cb28069a-7149-57d6-8eee-43ccfa694a9e"
     },
@@ -495,7 +510,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        280
+        340
       ],
       "webhookId": "ec67f646-3533-5ae1-a9ef-0aa17c2dcc63"
     },
@@ -516,7 +531,7 @@
       "typeVersion": 2.5,
       "position": [
         880,
-        420
+        480
       ],
       "webhookId": "93c1da6c-d61b-56e6-938a-e4757d50b0cb"
     },
@@ -529,7 +544,7 @@
       "typeVersion": 2,
       "position": [
         1100,
-        420
+        480
       ]
     },
     {
@@ -562,7 +577,7 @@
       "typeVersion": 2.2,
       "position": [
         1320,
-        420
+        480
       ]
     },
     {
@@ -574,7 +589,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        840
+        960
       ]
     },
     {
@@ -595,7 +610,7 @@
       "typeVersion": 4.2,
       "position": [
         220,
-        840
+        960
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -617,7 +632,7 @@
       "typeVersion": 2,
       "position": [
         440,
-        840
+        960
       ]
     },
     {
@@ -631,7 +646,7 @@
       "typeVersion": 3.2,
       "position": [
         660,
-        840
+        960
       ]
     },
     {
@@ -643,7 +658,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        700
+        820
       ],
       "webhookId": "061d8978-0d9f-5794-b40a-a6af44b3c7bd"
     },
@@ -664,7 +679,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        700
+        820
       ],
       "webhookId": "a6e07102-a3d8-5b00-9cd6-7180d6213e76"
     },
@@ -685,7 +700,7 @@
       "typeVersion": 2.5,
       "position": [
         880,
-        840
+        960
       ],
       "webhookId": "d25aa29a-65e4-5242-bc04-14a06062f68a"
     },
@@ -698,7 +713,7 @@
       "typeVersion": 2,
       "position": [
         1100,
-        840
+        960
       ]
     },
     {
@@ -731,7 +746,7 @@
       "typeVersion": 2.2,
       "position": [
         1320,
-        840
+        960
       ]
     },
     {
@@ -743,7 +758,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        1260
+        1440
       ]
     },
     {
@@ -764,7 +779,7 @@
       "typeVersion": 4.2,
       "position": [
         220,
-        1260
+        1440
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -786,7 +801,7 @@
       "typeVersion": 2,
       "position": [
         440,
-        1260
+        1440
       ]
     },
     {
@@ -800,7 +815,7 @@
       "typeVersion": 3.2,
       "position": [
         660,
-        1260
+        1440
       ]
     },
     {
@@ -812,7 +827,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        1120
+        1300
       ],
       "webhookId": "03af7b47-f610-57a1-8d28-35a3da9b9fd4"
     },
@@ -833,7 +848,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        1120
+        1300
       ],
       "webhookId": "6c698fc8-31c5-546d-b609-8a8f9ed988e8"
     },
@@ -854,7 +869,7 @@
       "typeVersion": 2.5,
       "position": [
         880,
-        1260
+        1440
       ],
       "webhookId": "bc7d9dd9-e3b2-5358-b5c9-68eb8f163527"
     },
@@ -867,7 +882,7 @@
       "typeVersion": 2,
       "position": [
         1100,
-        1260
+        1440
       ]
     },
     {
@@ -900,7 +915,7 @@
       "typeVersion": 2.2,
       "position": [
         1320,
-        1260
+        1440
       ]
     },
     {
@@ -921,7 +936,7 @@
       "typeVersion": 4.2,
       "position": [
         1540,
-        1380
+        1440
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -943,7 +958,7 @@
       "typeVersion": 2,
       "position": [
         1760,
-        1380
+        1440
       ]
     },
     {
@@ -957,7 +972,7 @@
       "typeVersion": 3.2,
       "position": [
         1980,
-        1380
+        1440
       ]
     },
     {
@@ -969,7 +984,7 @@
       "typeVersion": 1.1,
       "position": [
         2200,
-        1240
+        1300
       ],
       "webhookId": "cf0e6f70-a91d-51d6-a21b-4d69628d5c94"
     },
@@ -989,8 +1004,8 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 2.5,
       "position": [
-        2200,
-        1540
+        2420,
+        1300
       ],
       "webhookId": "ea9d9601-27d7-5bef-82bb-e1ebf18e8a27"
     },
@@ -1008,8 +1023,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2640,
-        -140
+        3120,
+        0
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1030,8 +1045,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2860,
-        -140
+        3340,
+        0
       ]
     },
     {
@@ -1044,8 +1059,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        3080,
-        -140
+        3560,
+        0
       ]
     },
     {
@@ -1064,7 +1079,7 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 2.5,
       "position": [
-        3300,
+        3780,
         -140
       ],
       "webhookId": "5e8e3144-4017-5dc7-b41c-1f4ba082b973"
@@ -1078,7 +1093,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        1720
+        1920
       ]
     },
     {
@@ -1111,7 +1126,7 @@
       "typeVersion": 2.2,
       "position": [
         220,
-        1720
+        1920
       ]
     },
     {
@@ -1132,7 +1147,7 @@
       "typeVersion": 4.2,
       "position": [
         440,
-        1620
+        1780
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1154,7 +1169,7 @@
       "typeVersion": 2,
       "position": [
         660,
-        1720
+        1920
       ]
     },
     {
@@ -1168,7 +1183,7 @@
       "typeVersion": 3.2,
       "position": [
         880,
-        1720
+        1920
       ]
     },
     {
@@ -1180,7 +1195,7 @@
       "typeVersion": 1.1,
       "position": [
         1100,
-        1580
+        1780
       ],
       "webhookId": "49f2ce8d-df85-5e17-9a80-02498819871d"
     },
@@ -1201,7 +1216,7 @@
       "typeVersion": 2.5,
       "position": [
         1320,
-        1580
+        1780
       ],
       "webhookId": "48d7c879-e211-553c-947e-9602c6e20892"
     },
@@ -1222,7 +1237,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        1720
+        1920
       ],
       "webhookId": "e75d6e83-c017-57e3-a265-64094033468a"
     },
@@ -1235,7 +1250,7 @@
       "typeVersion": 2,
       "position": [
         1320,
-        1720
+        1920
       ]
     },
     {
@@ -1268,7 +1283,7 @@
       "typeVersion": 2.2,
       "position": [
         1540,
-        1720
+        1920
       ]
     },
     {
@@ -1280,7 +1295,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        2140
+        2400
       ]
     },
     {
@@ -1301,7 +1316,7 @@
       "typeVersion": 4.2,
       "position": [
         220,
-        2140
+        2400
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1323,7 +1338,7 @@
       "typeVersion": 2,
       "position": [
         440,
-        2140
+        2400
       ]
     },
     {
@@ -1337,7 +1352,7 @@
       "typeVersion": 3.2,
       "position": [
         660,
-        2140
+        2400
       ]
     },
     {
@@ -1349,7 +1364,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        2000
+        2260
       ],
       "webhookId": "5c4e0db0-7349-5309-a6a8-1d9e71858f63"
     },
@@ -1370,7 +1385,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        2000
+        2260
       ],
       "webhookId": "a14fd35c-3dc6-597d-9d0b-c1b30a60e6e9"
     },
@@ -1391,7 +1406,7 @@
       "typeVersion": 2.5,
       "position": [
         880,
-        2140
+        2400
       ],
       "webhookId": "23da5458-9bc2-5f91-933d-4b94d83327d1"
     },
@@ -1404,7 +1419,7 @@
       "typeVersion": 2,
       "position": [
         1100,
-        2140
+        2400
       ]
     },
     {
@@ -1418,19 +1433,19 @@
       "typeVersion": 3.2,
       "position": [
         1320,
-        2140
+        2400
       ]
     },
     {
       "parameters": {
-        "jsCode": "\n// Reference mode: the character (face + voice), the picked scene and the product handled in this clip.\n// Three ways in: first pass (Scene choice), a user re-roll (Clip choice), or a resubmit after a temporary error (Jobs).\nconst s = $json.state;\nif ($json.reroll === true) { s.polls = 0; s.clipsPending.forEach(i => { delete s.clipDone[i]; s.submitTries[i] = 0; }); }\nreturn s.clipsPending.map(i => { const c = s.clips[i];\n  const product = c.product !== null ? ` The product handled is the ${s.products[c.product].name} from @referenceImage_2.` : '';\n  const voice = s.voiceRef ? ' The presenter speaks in the voice of @referenceAudio_1.' : '';\n  const prompt = `@character_1 in the exact scene of @referenceImage_1: same framing, same setting, same lighting, same products in the same places.${product} Action: ${c.action} Then the presenter puts anything they picked up back exactly where it was.${voice} Fixed camera, no camera movement, no zoom. No phone, camera or tripod in frame. Only one of each product. No captions or on-screen text.`;\n  const body = { email: s.email, model: 'omni-flash', prompt, aspectRatio: s.vertical ? 'portrait' : 'landscape', duration: c.duration, resolution: '720p',\n    character_1: s.character, referenceImage_1: s.keyframe.id, count: s.takes, async: true, captchaRetry: s.captchaRetry };\n  if (c.product !== null) body.referenceImage_2 = s.productPicks[c.product].id;\n  if (s.voiceRef) body.referenceAudio_1 = s.voiceRef;\n  return { json: { state: s, index: i, body } }; });\n"
+        "jsCode": "\n// Reference mode: the character (face + voice), the picked scene and the product handled in this clip.\n// Three ways in: first pass (Scene choice), a user re-roll (Clip choice), or a resubmit after a temporary error (Record clip jobs).\nconst s = $json.state;\nif ($json.reroll === true) { s.polls = 0; s.clipsPending.forEach(i => { delete s.clipDone[i]; s.submitTries[i] = 0; }); }\nreturn s.clipsPending.map(i => { const c = s.clips[i];\n  const product = c.product !== null ? ` The product handled is the ${s.products[c.product].name} from @referenceImage_2.` : '';\n  const voice = s.voiceRef ? ' The presenter speaks in the voice of @referenceAudio_1.' : '';\n  const prompt = `@character_1 in the exact scene of @referenceImage_1: same framing, same setting, same lighting, same products in the same places.${product} Action: ${c.action} Then the presenter puts anything they picked up back exactly where it was.${voice} Fixed camera, no camera movement, no zoom. No phone, camera or tripod in frame. Only one of each product. No captions or on-screen text.`;\n  const body = { email: s.email, model: 'omni-flash', prompt, aspectRatio: s.vertical ? 'portrait' : 'landscape', duration: c.duration, resolution: '720p',\n    character_1: s.character, referenceImage_1: s.keyframe.id, count: s.takes, async: true, captchaRetry: s.captchaRetry };\n  if (c.product !== null) body.referenceImage_2 = s.productPicks[c.product].id;\n  if (s.voiceRef) body.referenceAudio_1 = s.voiceRef;\n  return { json: { state: s, index: i, body } }; });\n"
       },
       "name": "Clip requests",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         0,
-        2620
+        2880
       ]
     },
     {
@@ -1451,7 +1466,7 @@
       "typeVersion": 4.2,
       "position": [
         220,
-        2620
+        2880
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1465,12 +1480,12 @@
       "parameters": {
         "jsCode": "\nconst raw = j => { const e = j && j.error; return !e ? '' : typeof e === 'string' ? e : String(e.message || e.description || JSON.stringify(e)); };\nconst errText = j => { const e = j && j.error; if (!e) return 'no result'; let m = raw(j);  // message carries the API's own error; description is n8n's generic hint\n  const code = m.match(/^(\\d{3})\\b/), reason = m.match(/\\\\?\"reason\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/), inner = m.match(/\\\\?\"error\\\\?\"\\s*:\\s*\\\\?\"([^\"\\\\]+)/);\n  const msg = reason ? reason[1] + (inner && !/^API error/.test(inner[1]) ? ` (${inner[1]})` : '') : inner ? inner[1] : null;\n  if (msg) m = (code ? code[1] + ': ' : '') + msg;  // keep the HTTP status: it decides the error kind\n  return String(m).slice(0, 240); };\n// temporary: worth retrying as is. refused: Google's content filters, change the input. deadend: fix the account or input.\nconst kind = j => { const t = errText(j) + ' ' + raw(j);\n  if (/ACCESS_DENIED|PAYGATE|paid Google|unauthori|\\b401\\b|not found|\\b404\\b|not connected/i.test(t)) return 'deadend';\n  // a refusal is matched before the retry check, so captcha details inside a refusal body never cause paid resubmits\n  if (/PUBLIC_ERROR_(?!UNUSUAL_ACTIVITY)|IP_PROHIBITED|MINOR|DANGER|PROMINENT|SAFETY|FILTER|UNSAFE|SEXUAL|CHILD|VIOLEN|refus|blocked/i.test(t)) return 'refused';\n  if (/captcha|UNUSUAL_ACTIVITY|\\b429\\b|\\b50[0234]\\b|NO_RPC_ANSWER|timed? ?out|ETIMEDOUT|ECONNRESET|socket hang up|temporar/i.test(t)) return 'temporary';\n  if (/\\b40[03]\\b|forbidden|token|account|credit|quota|insufficient|subscription|parameter|required|invalid|unsupported/i.test(t)) return 'deadend';\n  return 'temporary'; };\nconst hint = t => /PAYGATE|paid Google|free plan|tier/i.test(t) ? 'This Google account needs a paid Google AI plan for Omni 1.1 Flash video. Use an account on a paid plan, or upgrade this one.'\n  : /unauthori|\\b401\\b|token/i.test(t) ? 'Check the API token in the n8n Header Auth credential.'\n  : /credit|quota|insufficient/i.test(t) ? 'The Google account is out of Flow credits.'\n  : /ACCESS_DENIED|subscription/i.test(t) ? 'This Google AI plan cannot use the model; Omni 1.1 Flash needs a paid plan.'\n  : /not found|not connected|account|\\b404\\b/i.test(t) ? 'Check that this Google Flow account email is connected at useapi.net, and that any ID you pasted belongs to it.'\n  : 'Fix the input or the account, then open the start form again.';\nconst MAX_RETRIES = 5;\n// Call when results are in. Returns a route when every request failed with a temporary or dead-end error, otherwise null.\nconst decide = (s, stage, failures, total) => { s.tries = s.tries || {};\n  if (!failures.length || failures.length < total) { s.tries[stage] = 0; return null; }\n  const j = failures[0], t = errText(j), k = kind(j);\n  if (k === 'deadend') return [{ json: { route: 'stop', state: s, message: `${t}. ${hint(t)}` } }];\n  if (k === 'temporary') { s.tries[stage] = (s.tries[stage] || 0) + 1; if (s.tries[stage] <= MAX_RETRIES) return [{ json: { route: 'retry', state: s } }]; }\n  s.tries[stage] = 0; return null; };\nconst failNote = (j, what) => kind(j) === 'refused'\n  ? `<p><b>Google refused the ${what}:</b> ${errText(j)}</p><p>Change the description and re-roll. Refusals also vary between attempts.</p>`\n  : `<p><b>The ${what} failed:</b> ${errText(j)}</p><p>Nothing was charged. Re-roll to try again. If captcha keeps failing, add a second captcha provider to your useapi.net account.</p>`;\nconst show = (s, fields) => [{ json: { route: 'show', state: s, fields } }];\nconst img = (url, label) => `<td>${label}<br>${url ? `<a href=\"${url}\" target=\"_blank\" rel=\"noopener\"><img src=\"${url}\" alt=\"${label}\"></a><br><a href=\"${url}\" target=\"_blank\" rel=\"noopener\">open full size</a>` : '(no preview)'}</td>`;\n\n// Record every accepted job. A clip whose submit failed with a temporary error is resubmitted after a 5-second pause,\n// so a clip that went through is never submitted twice. A refused clip waits for the user to change its action.\nconst reqs = $('Clip requests').all();\nconst s = reqs[0].json.state;\nconst again = [];\nconst accepted = s.jobs.length > 0 || $input.all().some(it => it.json.jobid || it.json.jobId);\nfor (const [k, it] of $input.all().entries()) { const i = reqs[k].json.index; const job = it.json.jobid || it.json.jobId;\n  if (job) { s.jobs = s.jobs.filter(j => j.index !== i).concat([{ index: i, job }]); delete s.clipErrors[i]; continue; }\n  const t = errText(it.json), k2 = kind(it.json), r = raw(it.json);\n  // A dead end stops the run only while nothing has been paid for; otherwise that clip is marked failed and the rest go on.\n  if (k2 === 'deadend' && !accepted) return [{ json: { route: 'stop', state: s, message: `Clip \"${s.clips[i].name}\" could not be submitted: ${t}. ${hint(t)}` } }];\n  s.submitTries[i] = (s.submitTries[i] || 0) + 1;\n  // A timeout or gateway error may hide a job that was created anyway, so it is not resubmitted automatically.\n  const unsure = /timed? ?out|ETIMEDOUT|ECONNRESET|socket hang up|\\b50[24]\\b/i.test(t + ' ' + r) && !/captcha|UNUSUAL_ACTIVITY/i.test(t + ' ' + r);\n  s.clipErrors[i] = unsure ? `${t}. The clip may still have been created: check your Flow account before you re-roll it` : k2 === 'deadend' ? `${t}. ${hint(t)}` : t;\n  if (k2 === 'temporary' && !unsure && s.submitTries[i] <= MAX_RETRIES) again.push(i); else { s.clipTakes[i] = []; s.clipDone[i] = true; } }\ns.clipsPending = again;\nreturn [{ json: { route: again.length ? 'resubmit' : 'poll', state: s } }];\n"
       },
-      "name": "Jobs",
+      "name": "Record clip jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         440,
-        2620
+        2880
       ]
     },
     {
@@ -1484,7 +1499,7 @@
       "typeVersion": 3.2,
       "position": [
         660,
-        2620
+        2880
       ]
     },
     {
@@ -1496,7 +1511,7 @@
       "typeVersion": 1.1,
       "position": [
         880,
-        2480
+        2740
       ],
       "webhookId": "215ca962-e32e-58f8-ad7d-5f2400bc0c16"
     },
@@ -1509,7 +1524,7 @@
       "typeVersion": 2,
       "position": [
         880,
-        2720
+        3020
       ]
     },
     {
@@ -1521,7 +1536,7 @@
       "typeVersion": 1.1,
       "position": [
         1100,
-        2720
+        3020
       ],
       "webhookId": "004e5bdc-87d7-52f4-aded-07c1d96fddaf"
     },
@@ -1540,7 +1555,7 @@
       "typeVersion": 4.2,
       "position": [
         1320,
-        2720
+        3020
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1562,7 +1577,7 @@
       "typeVersion": 2,
       "position": [
         1540,
-        2720
+        3020
       ]
     },
     {
@@ -1595,7 +1610,7 @@
       "typeVersion": 2.2,
       "position": [
         1760,
-        2720
+        3020
       ]
     },
     {
@@ -1607,7 +1622,7 @@
       "typeVersion": 2,
       "position": [
         1980,
-        2620
+        2880
       ]
     },
     {
@@ -1627,7 +1642,7 @@
       "typeVersion": 2.5,
       "position": [
         2200,
-        2620
+        2880
       ],
       "webhookId": "26222b9d-056f-550a-91a4-280f579c523c"
     },
@@ -1640,7 +1655,7 @@
       "typeVersion": 2,
       "position": [
         2420,
-        2620
+        2880
       ]
     },
     {
@@ -1654,7 +1669,7 @@
       "typeVersion": 3.2,
       "position": [
         2640,
-        2620
+        2880
       ]
     },
     {
@@ -1672,7 +1687,7 @@
       "typeVersion": 4.2,
       "position": [
         1540,
-        2260
+        2400
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1694,7 +1709,7 @@
       "typeVersion": 2,
       "position": [
         1760,
-        2260
+        2400
       ]
     },
     {
@@ -1708,7 +1723,7 @@
       "typeVersion": 3.2,
       "position": [
         1980,
-        2260
+        2400
       ]
     },
     {
@@ -1728,7 +1743,7 @@
       "typeVersion": 2.5,
       "position": [
         2200,
-        2380
+        2260
       ],
       "webhookId": "ce7d57a2-1f2f-5bea-81e9-bad6280807cd"
     },
@@ -1749,7 +1764,7 @@
       "typeVersion": 2.5,
       "position": [
         1100,
-        2480
+        2740
       ],
       "webhookId": "36ee56f4-0e84-5e99-b8a2-76f7dcf2946e"
     },
@@ -1762,7 +1777,7 @@
       "typeVersion": 2,
       "position": [
         0,
-        3080
+        3500
       ]
     },
     {
@@ -1795,7 +1810,7 @@
       "typeVersion": 2.2,
       "position": [
         220,
-        3080
+        3500
       ]
     },
     {
@@ -1816,7 +1831,7 @@
       "typeVersion": 4.2,
       "position": [
         440,
-        3020
+        3360
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -1831,14 +1846,14 @@
     },
     {
       "parameters": {
-        "jsCode": "\n// The ad is served by this workflow's own download URL (the \"Download ad\" webhook), which joins the picked clips\n// on request. Joining is free, so playing or downloading again simply joins again, and re-joining with new cut\n// points (from the \"Your ad\" page) only rebuilds this page.\nlet s;\nif ($json.rejoin) s = $json.state;\nelse {\n  const reqs = $('Upscale requests').all();\n  s = reqs[0].json.state;\n  if (reqs[0].json.upscale) $input.all().forEach((it, k) => { const m = it.json.media && it.json.media[0]; if (m) s.upscaledIds[reqs[k].json.index] = m.mediaGenerationId; });\n}\ns.upscaledIds = s.upscaledIds || {};\ns.trims = s.trims || s.clips.map(() => ({ start: 0.15, end: 0.3 }));\nconst ids = s.clipPicks.map((p, i) => s.upscaledIds[i] || p.id);  // a clip whose upscale failed stays at 720p\nconst stayed = s.upscale ? s.clips.filter((c, i) => !s.upscaledIds[i]).map(c => c.name) : [];\nconst media = ids.map((id, i) => ({ mediaGenerationId: id, trimStart: s.trims[i].start, trimEnd: s.trims[i].end }));\nconst origin = String($execution.resumeFormUrl || $execution.resumeUrl).match(/^https?:\\/\\/[^/]+/)[0];  // the Code sandbox has no URL class\nconst m = Buffer.from(JSON.stringify(media)).toString('base64url');\nconst play = `${origin}/webhook/ugc-ad-factory-download?m=${m}`;\nconst html = `<video controls><source src=\"${play}\" type=\"video/mp4\"></video><p><a href=\"${play}&dl=1\" target=\"_blank\" rel=\"noopener\">Download the MP4</a> · <a href=\"${play}\" target=\"_blank\" rel=\"noopener\">open in a new tab</a></p>\n${stayed.length ? `<p><b>Note:</b> upscaling failed for ${stayed.join(', ')} (usually captcha), so ${stayed.length > 1 ? 'those clips are' : 'that clip is'} at 720p in this version. Upscaling is free: choose \"Retry upscaling\" below.</p>` : ''}\n<p>The video is joined from your clips when you open it, which takes about half a minute. Your clips also stay in your Google Flow account.</p>\n<p><b>Adjust the cuts.</b> If a join has a pause or clips a word, change how much is cut from the start or end of that clip, then choose \"Re-join with these cuts\". If a cut visibly jumps, trimming will not fix it: go back and pick a different take for that clip in your next run.</p>\n<p style=\"font-size:13px;color:#5f6368;word-break:break-all\">Come back to this page any time: <a href=\"${$execution.resumeFormUrl}\">${$execution.resumeFormUrl}</a></p>\n<p><b>Reuse this presenter:</b> choose \"Use a saved character\" on the start form and paste this ID:<br><code>${s.character}</code></p>`;\nconst steps = ['0 s', '0.15 s', '0.3 s', '0.5 s', '0.75 s', '1 s', '1.25 s', '1.5 s', '2 s'].map(option => ({ option }));\nconst nearest = v => steps.map(o => o.option).reduce((a, b) => Math.abs(parseFloat(b) - v) < Math.abs(parseFloat(a) - v) ? b : a);\nconst fields = [{ fieldType: 'html', html: s.clips.length > 1 ? html : html.replace(/<p><b>Adjust the cuts.*?<\\/p>/s, '') }];\nif (s.clips.length > 1) s.clips.forEach((c, i) => {\n  fields.push({ fieldLabel: `${c.name} (${c.duration} s): cut from start`, fieldType: 'dropdown', defaultValue: nearest(s.trims[i].start), fieldOptions: { values: steps } });\n  fields.push({ fieldLabel: `${c.name} (${c.duration} s): cut from end`, fieldType: 'dropdown', defaultValue: nearest(s.trims[i].end), fieldOptions: { values: steps } });\n});\nconst next = s.clips.length > 1 ? [{ option: 'Finish' }, { option: 'Re-join with these cuts' }] : [{ option: 'Finish' }];\nif (stayed.length) next.unshift({ option: 'Retry upscaling the 720p clips' });\nfields.push({ fieldLabel: 'Next', fieldType: 'radio', requiredField: true, defaultValue: next[0].option, fieldOptions: { values: next } });\ns.trims = s.trims.map((t, i) => ({ start: parseFloat(nearest(t.start)), end: parseFloat(nearest(t.end)) }));\nreturn [{ json: { state: s, fields } }];\n"
+        "jsCode": "\n// ---- Media tickets --------------------------------------------------------------------------------------\n// The media webhook is public, so it never takes a media id from the URL. Each link carries a ticket: the id, an\n// expiry, inline/download and the file name, signed with HMAC-SHA256 under a random secret that is made once and\n// kept in this workflow's static data. The webhook checks the signature and the expiry and answers 404 to anything\n// else, so a link cannot be forged, edited, or used after it expires.\n// Why signed tickets and not a stored list of tickets: each execution saves static data as a whole object. A form\n// run that is between pages (short waits run in memory) would write back its own copy and drop tickets that other\n// runs added meanwhile. The secret is written once and never changes, so signed tickets survive that.\n// The Code sandbox has no crypto module, hence the small SHA-256 below. The secret is 32 bytes from a CSPRNG, made\n// once: crypto.getRandomValues or require('crypto') when your n8n allows them in Code nodes, else the \"New secret\"\n// node (n8n's Crypto node, crypto.randomBytes) that runs before \"Settings\". It never leaves the workflow.\n// Without a secure source the run fails with an error: there is no weaker fallback.\nconst rotr = (x, n) => (x >>> n) | (x << (32 - n));\nconst SHA_K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];\nconst sha256 = bytes => {\n  const m = bytes.concat([0x80]); while (m.length % 64 !== 56) m.push(0);\n  const bits = bytes.length * 8; m.push(0, 0, 0, 0, (bits >>> 24) & 255, (bits >>> 16) & 255, (bits >>> 8) & 255, bits & 255);\n  let h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];\n  const w = new Array(64);\n  for (let i = 0; i < m.length; i += 64) {\n    for (let t = 0; t < 16; t++) w[t] = (m[i + 4 * t] << 24) | (m[i + 4 * t + 1] << 16) | (m[i + 4 * t + 2] << 8) | m[i + 4 * t + 3];\n    for (let t = 16; t < 64; t++) { const a = w[t - 15], b = w[t - 2];\n      w[t] = (w[t - 16] + (rotr(a, 7) ^ rotr(a, 18) ^ (a >>> 3)) + w[t - 7] + (rotr(b, 17) ^ rotr(b, 19) ^ (b >>> 10))) | 0; }\n    let [A, B, C, D, E, F, G, H] = h;\n    for (let t = 0; t < 64; t++) {\n      const t1 = (H + (rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25)) + ((E & F) ^ (~E & G)) + SHA_K[t] + w[t]) | 0;\n      const t2 = ((rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22)) + ((A & B) ^ (A & C) ^ (B & C))) | 0;\n      H = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;\n    }\n    h = [A, B, C, D, E, F, G, H].map((x, k) => (x + h[k]) | 0);\n  }\n  return h.flatMap(x => [(x >>> 24) & 255, (x >>> 16) & 255, (x >>> 8) & 255, x & 255]);\n};\nconst bytesOf = str => Array.from(unescape(encodeURIComponent(String(str))), c => c.charCodeAt(0));\nconst hexOf = b => b.map(x => x.toString(16).padStart(2, '0')).join('');\nconst hmac = (key, msg) => { let k = bytesOf(key); if (k.length > 64) k = sha256(k); while (k.length < 64) k.push(0);\n  return hexOf(sha256(k.map(x => x ^ 0x5c).concat(sha256(k.map(x => x ^ 0x36).concat(bytesOf(msg)))))); };\nconst mediaSecret = create => {\n  const sd = $getWorkflowStaticData('global');\n  if (!sd.mediaSecret && create) {\n    let hex = null;\n    if (typeof crypto !== 'undefined' && crypto && typeof crypto.getRandomValues === 'function') {\n      const b = new Uint8Array(32); crypto.getRandomValues(b); hex = hexOf(Array.from(b));\n    }\n    if (!hex) { try { hex = require('crypto').randomBytes(32).toString('hex'); } catch (e) { hex = null; } }\n    if (!hex) { try { hex = String($('New secret').first().json.secretCandidate || ''); } catch (e) { hex = null; } }\n    if (!/^[0-9a-f]{64}$/.test(hex || '')) throw new Error('No secure random source for the media links: keep the \"New secret\" node before \"Settings\", or set NODE_FUNCTION_ALLOW_BUILTIN=crypto.');\n    sd.mediaSecret = hex;\n  }\n  return sd.mediaSecret || null;\n};\n// A ticket for one file (id), valid for `hours` (default 24). dl: download instead of play inline.\nconst ticket = (id, name, dl, hours) => {\n  const exp = Math.floor(Date.now() / 1000) + Math.round((hours || 24) * 3600);\n  const payload = [id, exp, dl ? 1 : 0, String(name || '').replace(/[^A-Za-z0-9 ._-]+/g, '').slice(0, 80)].join('\\n');\n  return `${hexOf(bytesOf(payload))}.${hmac(mediaSecret(true), payload).slice(0, 40)}`;\n};\n// The webhook side: the query must hold exactly one ticket (?t=) that this workflow signed and that has not expired.\n// Returns { id, dl, name } or null. The signature is compared in constant time.\nconst readTicket = q => {\n  const mt = String((q || {}).t || '').match(/^((?:[0-9a-f]{2})+)\\.([0-9a-f]{40})$/);\n  const secret = mediaSecret(false);\n  if (!mt || !secret || Object.keys(q || {}).length !== 1) return null;\n  let payload = '';\n  try { payload = decodeURIComponent(mt[1].replace(/../g, '%$&')); } catch (e) { return null; }\n  const want = hmac(secret, payload).slice(0, 40);\n  let diff = 0; for (let i = 0; i < 40; i++) diff |= want.charCodeAt(i) ^ mt[2].charCodeAt(i);\n  if (diff) return null;\n  const [id, exp, dl, nm] = payload.split('\\n');\n  if (!(Number(exp) > Date.now() / 1000)) return null;\n  return { id, dl: dl === '1', name: nm || '' };\n};\n\n// The ad is served by this workflow's own download URL (the \"Download ad\" webhook), which joins the picked clips\n// on request. Joining is free, so playing or downloading again simply joins again, and re-joining with new cut\n// points (from the \"Your ad\" page) only rebuilds this page. Each link carries a signed ticket that expires in 24 hours.\nlet s;\nif ($json.rejoin) s = $json.state;\nelse {\n  const reqs = $('Upscale requests').all();\n  s = reqs[0].json.state;\n  if (reqs[0].json.upscale) $input.all().forEach((it, k) => { const m = it.json.media && it.json.media[0]; if (m) s.upscaledIds[reqs[k].json.index] = m.mediaGenerationId; });\n}\ns.upscaledIds = s.upscaledIds || {};\ns.trims = s.trims || s.clips.map(() => ({ start: 0.15, end: 0.3 }));\nconst ids = s.clipPicks.map((p, i) => s.upscaledIds[i] || p.id);  // a clip whose upscale failed stays at 720p\nconst stayed = s.upscale ? s.clips.filter((c, i) => !s.upscaledIds[i]).map(c => c.name) : [];\nconst media = ids.map((id, i) => ({ mediaGenerationId: id, trimStart: s.trims[i].start, trimEnd: s.trims[i].end }));\nconst origin = String($execution.resumeFormUrl || $execution.resumeUrl).match(/^https?:\\/\\/[^/]+/)[0];  // the Code sandbox has no URL class\nconst adLink = dl => `${origin}/webhook/ugc-ad-factory-download?t=${ticket(JSON.stringify(media), 'ugc-ad', dl)}`;\nconst play = adLink(false);\nconst html = `<video controls><source src=\"${play}\" type=\"video/mp4\"></video><p><a href=\"${adLink(true)}\" target=\"_blank\" rel=\"noopener\">Download the MP4</a> · <a href=\"${play}\" target=\"_blank\" rel=\"noopener\">open in a new tab</a></p>\n${stayed.length ? `<p><b>Note:</b> upscaling failed for ${stayed.join(', ')} (usually captcha), so ${stayed.length > 1 ? 'those clips are' : 'that clip is'} at 720p in this version. Upscaling is free: choose \"Retry upscaling\" below.</p>` : ''}\n<p>The video is joined from your clips when you open it, which takes about half a minute. The links on this page work for 24 hours; your clips also stay in your Google Flow account.</p>\n<p><b>Adjust the cuts.</b> If a join has a pause or clips a word, change how much is cut from the start or end of that clip, then choose \"Re-join with these cuts\". If a cut visibly jumps, trimming will not fix it: go back and pick a different take for that clip in your next run.</p>\n<p style=\"font-size:13px;color:#5f6368;word-break:break-all\">Come back to this page any time: <a href=\"${$execution.resumeFormUrl}\">${$execution.resumeFormUrl}</a></p>\n<p><b>Reuse this presenter:</b> choose \"Use a saved character\" on the start form and paste this ID:<br><code>${s.character}</code></p>`;\nconst steps = ['0 s', '0.15 s', '0.3 s', '0.5 s', '0.75 s', '1 s', '1.25 s', '1.5 s', '2 s'].map(option => ({ option }));\nconst nearest = v => steps.map(o => o.option).reduce((a, b) => Math.abs(parseFloat(b) - v) < Math.abs(parseFloat(a) - v) ? b : a);\nconst fields = [{ fieldType: 'html', html: s.clips.length > 1 ? html : html.replace(/<p><b>Adjust the cuts.*?<\\/p>/s, '') }];\nif (s.clips.length > 1) s.clips.forEach((c, i) => {\n  fields.push({ fieldLabel: `${c.name} (${c.duration} s): cut from start`, fieldType: 'dropdown', defaultValue: nearest(s.trims[i].start), fieldOptions: { values: steps } });\n  fields.push({ fieldLabel: `${c.name} (${c.duration} s): cut from end`, fieldType: 'dropdown', defaultValue: nearest(s.trims[i].end), fieldOptions: { values: steps } });\n});\nconst next = s.clips.length > 1 ? [{ option: 'Finish' }, { option: 'Re-join with these cuts' }] : [{ option: 'Finish' }];\nif (stayed.length) next.unshift({ option: 'Retry upscaling the 720p clips' });\nfields.push({ fieldLabel: 'Next', fieldType: 'radio', requiredField: true, defaultValue: next[0].option, fieldOptions: { values: next } });\ns.trims = s.trims.map((t, i) => ({ start: parseFloat(nearest(t.start)), end: parseFloat(nearest(t.end)) }));\nreturn [{ json: { state: s, fields } }];\n"
       },
       "name": "Final page",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         660,
-        3080
+        3500
       ]
     },
     {
@@ -1858,7 +1873,7 @@
       "typeVersion": 2.5,
       "position": [
         880,
-        3080
+        3500
       ],
       "webhookId": "61e70b03-4e85-5d26-b068-388d6d6fb80c"
     },
@@ -1871,7 +1886,7 @@
       "typeVersion": 2,
       "position": [
         1100,
-        3080
+        3500
       ]
     },
     {
@@ -1885,7 +1900,7 @@
       "typeVersion": 3.2,
       "position": [
         1320,
-        3080
+        3500
       ]
     },
     {
@@ -1901,7 +1916,7 @@
       "typeVersion": 2.5,
       "position": [
         1540,
-        3080
+        3500
       ],
       "webhookId": "1ad00993-5b96-5783-badf-b06a677365f2"
     },
@@ -1916,20 +1931,69 @@
       "typeVersion": 2,
       "position": [
         0,
-        3460
+        3980
       ],
       "webhookId": "7a9ef3c2-004d-5ebc-b436-ff47b8fad03b"
     },
     {
       "parameters": {
-        "jsCode": "\nconst q = $json.query || {};\nconst media = JSON.parse(Buffer.from(String(q.m || ''), 'base64url').toString('utf8'));\n// The join needs 2 to 10 clips, so a one-clip ad streams that clip directly.\nreturn [{ json: { download: q.dl === '1', single: media.length === 1, id: media[0].mediaGenerationId, body: { media } } }];\n"
+        "jsCode": "\n// ---- Media tickets --------------------------------------------------------------------------------------\n// The media webhook is public, so it never takes a media id from the URL. Each link carries a ticket: the id, an\n// expiry, inline/download and the file name, signed with HMAC-SHA256 under a random secret that is made once and\n// kept in this workflow's static data. The webhook checks the signature and the expiry and answers 404 to anything\n// else, so a link cannot be forged, edited, or used after it expires.\n// Why signed tickets and not a stored list of tickets: each execution saves static data as a whole object. A form\n// run that is between pages (short waits run in memory) would write back its own copy and drop tickets that other\n// runs added meanwhile. The secret is written once and never changes, so signed tickets survive that.\n// The Code sandbox has no crypto module, hence the small SHA-256 below. The secret is 32 bytes from a CSPRNG, made\n// once: crypto.getRandomValues or require('crypto') when your n8n allows them in Code nodes, else the \"New secret\"\n// node (n8n's Crypto node, crypto.randomBytes) that runs before \"Settings\". It never leaves the workflow.\n// Without a secure source the run fails with an error: there is no weaker fallback.\nconst rotr = (x, n) => (x >>> n) | (x << (32 - n));\nconst SHA_K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];\nconst sha256 = bytes => {\n  const m = bytes.concat([0x80]); while (m.length % 64 !== 56) m.push(0);\n  const bits = bytes.length * 8; m.push(0, 0, 0, 0, (bits >>> 24) & 255, (bits >>> 16) & 255, (bits >>> 8) & 255, bits & 255);\n  let h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];\n  const w = new Array(64);\n  for (let i = 0; i < m.length; i += 64) {\n    for (let t = 0; t < 16; t++) w[t] = (m[i + 4 * t] << 24) | (m[i + 4 * t + 1] << 16) | (m[i + 4 * t + 2] << 8) | m[i + 4 * t + 3];\n    for (let t = 16; t < 64; t++) { const a = w[t - 15], b = w[t - 2];\n      w[t] = (w[t - 16] + (rotr(a, 7) ^ rotr(a, 18) ^ (a >>> 3)) + w[t - 7] + (rotr(b, 17) ^ rotr(b, 19) ^ (b >>> 10))) | 0; }\n    let [A, B, C, D, E, F, G, H] = h;\n    for (let t = 0; t < 64; t++) {\n      const t1 = (H + (rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25)) + ((E & F) ^ (~E & G)) + SHA_K[t] + w[t]) | 0;\n      const t2 = ((rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22)) + ((A & B) ^ (A & C) ^ (B & C))) | 0;\n      H = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;\n    }\n    h = [A, B, C, D, E, F, G, H].map((x, k) => (x + h[k]) | 0);\n  }\n  return h.flatMap(x => [(x >>> 24) & 255, (x >>> 16) & 255, (x >>> 8) & 255, x & 255]);\n};\nconst bytesOf = str => Array.from(unescape(encodeURIComponent(String(str))), c => c.charCodeAt(0));\nconst hexOf = b => b.map(x => x.toString(16).padStart(2, '0')).join('');\nconst hmac = (key, msg) => { let k = bytesOf(key); if (k.length > 64) k = sha256(k); while (k.length < 64) k.push(0);\n  return hexOf(sha256(k.map(x => x ^ 0x5c).concat(sha256(k.map(x => x ^ 0x36).concat(bytesOf(msg)))))); };\nconst mediaSecret = create => {\n  const sd = $getWorkflowStaticData('global');\n  if (!sd.mediaSecret && create) {\n    let hex = null;\n    if (typeof crypto !== 'undefined' && crypto && typeof crypto.getRandomValues === 'function') {\n      const b = new Uint8Array(32); crypto.getRandomValues(b); hex = hexOf(Array.from(b));\n    }\n    if (!hex) { try { hex = require('crypto').randomBytes(32).toString('hex'); } catch (e) { hex = null; } }\n    if (!hex) { try { hex = String($('New secret').first().json.secretCandidate || ''); } catch (e) { hex = null; } }\n    if (!/^[0-9a-f]{64}$/.test(hex || '')) throw new Error('No secure random source for the media links: keep the \"New secret\" node before \"Settings\", or set NODE_FUNCTION_ALLOW_BUILTIN=crypto.');\n    sd.mediaSecret = hex;\n  }\n  return sd.mediaSecret || null;\n};\n// A ticket for one file (id), valid for `hours` (default 24). dl: download instead of play inline.\nconst ticket = (id, name, dl, hours) => {\n  const exp = Math.floor(Date.now() / 1000) + Math.round((hours || 24) * 3600);\n  const payload = [id, exp, dl ? 1 : 0, String(name || '').replace(/[^A-Za-z0-9 ._-]+/g, '').slice(0, 80)].join('\\n');\n  return `${hexOf(bytesOf(payload))}.${hmac(mediaSecret(true), payload).slice(0, 40)}`;\n};\n// The webhook side: the query must hold exactly one ticket (?t=) that this workflow signed and that has not expired.\n// Returns { id, dl, name } or null. The signature is compared in constant time.\nconst readTicket = q => {\n  const mt = String((q || {}).t || '').match(/^((?:[0-9a-f]{2})+)\\.([0-9a-f]{40})$/);\n  const secret = mediaSecret(false);\n  if (!mt || !secret || Object.keys(q || {}).length !== 1) return null;\n  let payload = '';\n  try { payload = decodeURIComponent(mt[1].replace(/../g, '%$&')); } catch (e) { return null; }\n  const want = hmac(secret, payload).slice(0, 40);\n  let diff = 0; for (let i = 0; i < 40; i++) diff |= want.charCodeAt(i) ^ mt[2].charCodeAt(i);\n  if (diff) return null;\n  const [id, exp, dl, nm] = payload.split('\\n');\n  if (!(Number(exp) > Date.now() / 1000)) return null;\n  return { id, dl: dl === '1', name: nm || '' };\n};\n\n// Takes only a signed ticket (?t=), never a clip list or a URL: see \"Media tickets\" at the top of this code.\n// An unknown, edited or expired ticket gets a 404; the clips are joined only for a ticket this workflow signed.\nconst bad = [{ json: { ok: false } }];\nconst t = readTicket($json.query);\nif (!t) return bad;\nlet media = null;\ntry { media = JSON.parse(t.id); } catch (e) { return bad; }\n// Second check: 1 to 10 Google Flow video ids with their cut points, nothing else.\nconst okId = id => typeof id === 'string' && /^user:\\d+-email:[0-9a-f]+-video:[A-Za-z0-9_.~=+\\/-]+$/.test(id);\nconst okCut = v => typeof v === 'number' && v >= 0 && v <= 10;\nif (!Array.isArray(media) || media.length < 1 || media.length > 10\n  || !media.every(c => c && Object.keys(c).length === 3 && okId(c.mediaGenerationId) && okCut(c.trimStart) && okCut(c.trimEnd))) return bad;\n// The join needs 2 to 10 clips, so a one-clip ad streams that clip directly.\nreturn [{ json: { ok: true, download: t.dl, single: media.length === 1, id: media[0].mediaGenerationId, body: { media } } }];\n"
       },
       "name": "Read clip list",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         220,
-        3460
+        3980
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "12c6418c-0e66-5887-84eb-7237bc6890b7",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Ticket ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        3980
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Not found",
+        "options": {
+          "responseCode": 404
+        }
+      },
+      "name": "Not found",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        4120
       ]
     },
     {
@@ -1961,8 +2025,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        440,
-        3460
+        660,
+        3980
       ]
     },
     {
@@ -1979,8 +2043,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
-        3600
+        880,
+        4120
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -2008,8 +2072,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
-        3600
+        1100,
+        4120
       ]
     },
     {
@@ -2029,8 +2093,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
-        3400
+        880,
+        3840
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -2056,8 +2120,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        880,
-        3400
+        1100,
+        3840
       ]
     },
     {
@@ -2082,158 +2146,202 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1100,
-        3460
+        1320,
+        3980
       ]
     },
     {
       "parameters": {
-        "content": "## Make UGC video ads with a consistent AI presenter and voice\n\n**Full walkthrough:** [How to Make UGC Video Ads in n8n with the Google Flow API](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory)\n\n**Who it's for:** anyone making short UGC-style video ads: store owners, agencies, creators. It runs in Google Flow on your paid Google AI subscription (Plus, Pro or Ultra) through the [useapi.net](https://useapi.net/docs/api-google-flow-v1?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory) API, with Omni 1.1 Flash for video.\n\n**How it works.** Open the form. Choose 1 to 5 products, an optional intro and closing clip, the format and the takes per clip. Then each page shows results so you can pick one or re-roll:\n1. A presenter (generate 4, upload photos, or reuse a saved character), a second angle, and 4 voice previews. Face and voice become one character.\n2. A four-view sheet per product, or your own product photo.\n3. A scene with the presenter and every product. It shows the credit cost before anything is paid.\n4. One clip per product plus the intro and closing, N takes each, filmed in that scene with the picked voice. Pick a take per clip, or edit and re-roll.\n5. Optional 1080p upscale; the last page plays the joined ad, links the MP4, and shows the character ID for your next ad.\n\n**Errors.** Captcha and temporary Google errors are retried automatically. Content refusals ask you to change the action. Account or token problems stop with a page that says what to fix.\n\n**Setup**\n- A [useapi.net](https://useapi.net/docs/subscription?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory) subscription and API token, and a Google Flow account connected to it on a paid Google AI subscription.\n- In n8n, create a **Header Auth** credential: Name `Authorization`, Value `Bearer <your API token>`, and select it on every HTTP Request node.\n- Create a **Basic Auth** credential (any username and password) and select it on **Start form**, so only you can open the form and spend your allowance.\n- Activate the workflow and open the **Start form** URL.\n\n**Cost.** Images, voices, the character, upscaling and joining are free. Each Omni take costs 7, 10, 12 or 15 Flow credits for 4, 6, 8 or 10 s. The default ad (an intro, 1 product and a closing clip, 4 takes each) is about 140 credits.\n\n**Customize.** The defaults live in **Settings**, which also holds the image model and the captcha attempts.",
-        "width": 660,
-        "height": 740,
+        "content": "## Details and uploads\nThe counts on the first page shape the details page. Your photos go to Google Flow, and the account and its credits are checked before anything is made.",
+        "width": 2820,
+        "height": 420,
         "color": 7
-      },
-      "name": "Overview",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -720,
-        -280
-      ]
-    },
-    {
-      "parameters": {
-        "content": "### 1. Setup, details and uploads\nThe first page asks for counts only; **Settings** builds a details page with exactly those fields. Photos uploaded there go to your Flow account first.",
-        "width": 1500,
-        "height": 110,
-        "color": 5
       },
       "name": "Note: setup",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        0,
+        180,
         -260
       ]
     },
     {
       "parameters": {
-        "content": "### 2. Presenter\nFour candidates from the description. Re-roll with a note until one fits. Skipped when you upload photos or reuse a character.",
-        "width": 1340,
-        "height": 110,
-        "color": 5
+        "content": "## Saved character\nA character ID from an earlier run is checked once and its voice found. The run then skips to the products.",
+        "width": 840,
+        "height": 420,
+        "color": 7
+      },
+      "name": "Note: saved character",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Presenter\nFour candidates from your description. Re-roll with a note until one fits. Skipped when you upload photos or reuse a character.",
+        "width": 1500,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: presenter",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        120
+        -40,
+        220
       ]
     },
     {
       "parameters": {
-        "content": "### 3. Second angle\nA three-quarter view of the same face, from the generated presenter or a single uploaded photo.",
-        "width": 1340,
-        "height": 110,
-        "color": 5
+        "content": "## Second angle\nA three-quarter view of the same face, made from the picked presenter or a single uploaded photo.",
+        "width": 1500,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: angle",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        540
+        -40,
+        700
       ]
     },
     {
       "parameters": {
-        "content": "### 4. Voice and character\nFour preset voices read your sample line; pick one or hear four more. Face and voice are saved as one character.",
-        "width": 1340,
-        "height": 110,
-        "color": 5
+        "content": "## Voice and character\nFour preset voices read your sample line; pick one or hear four more. Face and voice are saved as one character.",
+        "width": 2600,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: voice",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        960
+        -40,
+        1180
       ]
     },
     {
       "parameters": {
-        "content": "### 5. Product images\nFour four-view sheets per product, or your photo as is. Re-roll any single product; the others keep their picks.",
-        "width": 1340,
-        "height": 110,
-        "color": 5
+        "content": "## Product images\nFour four-view sheets per product, or your photo as is. Re-roll any single product; the others keep their picks.",
+        "width": 1720,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: products",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        1380
+        -40,
+        1660
       ]
     },
     {
       "parameters": {
-        "content": "### 6. Scene\nThe presenter and every product in one frame, four candidates, with the credit cost of the clips shown before you continue.",
-        "width": 1340,
-        "height": 110,
-        "color": 5
+        "content": "## Scene\nThe presenter and every product in one frame, four candidates. The clip cost is shown, and the credits checked again, before any clip starts.",
+        "width": 2380,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: scene",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        1820
+        -40,
+        2140
       ]
     },
     {
       "parameters": {
-        "content": "### 7. Clips\nOmni 1.1 Flash in reference mode: character, voice, scene and the clip's product, N takes per clip. Polled every 20 s.",
-        "width": 860,
-        "height": 110,
-        "color": 5
+        "content": "## Clips\nOmni 1.1 Flash films N takes per clip from the character, voice, scene and product. A submit that may have gone through is never sent again.",
+        "width": 2820,
+        "height": 560,
+        "color": 7
       },
       "name": "Note: clips",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        2240
+        -40,
+        2620
       ]
     },
     {
       "parameters": {
-        "content": "### 8. Upscale and final page\nOptional free 1080p upscale. The last page plays the joined ad and shows the character ID to reuse.",
-        "width": 1100,
-        "height": 110,
-        "color": 5
+        "content": "## Upscale and final ad\nAn optional free 1080p upscale. The last page plays the joined ad, lets you adjust the cuts and shows the character ID.",
+        "width": 1720,
+        "height": 420,
+        "color": 7
       },
       "name": "Note: final",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        2840
+        -40,
+        3240
       ]
     },
     {
       "parameters": {
-        "content": "### 9. Download ad (second entry point)\nThe player and the download link on the last page call this webhook. It joins the picked clips for free and streams the MP4; nothing is stored.",
-        "width": 1100,
-        "height": 110,
-        "color": 5
+        "content": "## Download the ad\nThe player and the download link call this second entry point. It serves only links this workflow signed, for 24 h, and joins the picked clips for free.",
+        "width": 1500,
+        "height": 560,
+        "color": 7
       },
       "name": "Note: download",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -20,
-        3280
+        -40,
+        3720
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Add a login first\nSelect a Basic Auth credential here before you share the form URL. Anyone with the link can spend your Flow credits.",
+        "width": 360,
+        "height": 310,
+        "color": 3
+      },
+      "name": "Warning: form login",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -370,
+        -150
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Make UGC video ads with a consistent AI presenter and voice using Google Flow (Omni 1.1 Flash)\n\n### How it works\nFor store owners, agencies and creators making short UGC-style ads. It runs in Google Flow on your Google AI plan (Plus, Pro or Ultra) through the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory), a third-party API, not affiliated with Google. [Walkthrough](https://useapi.net/docs/articles/google-flow-n8n-ugc-ads?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory).\n\nIn the form, choose 1 to 5 products, an optional intro and closing, the format and the takes per clip. Each page lets you pick or re-roll:\n1. A presenter (generated, uploaded or saved), a second angle and a voice, saved as one character.\n2. A four-view sheet per product, or your own photo.\n3. A scene with the presenter and every product, showing the clip cost before credits are spent.\n4. Omni 1.1 Flash films N takes per clip in that scene; pick one each.\n5. Optional 1080p upscale. The final page plays the joined ad, links the MP4 and shows the character ID.\n\nOnly the Omni takes use Flow credits: 7, 10, 12 or 15 for 4, 6, 8 or 10 s. The default ad (intro, 1 product, closing, 4 takes each) is about 140 credits. Limits: portrait or landscape only; preset voices only.\n\n### Setup\n- [ ] A [useapi.net subscription](https://useapi.net/docs/subscription?utm_source=n8n&utm_medium=referral&utm_campaign=ugc-ad-factory) and API token, with Google Flow on your Google AI plan connected to it.\n- [ ] A Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on every HTTP Request node.\n- [ ] A Basic Auth credential on **Start form**, so only you can spend your credits.\n- [ ] Activate the workflow and open the **Start form** URL.\n\n### Customization\nDefaults, the image model and captcha attempts live in **Settings**.",
+        "width": 700,
+        "height": 884
+      },
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "content": "@[youtube](1vPpoNdWHJw)",
+        "width": 700,
+        "height": 440,
+        "color": 7
+      },
+      "name": "Video",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        644
       ]
     }
   ],
@@ -2281,6 +2389,17 @@
       "main": [
         [
           {
+            "node": "New secret",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New secret": {
+      "main": [
+        [
+          {
             "node": "Settings",
             "type": "main",
             "index": 0
@@ -2325,7 +2444,7 @@
       "main": [
         [
           {
-            "node": "Upload files",
+            "node": "Photos to upload",
             "type": "main",
             "index": 0
           }
@@ -2339,18 +2458,18 @@
         ]
       ]
     },
-    "Upload files": {
+    "Photos to upload": {
       "main": [
         [
           {
-            "node": "Upload",
+            "node": "Upload photos",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Upload": {
+    "Upload photos": {
       "main": [
         [
           {
@@ -3128,14 +3247,14 @@
       "main": [
         [
           {
-            "node": "Jobs",
+            "node": "Record clip jobs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Jobs": {
+    "Record clip jobs": {
       "main": [
         [
           {
@@ -3415,7 +3534,25 @@
       "main": [
         [
           {
+            "node": "Ticket ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket ok?": {
+      "main": [
+        [
+          {
             "node": "One clip?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not found",
             "type": "main",
             "index": 0
           }
