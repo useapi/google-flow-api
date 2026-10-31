@@ -14,13 +14,13 @@ Import [`google-flow-sheet-batch.json`](./google-flow-sheet-batch.json).
 
 Also on n8n.io: [Batch-generate Veo 3.1 videos and Nano Banana Pro images from Google Sheets with Google Flow](https://n8n.io/workflows/19991)
 
-Each row of the sheet is one job: a prompt, a `type` (`image`, `video` or `image+video`) and optional models, aspect ratio and upscale. Run it by hand or publish it for an hourly run. Rows with an empty `status` are marked `running` at once, so overlapping runs never take a row twice, and then run one by one:
+Each row of the sheet is one job: a prompt, a `type` (`image`, `video` or `image+video`) and optional models, aspect ratio and upscale. Run it by hand or publish it for an hourly run. Rows with an empty `status` are marked `running` at once, so overlapping runs never take a row twice. Each also gets a `job_id`, and results are written back by it, so sorting the sheet mid-run is safe. Then the rows run one by one:
 
 - **Images:** [POST /images](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) with Nano Banana Pro, usually 10 to 20 seconds each.
 - **Video:** an async [POST /videos](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) job with Veo 3.1, polled with [GET /jobs](https://useapi.net/docs/api-google-flow-v1/get-google-flow-jobs-jobid?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). An `image+video` row can use its image as the first frame, and `upscale` makes a free 1080p copy on paid Google AI plans.
 - **Results:** files go to your Google Drive folder, and the row gets `done` or `failed: <reason>` with the links. Busy answers (`429`) wait and retry, and one failed row never stops the batch. Result links expire after about 6 hours, so keep `drive_link`.
 
-Setup: a Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on the four useapi.net HTTP nodes, Google Sheets and Drive OAuth2 credentials, and your `sheetId` in **Settings**. Row 1 of the tab holds these columns: `prompt`, `video_prompt`, `type`, `image_model`, `video_model`, `aspect_ratio`, `use_image_as_first_frame`, `upscale`, `email`, `status`, `image_url`, `video_url`, `drive_link`, `error`. **Settings** also holds the defaults, batch size, retries and Drive folder, and clearing a row's `status` runs it again.
+Setup: a Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on the four useapi.net HTTP nodes, Google Sheets and Drive OAuth2 credentials, and your `sheetId` in **Settings**. Row 1 of the tab holds these columns: `prompt`, `video_prompt`, `type`, `image_model`, `video_model`, `aspect_ratio`, `use_image_as_first_frame`, `upscale`, `email`, `status`, `image_url`, `video_url`, `drive_link`, `error`, `job_id` (filled by the workflow). **Settings** also holds the defaults, batch size, retries and Drive folder, and clearing a row's `status` runs it again.
 
 ## UGC Ad Factory
 

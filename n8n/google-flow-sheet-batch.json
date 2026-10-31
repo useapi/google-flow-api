@@ -73,7 +73,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Rows with a prompt and an empty status, oldest first, at most maxRowsPerRun. Marked \"running\" before any work,\n// so a run that overlaps this one never takes the same row twice.\nconst S = $('Settings').first().json;\nconst blank = v => String(v == null ? '' : v).trim() === '';\nreturn $input.all().map(i => i.json)\n  .filter(r => r && r.row_number && blank(r.status) && !blank(r.prompt))\n  .slice(0, S.maxRowsPerRun)\n  .map(r => ({ json: { row_number: r.row_number, status: 'running', error: '' } }));\n"
+        "jsCode": "// Rows with a prompt and an empty status, oldest first, at most maxRowsPerRun. Marked \"running\" before any work,\n// so a run that overlaps this one never takes the same row twice. Each row also gets a job_id, and the results are\n// written back by that id, so sorting or editing the sheet mid-run can't put them on another row.\nconst S = $('Settings').first().json;\nconst blank = v => String(v == null ? '' : v).trim() === '';\nconst rows = $input.all().map(i => i.json).filter(r => r && r.row_number);\nif (rows.length && !('job_id' in rows[0])) throw new Error('Add a job_id column to row 1 of the tab: the workflow fills it and writes the results back by it.');\nreturn rows\n  .filter(r => blank(r.status) && !blank(r.prompt))\n  .slice(0, S.maxRowsPerRun)\n  .map(r => ({ json: { row_number: r.row_number, status: 'running', error: '', job_id: `${$execution.id}-${r.row_number}` } }));\n"
       },
       "name": "Pick pending rows",
       "type": "n8n-nodes-base.code",
@@ -237,6 +237,15 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ]
         },
@@ -258,7 +267,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One state object per picked row: the row's cells checked and filled from Settings. A row that fails a check\n// goes straight to the write-back with the reason, and costs nothing.\nconst S = $('Settings').first().json;\nconst picked = new Set($('Pick pending rows').all().map(i => String(i.json.row_number)));\nconst IMAGE_MODELS = ['nano-banana-pro', 'nano-banana-2', 'nano-banana-2-lite'];\nconst VIDEO_MODELS = ['veo-3.1-fast', 'veo-3.1-lite', 'veo-3.1-quality', 'veo-3.1-lite-low-priority', 'omni-flash'];\nconst IMAGE_RATIO = { '16:9': '16:9', '9:16': '9:16', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: '16:9', portrait: '9:16' };\nconst VIDEO_RATIO = { '16:9': 'landscape', '9:16': 'portrait', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: 'landscape', portrait: 'portrait' };\nconst cell = v => String(v == null ? '' : v).trim();\nconst yes = (v, dflt) => { const t = cell(v).toLowerCase(); if (!t) return dflt; return ['yes', 'y', 'true', '1'].includes(t); };\nreturn $('Read sheet rows').all().map(i => i.json).filter(r => picked.has(String(r.row_number))).map(r => {\n  const bad = [];\n  let type = cell(r.type).toLowerCase().replace(/\\s+/g, '') || S.defaultType;\n  if (type === 'both' || type === 'video+image') type = 'image+video';\n  if (!['image', 'video', 'image+video'].includes(type)) bad.push(`type \"${cell(r.type)}\" must be image, video or image+video`);\n  const imageModel = cell(r.image_model).toLowerCase() || S.imageModel;\n  const videoModel = cell(r.video_model).toLowerCase() || S.videoModel;\n  const wantsImage = type !== 'video', wantsVideo = type !== 'image';\n  if (wantsImage && !IMAGE_MODELS.includes(imageModel)) bad.push(`image_model \"${imageModel}\" must be one of ${IMAGE_MODELS.join(', ')}`);\n  if (wantsVideo && !VIDEO_MODELS.includes(videoModel)) bad.push(`video_model \"${videoModel}\" must be one of ${VIDEO_MODELS.join(', ')}`);\n  const ratio = cell(r.aspect_ratio).toLowerCase() || S.aspectRatio;\n  if (!IMAGE_RATIO[ratio]) bad.push(`aspect_ratio \"${ratio}\" must be 16:9, 9:16, 1:1, 4:3 or 3:4`);\n  else if (wantsVideo && videoModel === 'omni-flash' && !['landscape', 'portrait'].includes(VIDEO_RATIO[ratio])) bad.push('omni-flash videos are 16:9 or 9:16 only');\n  const up = cell(r.upscale).toLowerCase();\n  if (up && !['none', 'no', '1080p', 'yes'].includes(up)) bad.push(`upscale \"${cell(r.upscale)}\" must be none or 1080p`);\n  const email = cell(r.email);\n  if (email && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) bad.push(`email \"${email}\" is not an email address`);\n  const state = {\n    row: r.row_number, prompt: cell(r.prompt), videoPrompt: cell(r.video_prompt), type, imageModel, videoModel,\n    imageRatio: IMAGE_RATIO[ratio], videoRatio: VIDEO_RATIO[ratio], email,\n    firstFrame: type === 'image+video' && yes(r.use_image_as_first_frame, S.firstFrame),\n    upscale: wantsVideo && (up ? ['1080p', 'yes'].includes(up) : !!S.upscale),\n    tries: {}, polls: 0, made: false, notes: [],\n  };\n  if (bad.length) { state.status = 'failed: ' + bad.join('; '); state.route = 'write'; }\n  else state.route = wantsImage ? 'image' : 'video';\n  return { json: { state } };\n});\n"
+        "jsCode": "// One state object per picked row: the row's cells checked and filled from Settings. A row that fails a check\n// goes straight to the write-back with the reason, and costs nothing.\nconst S = $('Settings').first().json;\nconst picked = new Map($('Pick pending rows').all().map(i => [String(i.json.row_number), i.json.job_id]));\nconst IMAGE_MODELS = ['nano-banana-pro', 'nano-banana-2', 'nano-banana-2-lite'];\nconst VIDEO_MODELS = ['veo-3.1-fast', 'veo-3.1-lite', 'veo-3.1-quality', 'veo-3.1-lite-low-priority', 'omni-flash'];\nconst IMAGE_RATIO = { '16:9': '16:9', '9:16': '9:16', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: '16:9', portrait: '9:16' };\nconst VIDEO_RATIO = { '16:9': 'landscape', '9:16': 'portrait', '1:1': '1:1', '4:3': '4:3', '3:4': '3:4', landscape: 'landscape', portrait: 'portrait' };\nconst cell = v => String(v == null ? '' : v).trim();\nconst yes = (v, dflt) => { const t = cell(v).toLowerCase(); if (!t) return dflt; return ['yes', 'y', 'true', '1'].includes(t); };\nreturn $('Read sheet rows').all().map(i => i.json).filter(r => picked.has(String(r.row_number))).map(r => {\n  const bad = [];\n  let type = cell(r.type).toLowerCase().replace(/\\s+/g, '') || S.defaultType;\n  if (type === 'both' || type === 'video+image') type = 'image+video';\n  if (!['image', 'video', 'image+video'].includes(type)) bad.push(`type \"${cell(r.type)}\" must be image, video or image+video`);\n  const imageModel = cell(r.image_model).toLowerCase() || S.imageModel;\n  const videoModel = cell(r.video_model).toLowerCase() || S.videoModel;\n  const wantsImage = type !== 'video', wantsVideo = type !== 'image';\n  if (wantsImage && !IMAGE_MODELS.includes(imageModel)) bad.push(`image_model \"${imageModel}\" must be one of ${IMAGE_MODELS.join(', ')}`);\n  if (wantsVideo && !VIDEO_MODELS.includes(videoModel)) bad.push(`video_model \"${videoModel}\" must be one of ${VIDEO_MODELS.join(', ')}`);\n  const ratio = cell(r.aspect_ratio).toLowerCase() || S.aspectRatio;\n  if (!IMAGE_RATIO[ratio]) bad.push(`aspect_ratio \"${ratio}\" must be 16:9, 9:16, 1:1, 4:3 or 3:4`);\n  else if (wantsVideo && videoModel === 'omni-flash' && !['landscape', 'portrait'].includes(VIDEO_RATIO[ratio])) bad.push('omni-flash videos are 16:9 or 9:16 only');\n  const up = cell(r.upscale).toLowerCase();\n  if (up && !['none', 'no', '1080p', 'yes'].includes(up)) bad.push(`upscale \"${cell(r.upscale)}\" must be none or 1080p`);\n  const email = cell(r.email);\n  if (email && !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) bad.push(`email \"${email}\" is not an email address`);\n  const state = {\n    row: r.row_number, jobId: picked.get(String(r.row_number)), prompt: cell(r.prompt), videoPrompt: cell(r.video_prompt), type, imageModel, videoModel,\n    imageRatio: IMAGE_RATIO[ratio], videoRatio: VIDEO_RATIO[ratio], email,\n    firstFrame: type === 'image+video' && yes(r.use_image_as_first_frame, S.firstFrame),\n    upscale: wantsVideo && (up ? ['1080p', 'yes'].includes(up) : !!S.upscale),\n    tries: {}, polls: 0, made: false, notes: [],\n  };\n  if (bad.length) { state.status = 'failed: ' + bad.join('; '); state.route = 'write'; }\n  else state.route = wantsImage ? 'image' : 'video';\n  return { json: { state } };\n});\n"
       },
       "name": "Rows to run",
       "type": "n8n-nodes-base.code",
@@ -727,7 +736,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Only these columns are written, matched on row_number\nconst s = $input.first().json.state;\nconst clip = (t, n) => String(t == null ? '' : t).replace(/\\s+/g, ' ').trim().slice(0, n);\nconst v = (s.upscaled && s.upscaled.url) ? s.upscaled : s.video;\nreturn [{ json: {\n  row_number: s.row,\n  status: s.status === undefined ? 'done' : clip(s.status, 300),\n  image_url: (s.image && s.image.url) || '',\n  video_url: (v && v.url) || '',\n  drive_link: (s.links || []).map(l => l.url).join('\\n'),\n  error: clip(s.notes.join(' '), 500),\n} }];\n"
+        "jsCode": "// Only these columns are written, matched on job_id (the row may have moved since it was picked)\nconst s = $input.first().json.state;\nconst clip = (t, n) => String(t == null ? '' : t).replace(/\\s+/g, ' ').trim().slice(0, n);\nconst v = (s.upscaled && s.upscaled.url) ? s.upscaled : s.video;\nreturn [{ json: {\n  job_id: s.jobId,\n  status: s.status === undefined ? 'done' : clip(s.status, 300),\n  image_url: (s.image && s.image.url) || '',\n  video_url: (v && v.url) || '',\n  drive_link: (s.links || []).map(l => l.url).join('\\n'),\n  error: clip(s.notes.join(' '), 500),\n} }];\n"
       },
       "name": "Row update",
       "type": "n8n-nodes-base.code",
@@ -754,7 +763,7 @@
           "mappingMode": "autoMapInputData",
           "value": {},
           "matchingColumns": [
-            "row_number"
+            "job_id"
           ],
           "schema": [
             {
@@ -891,6 +900,15 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ]
         },
@@ -912,7 +930,7 @@
     },
     {
       "parameters": {
-        "content": "## Batch-generate Veo 3.1 videos and Nano Banana Pro images from a Google Sheet\n\n### How it works\nFor marketers and creators who need many images or clips at once, made with Google Flow on your Google AI plan (Plus, Pro or Ultra) through the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), a third-party API, not affiliated with Google.\n\n1. Each row is one job: a prompt, a `type` (`image`, `video` or `image+video`) and optional models, aspect ratio and upscale.\n2. Run by hand or hourly; rows with an empty `status` are marked `running`, then run one by one.\n3. Nano Banana Pro makes images, Veo 3.1 videos; an `image+video` row can use its image as the first frame.\n4. Busy answers (`429`) wait and retry; one failed row never stops the batch.\n5. Files go to Google Drive; the row gets `done` or `failed: <reason>` and the links.\n\nFlow credits per 8-second Veo 3.1 video (Google's list): Fast 20 (Ultra 10), Lite 10 (Ultra 5), Quality 100; upscaling is free. Limit: result links expire after about 6 hours, so keep `drive_link`.\n\n### Setup\n- [ ] A [useapi.net subscription and API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), with your Google account connected through [Setup Google Flow](https://useapi.net/docs/start-here/setup-google-flow?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch).\n- [ ] A Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on the four useapi.net HTTP nodes.\n- [ ] Google Sheets and Drive OAuth2 credentials, and `sheetId` in **Settings**.\n- [ ] A tab with these columns in row 1: `prompt`, `video_prompt`, `type`, `image_model`, `video_model`, `aspect_ratio`, `use_image_as_first_frame`, `upscale`, `email`, `status`, `image_url`, `video_url`, `drive_link`, `error`.\n- [ ] Click **Run batch now**, or publish for the hourly run.\n\n### Customization\n**Settings** holds the defaults (with allowed values), batch size, retries and Drive folder. Clear a `status` to rerun that row.",
+        "content": "## Batch-generate Veo 3.1 videos and Nano Banana Pro images from a Google Sheet\n\n### How it works\nFor marketers and creators who need many images or clips at once, made with Google Flow on your Google AI plan (Plus, Pro or Ultra) through the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), a third-party API, not affiliated with Google.\n\n1. Each row is one job: a prompt, a `type` (`image`, `video` or `image+video`) and optional models, aspect ratio and upscale.\n2. Run by hand or hourly; rows with an empty `status` are marked `running` with a `job_id`, then run one by one.\n3. Nano Banana Pro makes images, Veo 3.1 videos; an `image+video` row can use its image as the first frame.\n4. Busy answers (`429`) wait and retry; one failed row never stops the batch.\n5. Files go to Google Drive; the row gets `done` or `failed: <reason>` and the links.\n\nFlow credits per 8-second Veo 3.1 video (Google's list): Fast 20 (Ultra 10), Lite 10 (Ultra 5), Quality 100; upscaling is free. Limit: result links expire after about 6 hours, so keep `drive_link`.\n\n### Setup\n- [ ] A [useapi.net subscription and API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch), with your Google account connected through [Setup Google Flow](https://useapi.net/docs/start-here/setup-google-flow?utm_source=n8n&utm_medium=referral&utm_campaign=flow-sheet-batch).\n- [ ] A Header Auth credential (Name `Authorization`, Value `Bearer <your API token>`) on the four useapi.net HTTP nodes.\n- [ ] Google Sheets and Drive OAuth2 credentials, and `sheetId` in **Settings**.\n- [ ] A tab with these columns in row 1: `prompt`, `video_prompt`, `type`, `image_model`, `video_model`, `aspect_ratio`, `use_image_as_first_frame`, `upscale`, `email`, `status`, `image_url`, `video_url`, `drive_link`, `error`, `job_id`.\n- [ ] Click **Run batch now**, or publish for the hourly run.\n\n### Customization\n**Settings** holds the defaults (with allowed values), batch size, retries and Drive folder. Clear a `status` to rerun that row.",
         "width": 700,
         "height": 906
       },
@@ -941,9 +959,9 @@
     },
     {
       "parameters": {
-        "content": "## Read the sheet and loop\nRows with an empty `status` are marked `running` at once, so overlapping runs never take a row twice. The cells are checked, then the rows run one at a time.",
+        "content": "## Read the sheet and loop\nRows with an empty `status` are marked `running` at once, so overlapping runs never take a row twice, and get a `job_id` that the results are written back by. The cells are checked, then the rows run one at a time.",
         "width": 1340,
-        "height": 426,
+        "height": 448,
         "color": 7
       },
       "name": "Note: sheet",
@@ -951,7 +969,7 @@
       "typeVersion": 1,
       "position": [
         490,
-        -136
+        -158
       ]
     },
     {
@@ -1046,9 +1064,9 @@
     },
     {
       "parameters": {
-        "content": "## Write back\nOne update per row, matched on its row number: the status, the links and any notes. Then the loop takes the next row.",
+        "content": "## Write back\nOne update per row, matched on its `job_id`, so a sorted sheet still gets each result on the right row: the status, the links and any notes. Then the loop takes the next row.",
         "width": 460,
-        "height": 370,
+        "height": 392,
         "color": 7
       },
       "name": "Note: write",
@@ -1056,7 +1074,7 @@
       "typeVersion": 1,
       "position": [
         1510,
-        1260
+        1238
       ]
     }
   ],
