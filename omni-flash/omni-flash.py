@@ -1,9 +1,9 @@
 """
 
-Script version 1.1, September 11, 2026
+Script version 1.2, November 6, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API by useapi.net
-Uses the POST /videos endpoint in async mode (model: omni-flash) and polls GET /jobs/{jobId}.
+Uses the POST /videos endpoint in async mode (model: omni-flash by default, or omni-flash-1.2 per prompt) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 
 Installation Instructions:
@@ -222,13 +222,14 @@ def jsonStringify(obj):
     return json.dumps({k: v for k, v in obj.items() if v is not None})
 
 
-# Submit a single prompt to POST /videos with model omni-flash in async mode.
+# Submit a single prompt to POST /videos with model omni-flash (or the prompt's own model) in async mode.
 # startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
 # referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
 # referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
-# resolution = 720p (default) or 360p (about half the credits).
+# resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
 def submitVideo(apiToken, email, prompt, index):
     text = prompt.get('prompt')
+    model = prompt.get('model', MODEL)
     aspectRatio = prompt.get('aspectRatio')
     duration = prompt.get('duration')
     resolution = prompt.get('resolution')
@@ -259,7 +260,7 @@ def submitVideo(apiToken, email, prompt, index):
     referenceAudio_4 = prompt.get('referenceAudio_4')
     referenceAudio_5 = prompt.get('referenceAudio_5')
 
-    print(f'🚀 {MODEL} » Prompt #{index} • account {email} …')
+    print(f'🚀 {model} » Prompt #{index} • account {email} …')
 
     # Upload any local image/video files and swap the paths for their mediaGenerationId.
     def resolveRef(ref):
@@ -299,7 +300,7 @@ def submitVideo(apiToken, email, prompt, index):
     isV2V = bool(refVideo_1)
 
     body = jsonStringify({
-        'model': MODEL,
+        'model': model,
         'email': email,
         'prompt': text,
         'aspectRatio': aspectRatio,
@@ -479,7 +480,7 @@ def execute(apiToken, email, promptFile):
     # Parameters accepted by this script for the omni-flash POST /videos endpoint.
     # See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     supportedParams = [
-        'prompt', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
         'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',

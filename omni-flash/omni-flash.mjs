@@ -1,9 +1,9 @@
 /*
 
-Script version 1.1, September 11, 2026
+Script version 1.2, November 6, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API by useapi.net
-Uses the POST /videos endpoint in async mode (model: omni-flash) and polls GET /jobs/{jobId}.
+Uses the POST /videos endpoint in async mode (model: omni-flash by default, or omni-flash-1.2 per prompt) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 
 Installation Instructions:
@@ -188,14 +188,14 @@ async function submit(apiToken, url, body, index, prompt) {
     }
 }
 
-// Submit a single prompt to POST /videos with model omni-flash in async mode.
+// Submit a single prompt to POST /videos with model omni-flash (or the prompt's own model) in async mode.
 // startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
 // referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
 // referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
-// resolution = 720p (default) or 360p (about half the credits).
+// resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
 async function submitVideo(apiToken, email, prompt, index) {
     const {
-        prompt: text, aspectRatio, duration, resolution, count, seed,
+        prompt: text, model = MODEL, aspectRatio, duration, resolution, count, seed,
         startImage, endImage,
         referenceImage_1, referenceImage_2, referenceImage_3, referenceImage_4,
         referenceImage_5, referenceImage_6, referenceImage_7,
@@ -205,7 +205,7 @@ async function submitVideo(apiToken, email, prompt, index) {
         referenceAudio_1, referenceAudio_2, referenceAudio_3, referenceAudio_4, referenceAudio_5
     } = prompt;
 
-    console.log(`🚀 ${MODEL} » Prompt #${index} • account ${email} …`);
+    console.log(`🚀 ${model} » Prompt #${index} • account ${email} …`);
 
     // Upload any local image/video files and swap the paths for their mediaGenerationId.
     const resolveRef = async (ref) =>
@@ -246,7 +246,7 @@ async function submitVideo(apiToken, email, prompt, index) {
     const isV2V = !!refVideo_1;
 
     const body = JSON.stringify({
-        model: MODEL,
+        model,
         email,
         prompt: text,
         aspectRatio,
@@ -450,7 +450,7 @@ async function execute(apiToken, email, promptFile) {
     // Parameters accepted by this script for the omni-flash POST /videos endpoint.
     // See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     const supportedParams = [
-        'prompt', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
         'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',

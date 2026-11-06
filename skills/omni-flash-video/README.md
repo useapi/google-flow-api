@@ -1,6 +1,6 @@
-# Omni 1.1 Flash video: an agent skill
+# Omni Flash video (1.2 and 1.1): an agent skill
 
-An [Agent Skill](https://agentskills.io) that lets Claude Code, Codex and other coding agents make AI video with Google's Omni 1.1 Flash (Gemini Omni Flash, audio-native: spoken dialogue, preset voices, reference images of people and products, video-to-video edits) or Veo 3.1 Fast, Quality and Lite, and download the `.mp4`. Ask your agent "make a 6-second portrait clip of the woman in presenter.jpg holding up our mug and saying it's the best coffee she's had" and it runs the scripts in this folder.
+An [Agent Skill](https://agentskills.io) that lets Claude Code, Codex and other coding agents make AI video with Google's Omni Flash 1.2 or 1.1 (Gemini Omni Flash, audio-native: spoken dialogue, preset voices, reference images of people and products, video-to-video edits) or Veo 3.1 Fast, Quality and Lite, and download the `.mp4`. Ask your agent "make a 6-second portrait clip of the woman in presenter.jpg holding up our mug and saying it's the best coffee she's had" and it runs the scripts in this folder.
 
 It calls the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=skill&utm_campaign=omni-flash-skill), a third-party REST API that runs on your Google Flow account. Each clip spends Flow credits from your Google AI subscription.
 

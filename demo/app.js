@@ -35,7 +35,7 @@
   /* The default-model choices when GET /agent/settings could not read the account's catalog from Google (models: null) */
   const IMAGE_MODELS = [['nano-banana-pro', 'Nano Banana Pro'], ['nano-banana-2', 'Nano Banana 2.1'], ['nano-banana-2-lite', 'Nano Banana 2 Lite']];
   const IMAGE_ASPECTS = ['1:1', '9:16', '16:9', '3:4', '4:3'];
-  const VIDEO_MODELS = [['omni-flash', 'Omni 1.1 Flash'], ['veo-3.1-lite', 'Veo 3.1 - Lite'], ['veo-3.1-fast', 'Veo 3.1 - Fast'], ['veo-3.1-quality', 'Veo 3.1 - Quality'], ['veo-3.1-lite-low-priority', 'Veo 3.1 - Lite [Lower Priority]']];
+  const VIDEO_MODELS = [['omni-flash-1.2', 'Omni 1.2 Flash'], ['omni-flash', 'Omni 1.1 Flash'], ['veo-3.1-lite', 'Veo 3.1 - Lite'], ['veo-3.1-fast', 'Veo 3.1 - Fast'], ['veo-3.1-quality', 'Veo 3.1 - Quality'], ['veo-3.1-lite-low-priority', 'Veo 3.1 - Lite [Lower Priority]']];
   const VIDEO_ASPECTS = ['9:16', '16:9'];
   const COUNTS = ['1', '2', '3', '4'];
   const LIBRARY_PAGE = 48;
@@ -156,8 +156,10 @@
       const select = $('gf-account');
       select.textContent = '';
       for (const email of emails) {
-        const health = accounts[email].health && accounts[email].health !== 'OK' ? ` · ${accounts[email].health}` : '';
-        select.append(el('option', { value: email, text: maskEmail(email) + health, title: maskEmail(email) + health }));
+        /* A broken account gets a short marker in the list; its full health message (often a long sentence) would stretch the
+           dropdown past the screen, so it goes in the tooltip only. */
+        const bad = accounts[email].health && accounts[email].health !== 'OK';
+        select.append(el('option', { value: email, text: maskEmail(email) + (bad ? ' · needs attention' : ''), title: bad ? `${maskEmail(email)} · ${accounts[email].health}` : maskEmail(email) }));
       }
       select.disabled = !emails.length;
       if (!emails.length) return topMsg('This token has no Google Flow account yet. Add one with POST /accounts (see the Google Flow setup).', 'error');
@@ -1260,9 +1262,9 @@
     };
   };
   /* The models this account's Google plan has, from settings.models {image: [{model, label, credits?}], video: [...]}:
-     "Veo 3.1 - Fast · 20 credits", "Nano Banana Pro · free", or just the label when the cost is not known. models: null (Google's
+     "Veo 3.1 - Fast · from 20 credits", "Nano Banana Pro · free" (credits is the cheapest generation: shortest length, lowest resolution), or just the label when the cost is not known. models: null (Google's
      catalog could not be read) falls back to the full list without costs. */
-  const modelChoices = (list, fallback) => list ? list.map(m => [m.model, `${m.label || m.model}${typeof m.credits === 'number' ? m.credits === 0 ? ' · free' : ` · ${m.credits} credit${m.credits === 1 ? '' : 's'}` : ''}`]) : fallback;
+  const modelChoices = (list, fallback) => list ? list.map(m => [m.model, `${m.label || m.model}${typeof m.credits === 'number' ? m.credits === 0 ? ' · free' : ` · from ${m.credits} credit${m.credits === 1 ? '' : 's'}` : ''}`]) : fallback;
   const fillSettings = s => {
     state.settings = s;
     $('gf-s-project').textContent = s.projectId ? `project ${s.projectId}` : 'no agent project yet';

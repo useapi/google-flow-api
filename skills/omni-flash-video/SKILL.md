@@ -1,14 +1,14 @@
 ---
 name: omni-flash-video
-description: Generate AI video with Google's Omni 1.1 Flash (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 through the useapi.net Google Flow API, on the user's Google AI subscription. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
+description: Generate AI video with Google's Omni Flash 1.2 or 1.1 (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 through the useapi.net Google Flow API, on the user's Google AI subscription. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
 license: MIT
-compatibility: Needs bash, curl, jq and network access to api.useapi.net. Requires a useapi.net API token (USEAPI_TOKEN) and a Google account with a Google AI Plus, Pro or Ultra subscription connected to useapi.net.
+compatibility: Needs bash, curl, jq and network access to api.useapi.net. Requires a useapi.net API token (USEAPI_TOKEN) and a Google account connected to useapi.net with a Google AI Plus, Pro or Ultra subscription (Omni 1.2 Flash also runs on a free account, up to 10 s), connected to useapi.net.
 metadata:
   author: useapi.net
   homepage: https://github.com/useapi/google-flow-api
 ---
 
-# Omni 1.1 Flash and Veo 3.1 video with the useapi.net Google Flow API
+# Omni Flash (1.2 and 1.1) and Veo 3.1 video with the useapi.net Google Flow API
 
 These scripts call the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1), a third-party REST API that drives the user's Google Flow account. Each clip spends Flow credits from the user's Google AI subscription. Every script is in `scripts/` next to this file. Run them with bash.
 
@@ -54,9 +54,13 @@ scripts/video.sh "..." resolution=360p duration=4
 | Video-to-video edit | 20 | 10 |
 
 - `aspectRatio`: `landscape` (default) or `portrait`. Ask the user which one; for phone video it is `portrait`, and forgetting it is the most common wasted generation.
-- Omni generates at 360p or 720p, and POST /videos/upscale takes a clip to 1080p for free, or to 4K on Ultra. `count` (1 to 4) multiplies the cost.
+- Omni generates at 360p or 720p, and POST /videos/upscale takes a clip of up to 15 s to 1080p (free up to 10 s, then 1 credit a second), or to 4K on Ultra. `count` (1 to 4) multiplies the cost.
 - Veo 3.1 (`model=veo-3.1-fast`, `veo-3.1-quality`, `veo-3.1-lite`) has no 360p, takes up to 3 reference images and one voice (neither on `veo-3.1-quality`), and also accepts 1:1, 4:3 and 3:4.
 - Tell the user the credit cost before generating more than one clip or anything over 8 s.
+
+## Omni 1.2 Flash
+
+`model=omni-flash-1.2` (Google released it on November 5, 2026) takes any whole number of seconds from 3 to 15 (`duration=3` … `duration=15`; 3 to 10 with `startImage` + `endImage`), at 720p or 360p, with the same references and voices as Omni 1.1. Credits are per second, the same on every plan: at 720p 3 a second up to 10 s and 6 a second above (8 s = 24, 15 s = 60), at 360p 1 and 2. Free Google accounts can use it up to 10 s. Google is giving it to accounts over several days; an account that does not have it yet answers `HTTP 400` saying so. To make a video longer than 15 s, extend it with POST /videos/extend (https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-extend): 3 to 10 s at a time, on a paid plan, for any video shorter than 30 s.
 
 ## Writing prompts that work
 

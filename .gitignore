@@ -13,6 +13,10 @@ node_modules
 result.json
 _*.*
 
+# omni-extend run output and Python caches
+step-*.json
+__pycache__/
+
 # Pipeline run state (ugc-product-video)
 ugc_state.json
 ugc_errors.txt

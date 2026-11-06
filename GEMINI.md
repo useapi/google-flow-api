@@ -1,6 +1,6 @@
 # Google Flow via useapi.net
 
-This extension connects the hosted useapi.net Google Flow MCP server (`useapi-google-flow`, 12 tools). The tools chat with Google Flow Agent to make images and Veo 3.1 or Omni 1.1 Flash video, answer its credit approvals, manage chats and settings, list characters, voices and media, and upload images, on your Google AI subscription (a free account works too, Omni 1.1 Flash needs a paid one).
+This extension connects the hosted useapi.net Google Flow MCP server (`useapi-google-flow`, 12 tools). The tools chat with Google Flow Agent to make images and Veo 3.1 or Omni Flash (1.2 and 1.1) video, answer its credit approvals, manage chats and settings, list characters, voices and media, and upload images, on your Google AI subscription (a free account works too, Omni 1.1 Flash needs a paid one).
 
 - Endpoint: https://api.useapi.net/v1/google-flow/mcp (Streamable HTTP), authorized with the user's useapi.net API token in `USEAPI_TOKEN`.
 - Before the tools work, the user needs a useapi.net API token (https://useapi.net/docs/start-here/setup-useapi) and an account connected at https://useapi.net/docs/start-here/setup-google-flow.

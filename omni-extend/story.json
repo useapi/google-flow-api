@@ -1,0 +1,19 @@
+{
+    "model": "omni-flash-1.2",
+    "duration": 10,
+    "aspectRatio": "landscape",
+    "resolution": "720p",
+    "prompt": "Cinematic night, a narrow rainy alley in Tokyo glowing with neon signs reflected in the puddles. A street magician in a long dark coat faces the camera, fans out a deck of cards that glow faintly gold, and says with a grin: \"Pick a card. Any card.\" A sudden gust snatches one glowing card from his hand and it flutters away down the alley. Handheld camera, shallow depth of field, rain drops catching the light.",
+    "extensions": [
+        {
+            "duration": 10,
+            "referenceAudio_1": "Charon",
+            "prompt": "The magician runs after the glowing card through the rain, past a ramen stall and under paper lanterns, laughing and calling out in a deep voice @referenceAudio_1: \"Come back here! You are the ace of hearts!\" The camera follows him close behind."
+        },
+        {
+            "duration": 10,
+            "referenceAudio_1": "Aoede",
+            "prompt": "The glowing card drifts through the open door of a tiny warm café and lands on a table. A young woman in a yellow raincoat picks it up, looks at the out-of-breath magician in the doorway, and says with a smile @referenceAudio_1: \"Is this your card?\" He laughs. Warm light, rain outside the window."
+        }
+    ]
+}
