@@ -1,6 +1,6 @@
 # Google Flow API examples (useapi.net)
 
-English · [中文](#中文说明)
+English · [中文](#中文说明) · [日本語](#日本語の説明) · [Português](#sobre-este-repositório) · [Tiếng Việt](#về-repo-này) · [Bahasa Indonesia](#tentang-repo-ini) · [ไทย](#เกี่ยวกับ-repo-นี้)
 
 Runnable Node.js and Python examples for the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) — generate Veo 3.1 Fast, Quality and Lite video, Omni 1.2 and 1.1 Flash audio-native video, and Nano Banana Pro, 2.1 and 2 Lite images through a REST API that runs on your [Google AI subscription](https://gemini.google/subscriptions/) for [Google Flow](https://flow.google.com): Free, Plus $4.99, Pro $19.99, Ultra $99.99 or Ultra $199.99 a month (as of November 2026). No Google Cloud project, no Gemini API key, no per-call metering.
 
@@ -109,6 +109,69 @@ The install asks for your useapi.net API token and keeps it in the system keycha
 - 成本：在 Google AI Ultra $199.99 上，一条 8 秒 Veo 3.1 Fast 视频约 $0.08 的 Flow 积分，Google 官方 API 为 $0.80（2026 年 11 月）。图片生成不消耗积分，免费 Google 账号也可使用。
 
 中文教程（Veo 3.1、Omni Flash 1.2 和 1.1、Nano Banana Pro，含价格对比与示例）：[如何通过 Google Flow API 调用 Veo 3.1、Omni Flash（1.2 和 1.1）和 Nano Banana Pro](https://useapi.net/docs/articles/google-flow-api-zh?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。快速开始见上方 [Quick start](#quick-start)，完整文档：[Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
+
+## 日本語の説明
+
+[useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) がホストするサードパーティの Google Flow API の、Node.js と Python のサンプルです。REST API で、Veo 3.1 Fast、Quality、Lite の動画、音声付きの Omni 1.2 Flash と 1.1 Flash の動画、Nano Banana Pro、2.1、2 Lite の画像を生成します。
+
+- お使いの Google AI のプランで動きます：無料、Plus $4.99、Pro $19.99、Ultra $99.99、Ultra $199.99（月額、2026年11月時点）。新しいドメイン `flow.google.com` にも対応しています。
+- Google Cloud プロジェクトも Gemini API キーも不要で、サーバーやブラウザーを自分で管理する必要もありません。
+- Google アカウントは、自動化されたブラウザーの手順で接続します。Google に一度ログインするだけで、Cookie をコピーする必要はありません。
+- reCAPTCHA はサーバー側で解決します。最初のアカウントには300回の無料解決が付き、その後はご自身の CAPTCHA プロバイダーを使います。
+- コスト：Google AI Ultra $199.99 では、8秒の Veo 3.1 Fast の動画1本が Flow クレジットで約 $0.08 で、Google の公式 API では $0.80 です（2026年11月時点）。画像はクレジットを使わず、無料の Google アカウントでも作れます。useapi.net は月 $15 で、すべての API と、サブスクリプションごとに3つの Google アカウントが含まれます。
+- サンプルでは、`prompts.json` から動画と画像を一括生成し、Omni 1.2 の延長で長いシーンを組み立て、UGC の商品動画を最初から最後まで作ります。
+
+日本語の記事：[Veo 3.1 API の使い方：Google Flow API と curl で動画を生成する](https://useapi.net/docs/articles/google-flow-bash-ja?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)、[Google AI のサブスクは API で使える？Plus・Pro・Ultra で毎月できること](https://useapi.net/docs/articles/google-ai-subscription-api-ja?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。ドキュメント全体：[Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
+
+## Sobre este repositório
+
+Exemplos em Node.js e Python da Google Flow API, uma API de terceiros hospedada pela [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), para gerar por REST vídeos Veo 3.1 Fast, Quality e Lite, vídeos Omni 1.2 e 1.1 Flash com áudio, e imagens Nano Banana Pro, 2.1 e 2 Lite.
+
+- Roda na sua assinatura do Google AI: gratuita, Plus $4,99, Pro $19,99, Ultra $99,99 ou Ultra $199,99 por mês (preços de novembro de 2026), já no novo domínio `flow.google.com`.
+- Sem projeto no Google Cloud e sem chave da Gemini API, sem servidor nem navegador para manter.
+- A conta Google é conectada por um fluxo automatizado no navegador: você entra no Google uma vez, sem copiar cookies.
+- O reCAPTCHA é resolvido pelo servidor: a primeira conta ganha 300 resoluções grátis, depois você usa o seu próprio provedor de captcha.
+- Custo: no Google AI Ultra $199,99, um vídeo Veo 3.1 Fast de 8 segundos gasta cerca de $0,08 em créditos do Flow, contra $0,80 na API oficial do Google (novembro de 2026). Imagens não gastam créditos e funcionam em contas Google gratuitas. A useapi.net custa $15 por mês, com todas as APIs e 3 contas Google por assinatura.
+- Os exemplos geram vídeos e imagens em lote a partir de um `prompts.json`, montam uma cena longa com extensões do Omni 1.2 e criam um vídeo UGC de produto do início ao fim.
+
+Artigos em português: [Como usar a API do Veo 3.1 com curl pela Google Flow API](https://useapi.net/docs/articles/google-flow-bash-pt?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) e [Dá para usar a assinatura do Google AI por API?](https://useapi.net/docs/articles/google-ai-subscription-api-pt?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Documentação completa: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
+## Về repo này
+
+Ví dụ Node.js và Python cho Google Flow API, một API của bên thứ ba do [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) host, để tạo qua REST video Veo 3.1 Fast, Quality và Lite, video Omni 1.2 và 1.1 Flash có âm thanh, và ảnh Nano Banana Pro, 2.1 và 2 Lite.
+
+- Chạy trên gói Google AI của bạn: Ultra $199,99, Ultra $99,99, Pro $19,99, Plus $4,99 mỗi tháng hoặc gói miễn phí (giá tháng 11/2026), đã hỗ trợ tên miền mới `flow.google.com`.
+- Không cần dự án Google Cloud hay Gemini API key, không phải tự triển khai server hay duy trì trình duyệt.
+- Tài khoản Google được kết nối bằng quy trình trình duyệt tự động: đăng nhập Google một lần, không cần chép cookie.
+- reCAPTCHA được server tự giải: tài khoản đầu tiên được 300 lần miễn phí, sau đó bạn dùng dịch vụ giải captcha của riêng mình.
+- Chi phí: trên Google AI Ultra $199,99, một video Veo 3.1 Fast dài 8 giây tốn khoảng $0,08 credit Flow, so với $0,80 trên API chính thức của Google (tháng 11/2026). Ảnh không tốn credit và dùng được trên tài khoản Google miễn phí. useapi.net giá $15 mỗi tháng, gồm mọi API và 3 tài khoản Google mỗi gói đăng ký.
+- Các ví dụ tạo hàng loạt video và ảnh từ một file `prompts.json`, dựng một cảnh dài bằng các lần kéo dài Omni 1.2, và làm trọn một video UGC giới thiệu sản phẩm.
+
+Bài viết tiếng Việt: [Cách dùng Veo 3.1 API: tạo video bằng curl qua Google Flow API](https://useapi.net/docs/articles/google-flow-bash-vi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) và [Dùng gói Google AI qua API được không?](https://useapi.net/docs/articles/google-ai-subscription-api-vi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Tài liệu đầy đủ: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
+## Tentang repo ini
+
+Ini adalah contoh kode Node.js dan Python untuk Google Flow API dari [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), API pihak ketiga untuk membuat video Veo 3.1 Fast, Quality dan Lite, video Omni 1.2 dan 1.1 Flash dengan audio, serta gambar Nano Banana Pro, 2.1 dan 2 Lite lewat REST API.
+
+- Berjalan di paket Google AI Anda sendiri (Gratis, Plus $4,99, Pro $19,99, Ultra $99,99 atau Ultra $199,99 per bulan, harga per November 2026), dan sudah mendukung domain baru `flow.google.com`.
+- Tanpa project Google Cloud atau Gemini API key, tanpa server atau browser yang harus Anda kelola sendiri.
+- Akun dihubungkan lewat [setup browser otomatis](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api): cukup login ke Google, tanpa menyalin cookie. Captcha diselesaikan di server (300 gratis untuk akun pertama, setelah itu lewat penyedia captcha Anda sendiri).
+- Harga: di Google AI Ultra $199,99, satu video Veo 3.1 Fast 8 detik memakai kredit Flow senilai sekitar $0,08, dibanding $0,80 di API resmi Google (per November 2026). Gambar tidak memakai kredit, dan akun Google gratis pun bisa. Langganan useapi.net $15 per bulan untuk semua API, dengan 3 akun Google per langganan.
+- Contoh di repo: `veo-video/` dan `images/` membuat video dan gambar secara batch dari `prompts.json`, `omni-extend/` membuat video Omni 1.2 Flash panjang lewat perpanjangan dengan suara, `ugc-product-video/` membuat video produk UGC utuh, ditambah workflow n8n dan agent skill untuk Claude Code, Codex dan Cursor.
+
+Artikel bahasa Indonesia: [Cara Memakai Veo 3.1 API: Membuat Video dengan curl lewat Google Flow API](https://useapi.net/docs/articles/google-flow-bash-id?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) dan [Bisakah Langganan Google AI Dipakai Lewat API? Isi Paket Plus, Pro dan Ultra](https://useapi.net/docs/articles/google-ai-subscription-api-id?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Dokumentasi lengkap: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
+## เกี่ยวกับ repo นี้
+
+นี่คือตัวอย่างโค้ด Node.js และ Python สำหรับ Google Flow API ของ [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) ซึ่งเป็น API ของบุคคลที่สาม ใช้สร้างวิดีโอ Veo 3.1 Fast, Quality และ Lite วิดีโอ Omni 1.2 และ 1.1 Flash พร้อมเสียง และภาพ Nano Banana Pro, 2.1 และ 2 Lite ผ่าน REST API
+
+- ใช้แพ็กเกจ Google AI ของคุณเอง (ฟรี, Plus $4.99, Pro $19.99, Ultra $99.99 หรือ Ultra $199.99 ต่อเดือน ราคา ณ พฤศจิกายน 2026) และรองรับโดเมนใหม่ `flow.google.com` แล้ว
+- ไม่ต้องมีโปรเจกต์ Google Cloud หรือ Gemini API key ไม่ต้องตั้งเซิร์ฟเวอร์หรือดูแลเบราว์เซอร์เอง
+- เชื่อมบัญชีผ่าน[ขั้นตอนตั้งค่าแบบเบราว์เซอร์อัตโนมัติ](https://useapi.net/docs/start-here/setup-google-flow?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) แค่ล็อกอิน Google ไม่ต้องคัดลอก cookie ส่วน captcha ระบบแก้ให้ (บัญชีแรกฟรี 300 ครั้ง หลังจากนั้นใช้ผู้ให้บริการ captcha ของคุณเอง)
+- ราคา: บน Google AI Ultra $199.99 วิดีโอ Veo 3.1 Fast ยาว 8 วินาทีใช้เครดิต Flow ราว $0.08 เทียบกับ $0.80 บน API ทางการของ Google (ข้อมูล ณ พฤศจิกายน 2026) การสร้างภาพไม่ใช้เครดิต และใช้บัญชี Google ฟรีได้ ค่าบริการ useapi.net คือ $15 ต่อเดือน รวมทุก API และเชื่อมบัญชี Google ได้ 3 บัญชีต่อการสมัคร
+- ตัวอย่างใน repo: `veo-video/` และ `images/` สร้างวิดีโอและภาพทีละหลายรายการจาก `prompts.json` `omni-extend/` สร้างวิดีโอ Omni 1.2 Flash ยาวด้วยการต่อความยาวพร้อมเสียงพูด `ugc-product-video/` สร้างวิดีโอรีวิวสินค้าแบบ UGC ทั้งคลิป และยังมี workflow ของ n8n กับ agent skill สำหรับ Claude Code, Codex และ Cursor
+
+บทความภาษาไทย: [วิธีใช้ Veo 3.1 API: สร้างวิดีโอด้วย curl ผ่าน Google Flow API](https://useapi.net/docs/articles/google-flow-bash-th?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) และ [ใช้แพ็กเกจ Google AI ผ่าน API ได้ไหม? Plus, Pro และ Ultra ได้อะไรบ้าง](https://useapi.net/docs/articles/google-ai-subscription-api-th?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) เอกสารฉบับเต็ม: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 
 ## About useapi.net
 
