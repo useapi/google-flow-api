@@ -1,6 +1,6 @@
 """
 
-Script version 1.2, November 6, 2026
+Script version 1.3, November 11, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API by useapi.net
 Uses the POST /videos endpoint in async mode (model: omni-flash by default, or omni-flash-1.2 per prompt) and polls GET /jobs/{jobId}.
@@ -389,7 +389,7 @@ def main():
         print('Usage: python3 omni-flash.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]', file=sys.stderr)
         sys.exit(1)
 
-    print('Script v1.1')
+    print('Script v1.3')
 
     print('Python version is: ' + sys.version)
 
