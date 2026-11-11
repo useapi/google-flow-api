@@ -7,7 +7,6 @@
         "aspectRatio": "landscape",
         "duration": 8,
         "count": 2,
-        "seed": 123456,
         "prompt": "Highest-quality Veo 3.1, two variations. For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
     },
     {

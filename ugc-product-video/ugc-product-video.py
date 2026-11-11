@@ -177,7 +177,6 @@ def generate_image(api_token, email, spec, label, extra=None):
         "prompt": spec["prompt"],
         "aspectRatio": spec.get("aspectRatio"),
         "count": count,
-        "seed": spec.get("seed"),
     }
     payload.update(extra or {})
 

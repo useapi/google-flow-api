@@ -186,7 +186,7 @@ async function submit(apiToken, url, body, index, prompt) {
 // Submit a single prompt to POST /videos in async mode.
 // startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage).
 async function submitVideo(apiToken, email, prompt, index) {
-    const { model, prompt: text, startImage, endImage, aspectRatio, duration, count, seed } = prompt;
+    const { model, prompt: text, startImage, endImage, aspectRatio, duration, count } = prompt;
 
     const useModel = model ?? DEFAULT_MODEL;
 
@@ -214,7 +214,6 @@ async function submitVideo(apiToken, email, prompt, index) {
         aspectRatio,
         duration,
         count,
-        seed,
         startImage: startImageId,
         endImage: endImageId,
         async: true
@@ -388,7 +387,7 @@ async function execute(apiToken, email, promptFile) {
 
     // Parameters accepted by this script for the POST /videos endpoint.
     // See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for every model's full parameter set.
-    const supportedParams = ['model', 'prompt', 'startImage', 'endImage', 'aspectRatio', 'duration', 'count', 'seed'];
+    const supportedParams = ['model', 'prompt', 'startImage', 'endImage', 'aspectRatio', 'duration', 'count'];
 
     const invalidKeys = (prompt) => Object.keys(prompt).filter(key => !key.startsWith('__') && !supportedParams.includes(key))
 

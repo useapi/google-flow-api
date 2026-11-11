@@ -215,7 +215,6 @@ def submitVideo(apiToken, email, prompt, index):
     aspectRatio = prompt.get('aspectRatio')
     duration = prompt.get('duration')
     count = prompt.get('count')
-    seed = prompt.get('seed')
 
     useModel = model if model is not None else DEFAULT_MODEL
 
@@ -243,7 +242,6 @@ def submitVideo(apiToken, email, prompt, index):
         'aspectRatio': aspectRatio,
         'duration': duration,
         'count': count,
-        'seed': seed,
         'startImage': startImageId,
         'endImage': endImageId,
         'async': True
@@ -403,7 +401,7 @@ def execute(apiToken, email, promptFile):
 
     # Parameters accepted by this script for the POST /videos endpoint.
     # See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for every model's full parameter set.
-    supportedParams = ['model', 'prompt', 'startImage', 'endImage', 'aspectRatio', 'duration', 'count', 'seed']
+    supportedParams = ['model', 'prompt', 'startImage', 'endImage', 'aspectRatio', 'duration', 'count']
 
     def invalidKeys(prompt):
         return [key for key in prompt.keys() if not key.startswith('__') and key not in supportedParams]

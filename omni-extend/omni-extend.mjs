@@ -24,7 +24,7 @@ import path from 'path';
 const BASE = process.env.USEAPI_BASE ?? 'https://api.useapi.net/v1/google-flow';
 const POLL_MS = 10000;
 const REFERENCE_KEYS = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3'];
-const EXTEND_KEYS = ['duration', 'resolution', 'count', 'seed', ...REFERENCE_KEYS,
+const EXTEND_KEYS = ['duration', 'resolution', 'count', ...REFERENCE_KEYS,
     'character_1', 'character_2', 'character_3', 'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3'];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

@@ -29,7 +29,7 @@ import urllib.request
 BASE = os.environ.get('USEAPI_BASE', 'https://api.useapi.net/v1/google-flow')
 POLL_SECONDS = 10
 REFERENCE_KEYS = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3']
-EXTEND_KEYS = ['duration', 'resolution', 'count', 'seed', *REFERENCE_KEYS,
+EXTEND_KEYS = ['duration', 'resolution', 'count', *REFERENCE_KEYS,
                'character_1', 'character_2', 'character_3', 'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3']
 
 

@@ -195,7 +195,7 @@ async function submit(apiToken, url, body, index, prompt) {
 // resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
 async function submitVideo(apiToken, email, prompt, index) {
     const {
-        prompt: text, model = MODEL, aspectRatio, duration, resolution, count, seed,
+        prompt: text, model = MODEL, aspectRatio, duration, resolution, count,
         startImage, endImage,
         referenceImage_1, referenceImage_2, referenceImage_3, referenceImage_4,
         referenceImage_5, referenceImage_6, referenceImage_7,
@@ -253,7 +253,6 @@ async function submitVideo(apiToken, email, prompt, index) {
         duration: isV2V ? undefined : duration,
         resolution,
         count,
-        seed,
         startImage: startImageId,
         endImage: endImageId,
         referenceImage_1: refImage_1,
@@ -450,7 +449,7 @@ async function execute(apiToken, email, promptFile) {
     // Parameters accepted by this script for the omni-flash POST /videos endpoint.
     // See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     const supportedParams = [
-        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count',
         'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',

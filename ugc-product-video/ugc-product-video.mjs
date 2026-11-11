@@ -166,7 +166,6 @@ async function generateImage(apiToken, email, spec, label, extra = {}) {
         prompt: spec.prompt,
         aspectRatio: spec.aspectRatio,
         count: spec.count,
-        seed: spec.seed,
         ...extra
     }, `POST /images (${label})`);
 

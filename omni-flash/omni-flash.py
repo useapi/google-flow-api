@@ -234,7 +234,6 @@ def submitVideo(apiToken, email, prompt, index):
     duration = prompt.get('duration')
     resolution = prompt.get('resolution')
     count = prompt.get('count')
-    seed = prompt.get('seed')
     startImage = prompt.get('startImage')
     endImage = prompt.get('endImage')
     referenceImage_1 = prompt.get('referenceImage_1')
@@ -307,7 +306,6 @@ def submitVideo(apiToken, email, prompt, index):
         'duration': None if isV2V else duration,
         'resolution': resolution,
         'count': count,
-        'seed': seed,
         'startImage': startImageId,
         'endImage': endImageId,
         'referenceImage_1': refImage_1,
@@ -480,7 +478,7 @@ def execute(apiToken, email, promptFile):
     # Parameters accepted by this script for the omni-flash POST /videos endpoint.
     # See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     supportedParams = [
-        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count', 'seed',
+        'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count',
         'startImage', 'endImage',
         'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
         'referenceImage_5', 'referenceImage_6', 'referenceImage_7',
