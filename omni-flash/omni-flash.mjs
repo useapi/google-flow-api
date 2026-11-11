@@ -38,6 +38,7 @@ Changelog:
 
 - June 15, 2026: Initial release.
 - September 11, 2026: Adds resolution, startImage / endImage (start and end frames, local files uploaded for you) and character_1..7. Accepts .jpg and upper-case file extensions. Stops with a warning before submitting combinations the API rejects, such as endImage without startImage or referenceAudio_* on its own. A prompt whose local startImage, endImage, referenceImage_* or referenceVideo_1 file fails to upload is skipped and logged to omni-flash_errors.txt instead of being submitted without it. Saves a downloaded video under its final name only once it has been fully received, so a failed download leaves no partial MP4 for the next run to skip as "already exists".
+- November 11, 2026: referenceImage_8..10 and character_8..10: omni-flash-1.2 takes up to 10 references (omni-flash 7).
 
 */
 
@@ -53,6 +54,9 @@ const RESULTS_FILE = 'omni-flash_results.txt';
 const ERRORS_FILE = 'omni-flash_errors.txt';
 const DEFAULT_PROMPTS_FILE = 'prompts.json';
 const MODEL = 'omni-flash';
+// Reference slots: up to 10 on omni-flash-1.2, 7 on omni-flash, 3 on Veo (referenceImage_* and character_* together).
+const imageRefKeys = Array.from({ length: 10 }, (_, i) => `referenceImage_${i + 1}`);
+const characterKeys = Array.from({ length: 10 }, (_, i) => `character_${i + 1}`);
 const SLEEP_429 = 30 * 1000; // in milliseconds
 const SLEEP_POLL = 15 * 1000; // in milliseconds
 
@@ -190,17 +194,13 @@ async function submit(apiToken, url, body, index, prompt) {
 
 // Submit a single prompt to POST /videos with model omni-flash (or the prompt's own model) in async mode.
 // startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
-// referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
+// referenceImage_1..10 = R2V image refs; character_1..10 = POST /characters ids (10 on omni-flash-1.2, 7 on omni-flash);
 // referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
 // resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
 async function submitVideo(apiToken, email, prompt, index) {
     const {
         prompt: text, model = MODEL, aspectRatio, duration, resolution, count,
         startImage, endImage,
-        referenceImage_1, referenceImage_2, referenceImage_3, referenceImage_4,
-        referenceImage_5, referenceImage_6, referenceImage_7,
-        character_1, character_2, character_3, character_4,
-        character_5, character_6, character_7,
         referenceVideo_1, startFrameIndex_1, endFrameIndex_1,
         referenceAudio_1, referenceAudio_2, referenceAudio_3, referenceAudio_4, referenceAudio_5
     } = prompt;
@@ -216,13 +216,9 @@ async function submitVideo(apiToken, email, prompt, index) {
 
     const startImageId = await resolveRef(startImage);
     const endImageId = await resolveRef(endImage);
-    const refImage_1 = await resolveRef(referenceImage_1);
-    const refImage_2 = await resolveRef(referenceImage_2);
-    const refImage_3 = await resolveRef(referenceImage_3);
-    const refImage_4 = await resolveRef(referenceImage_4);
-    const refImage_5 = await resolveRef(referenceImage_5);
-    const refImage_6 = await resolveRef(referenceImage_6);
-    const refImage_7 = await resolveRef(referenceImage_7);
+    const refImages = {};
+    for (const key of imageRefKeys)
+        refImages[key] = await resolveRef(prompt[key]);
     const refVideo_1 = await resolveRef(referenceVideo_1);
 
     // A local file that failed to upload would be left out of the body, and the prompt would still be
@@ -230,10 +226,8 @@ async function submitVideo(apiToken, email, prompt, index) {
     // so a later prompt using it is skipped too, without another upload attempt.
     const failedUploads = [
         ['startImage', startImage, startImageId], ['endImage', endImage, endImageId],
-        ['referenceImage_1', referenceImage_1, refImage_1], ['referenceImage_2', referenceImage_2, refImage_2],
-        ['referenceImage_3', referenceImage_3, refImage_3], ['referenceImage_4', referenceImage_4, refImage_4],
-        ['referenceImage_5', referenceImage_5, refImage_5], ['referenceImage_6', referenceImage_6, refImage_6],
-        ['referenceImage_7', referenceImage_7, refImage_7], ['referenceVideo_1', referenceVideo_1, refVideo_1]
+        ...imageRefKeys.map(key => [key, prompt[key], refImages[key]]),
+        ['referenceVideo_1', referenceVideo_1, refVideo_1]
     ].filter(([, file, id]) => file && !id);
     for (const [param, file] of failedUploads) {
         console.error(`🛑 Prompt #${index} skipped: ${param} ${file} failed to upload`);
@@ -255,20 +249,8 @@ async function submitVideo(apiToken, email, prompt, index) {
         count,
         startImage: startImageId,
         endImage: endImageId,
-        referenceImage_1: refImage_1,
-        referenceImage_2: refImage_2,
-        referenceImage_3: refImage_3,
-        referenceImage_4: refImage_4,
-        referenceImage_5: refImage_5,
-        referenceImage_6: refImage_6,
-        referenceImage_7: refImage_7,
-        character_1,
-        character_2,
-        character_3,
-        character_4,
-        character_5,
-        character_6,
-        character_7,
+        ...refImages,
+        ...Object.fromEntries(characterKeys.map(key => [key, prompt[key]])),
         referenceVideo_1: refVideo_1,
         startFrameIndex_1,
         endFrameIndex_1,
@@ -451,16 +433,11 @@ async function execute(apiToken, email, promptFile) {
     const supportedParams = [
         'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count',
         'startImage', 'endImage',
-        'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
-        'referenceImage_5', 'referenceImage_6', 'referenceImage_7',
-        'character_1', 'character_2', 'character_3', 'character_4',
-        'character_5', 'character_6', 'character_7',
+        ...imageRefKeys, ...characterKeys,
         'referenceVideo_1', 'startFrameIndex_1', 'endFrameIndex_1',
         'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'
     ];
 
-    const imageRefKeys = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4', 'referenceImage_5', 'referenceImage_6', 'referenceImage_7'];
-    const characterKeys = ['character_1', 'character_2', 'character_3', 'character_4', 'character_5', 'character_6', 'character_7'];
     const audioRefKeys = ['referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'];
 
     const invalidKeys = (prompt) => Object.keys(prompt).filter(key => !key.startsWith('__') && !supportedParams.includes(key))

@@ -69,7 +69,7 @@ scripts/video.sh "..." resolution=360p duration=4
 - **A voice needs a face.** `referenceAudio_N` (a preset name like `Kore`, `Charon`, `Puck`, `Aoede`, or a voice id) only works together with a `referenceImage_N`, a `character_N` or a video edit. A voice on its own is rejected. Omni takes up to 5 voices for several speakers, Veo one.
 - **Point at references in the prompt** with `@referenceImage_1`, `@character_1`, `@referenceAudio_1`. Each marker needs its matching parameter.
 - **Name the camera**: "handheld phone camera", "static tripod shot", "slow push-in". UGC-style ads read as real with "handheld phone camera, natural light".
-- **Omni takes up to 7 references** (`referenceImage_*` and `character_*` together; Veo 3). More references are slower and fail more often; 1 to 3 is the sweet spot.
+- **Omni 1.2 Flash takes up to 10 references, Omni 1.1 Flash 7** (`referenceImage_*` and `character_*` together; Veo 3). More references are slower and fail more often; 1 to 3 is the sweet spot.
 - `startImage`/`endImage` mode takes no other references and no voice.
 
 ## Step by step (for more control)

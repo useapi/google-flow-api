@@ -38,6 +38,7 @@ Changelog:
 
 - June 15, 2026: Initial release.
 - September 11, 2026: Adds resolution, startImage / endImage (start and end frames, local files uploaded for you) and character_1..7. Reads API_TOKEN, EMAIL and PROMPTS_FILE from the documented argument positions, sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403), and accepts .jpg and upper-case file extensions. Stops with a warning before submitting combinations the API rejects, such as endImage without startImage or referenceAudio_* on its own. A prompt whose local startImage, endImage, referenceImage_* or referenceVideo_1 file fails to upload is skipped and logged to omni-flash_errors.txt instead of being submitted without it.
+- November 11, 2026: referenceImage_8..10 and character_8..10: omni-flash-1.2 takes up to 10 references (omni-flash 7).
 
 """
 
@@ -56,6 +57,9 @@ RESULTS_FILE = 'omni-flash_results.txt'
 ERRORS_FILE = 'omni-flash_errors.txt'
 DEFAULT_PROMPTS_FILE = 'prompts.json'
 MODEL = 'omni-flash'
+# Reference slots: up to 10 on omni-flash-1.2, 7 on omni-flash, 3 on Veo (referenceImage_* and character_* together).
+imageRefKeys = [f'referenceImage_{i}' for i in range(1, 11)]
+characterKeys = [f'character_{i}' for i in range(1, 11)]
 SLEEP_429 = 30  # in seconds
 SLEEP_POLL = 15  # in seconds
 
@@ -224,7 +228,7 @@ def jsonStringify(obj):
 
 # Submit a single prompt to POST /videos with model omni-flash (or the prompt's own model) in async mode.
 # startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
-# referenceImage_1..7 = R2V image refs; character_1..7 = POST /characters ids;
+# referenceImage_1..10 = R2V image refs; character_1..10 = POST /characters ids (10 on omni-flash-1.2, 7 on omni-flash);
 # referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
 # resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
 def submitVideo(apiToken, email, prompt, index):
@@ -236,20 +240,6 @@ def submitVideo(apiToken, email, prompt, index):
     count = prompt.get('count')
     startImage = prompt.get('startImage')
     endImage = prompt.get('endImage')
-    referenceImage_1 = prompt.get('referenceImage_1')
-    referenceImage_2 = prompt.get('referenceImage_2')
-    referenceImage_3 = prompt.get('referenceImage_3')
-    referenceImage_4 = prompt.get('referenceImage_4')
-    referenceImage_5 = prompt.get('referenceImage_5')
-    referenceImage_6 = prompt.get('referenceImage_6')
-    referenceImage_7 = prompt.get('referenceImage_7')
-    character_1 = prompt.get('character_1')
-    character_2 = prompt.get('character_2')
-    character_3 = prompt.get('character_3')
-    character_4 = prompt.get('character_4')
-    character_5 = prompt.get('character_5')
-    character_6 = prompt.get('character_6')
-    character_7 = prompt.get('character_7')
     referenceVideo_1 = prompt.get('referenceVideo_1')
     startFrameIndex_1 = prompt.get('startFrameIndex_1')
     endFrameIndex_1 = prompt.get('endFrameIndex_1')
@@ -270,13 +260,7 @@ def submitVideo(apiToken, email, prompt, index):
 
     startImageId = resolveRef(startImage)
     endImageId = resolveRef(endImage)
-    refImage_1 = resolveRef(referenceImage_1)
-    refImage_2 = resolveRef(referenceImage_2)
-    refImage_3 = resolveRef(referenceImage_3)
-    refImage_4 = resolveRef(referenceImage_4)
-    refImage_5 = resolveRef(referenceImage_5)
-    refImage_6 = resolveRef(referenceImage_6)
-    refImage_7 = resolveRef(referenceImage_7)
+    refImages = {key: resolveRef(prompt.get(key)) for key in imageRefKeys}
     refVideo_1 = resolveRef(referenceVideo_1)
 
     # A local file that failed to upload would be left out of the body, and the prompt would still be
@@ -284,10 +268,8 @@ def submitVideo(apiToken, email, prompt, index):
     # so a later prompt using it is skipped too, without another upload attempt.
     failedUploads = [(param, filename) for param, filename, mediaId in [
         ('startImage', startImage, startImageId), ('endImage', endImage, endImageId),
-        ('referenceImage_1', referenceImage_1, refImage_1), ('referenceImage_2', referenceImage_2, refImage_2),
-        ('referenceImage_3', referenceImage_3, refImage_3), ('referenceImage_4', referenceImage_4, refImage_4),
-        ('referenceImage_5', referenceImage_5, refImage_5), ('referenceImage_6', referenceImage_6, refImage_6),
-        ('referenceImage_7', referenceImage_7, refImage_7), ('referenceVideo_1', referenceVideo_1, refVideo_1)
+        *[(key, prompt.get(key), refImages[key]) for key in imageRefKeys],
+        ('referenceVideo_1', referenceVideo_1, refVideo_1)
     ] if filename and not mediaId]
     for param, filename in failedUploads:
         print(f'🛑 Prompt #{index} skipped: {param} {filename} failed to upload', file=sys.stderr)
@@ -308,20 +290,8 @@ def submitVideo(apiToken, email, prompt, index):
         'count': count,
         'startImage': startImageId,
         'endImage': endImageId,
-        'referenceImage_1': refImage_1,
-        'referenceImage_2': refImage_2,
-        'referenceImage_3': refImage_3,
-        'referenceImage_4': refImage_4,
-        'referenceImage_5': refImage_5,
-        'referenceImage_6': refImage_6,
-        'referenceImage_7': refImage_7,
-        'character_1': character_1,
-        'character_2': character_2,
-        'character_3': character_3,
-        'character_4': character_4,
-        'character_5': character_5,
-        'character_6': character_6,
-        'character_7': character_7,
+        **refImages,
+        **{key: prompt.get(key) for key in characterKeys},
         'referenceVideo_1': refVideo_1,
         'startFrameIndex_1': startFrameIndex_1,
         'endFrameIndex_1': endFrameIndex_1,
@@ -480,16 +450,11 @@ def execute(apiToken, email, promptFile):
     supportedParams = [
         'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count',
         'startImage', 'endImage',
-        'referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4',
-        'referenceImage_5', 'referenceImage_6', 'referenceImage_7',
-        'character_1', 'character_2', 'character_3', 'character_4',
-        'character_5', 'character_6', 'character_7',
+        *imageRefKeys, *characterKeys,
         'referenceVideo_1', 'startFrameIndex_1', 'endFrameIndex_1',
         'referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5'
     ]
 
-    imageRefKeys = ['referenceImage_1', 'referenceImage_2', 'referenceImage_3', 'referenceImage_4', 'referenceImage_5', 'referenceImage_6', 'referenceImage_7']
-    characterKeys = ['character_1', 'character_2', 'character_3', 'character_4', 'character_5', 'character_6', 'character_7']
     audioRefKeys = ['referenceAudio_1', 'referenceAudio_2', 'referenceAudio_3', 'referenceAudio_4', 'referenceAudio_5']
 
     def invalidKeys(prompt):
