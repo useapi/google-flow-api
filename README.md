@@ -35,6 +35,8 @@ Edit `prompts.json` in each folder to queue your own prompts. Every supported pa
 
 ## MCP server
 
+[![Google Flow MCP connector](https://glama.ai/mcp/connectors/net.useapi/google-flow/badges/score.svg)](https://glama.ai/mcp/connectors/net.useapi/google-flow)
+
 useapi.net also runs a hosted [Model Context Protocol](https://modelcontextprotocol.io) server for Google Flow, so an AI assistant such as Claude Code, Cursor or VS Code Copilot can use it on your Google Flow account. It has 12 tools: chat with Google Flow Agent, attach images, a video, voices and characters, answer its requests to spend credits, manage chats, set the project's approval mode, instructions and default models, list the account's characters, voices, images and videos, and upload images. Nothing to install or run locally.
 
 - Endpoint: `https://api.useapi.net/v1/google-flow/mcp`
