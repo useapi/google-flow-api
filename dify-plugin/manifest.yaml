@@ -15,6 +15,9 @@ description:
   ja_JP: "Dify で Google Flow を利用：Veo 3.1・Omni 1.2 Flash の動画、Nano Banana の画像、動画の延長、アップスケール、GIF、Google Flow エージェント。複数の Google アカウントを接続でき、メールを空欄にすると useapi.net が正常なアカウントにジョブを振り分けます。useapi.net によるサードパーティ API で、Google とは提携していません。useapi.net のサブスクリプション（月額 15 ドル）、お使いの Google AI サブスクリプション（無料プランでも Veo 3.1 Lite・Omni 1.2 Flash・Nano Banana が利用可）、キャプチャ解決（無料 300 回分、その後はご自身のキャプチャサービスのキー）が必要です。"
   pt_BR: "Google Flow no Dify: vídeos Veo 3.1 e Omni 1.2 Flash, imagens Nano Banana, extensão, upscale, GIF e o agente do Google Flow. Conecte várias contas Google: com o e-mail vazio, a useapi.net distribui os jobs entre as contas saudáveis. API de terceiros da useapi.net, sem afiliação com o Google. Requer assinatura da useapi.net (US$ 15/mês), sua assinatura do Google AI (o plano gratuito serve para Veo 3.1 Lite, Omni 1.2 Flash e Nano Banana) e resolução de captcha (300 créditos grátis, depois a chave do seu próprio provedor de captcha)."
 icon: icon.png
+tags:
+  - videos
+  - image
 resource:
   memory: 268435456
   permission: {}
