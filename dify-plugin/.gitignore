@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.difypkg
+
+# The repo root ignores *.png; the plugin needs its icon.
+!_assets/*.png
+
+# The repo root ignores _*.* (run scratch files); the package needs its __init__.py.
+!__init__.py

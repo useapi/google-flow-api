@@ -1,0 +1,40 @@
+version: 0.1.0
+type: plugin
+author: useapi
+name: google_flow_useapi
+repo: https://github.com/useapi/google-flow-api
+contact: support@useapi.net
+label:
+  en_US: Google Flow by useapi.net
+  zh_Hans: Google Flow，由 useapi.net 提供
+  ja_JP: Google Flow by useapi.net
+  pt_BR: Google Flow por useapi.net
+description:
+  en_US: "Google Flow in Dify: Veo 3.1 and Omni 1.2 Flash videos, Nano Banana images, extend, upscale, GIF and the Google Flow agent. Connect several Google accounts: with the email left empty, useapi.net spreads jobs across the healthy ones. Third-party API by useapi.net, not affiliated with Google. Needs a useapi.net subscription ($15/month), your Google AI subscription (the free plan works for Veo 3.1 Lite, Omni 1.2 Flash and Nano Banana) and captcha solving (300 free captcha credits, then your own captcha provider key)."
+  zh_Hans: "在 Dify 中使用 Google Flow：Veo 3.1 和 Omni 1.2 Flash 视频、Nano Banana 图片、视频延长、超分、GIF 以及 Google Flow 智能体。可连接多个 Google 账号：邮箱留空时，useapi.net 会把任务分配到健康的账号上。由 useapi.net 提供的第三方 API，与 Google 无关联。需要 useapi.net 订阅（每月 15 美元）、你的 Google AI 订阅（免费方案可用 Veo 3.1 Lite、Omni 1.2 Flash 和 Nano Banana）以及验证码服务（赠送 300 个免费验证码额度，之后使用你自己的验证码服务商密钥）。"
+  ja_JP: "Dify で Google Flow を利用：Veo 3.1・Omni 1.2 Flash の動画、Nano Banana の画像、動画の延長、アップスケール、GIF、Google Flow エージェント。複数の Google アカウントを接続でき、メールを空欄にすると useapi.net が正常なアカウントにジョブを振り分けます。useapi.net によるサードパーティ API で、Google とは提携していません。useapi.net のサブスクリプション（月額 15 ドル）、お使いの Google AI サブスクリプション（無料プランでも Veo 3.1 Lite・Omni 1.2 Flash・Nano Banana が利用可）、キャプチャ解決（無料 300 回分、その後はご自身のキャプチャサービスのキー）が必要です。"
+  pt_BR: "Google Flow no Dify: vídeos Veo 3.1 e Omni 1.2 Flash, imagens Nano Banana, extensão, upscale, GIF e o agente do Google Flow. Conecte várias contas Google: com o e-mail vazio, a useapi.net distribui os jobs entre as contas saudáveis. API de terceiros da useapi.net, sem afiliação com o Google. Requer assinatura da useapi.net (US$ 15/mês), sua assinatura do Google AI (o plano gratuito serve para Veo 3.1 Lite, Omni 1.2 Flash e Nano Banana) e resolução de captcha (300 créditos grátis, depois a chave do seu próprio provedor de captcha)."
+icon: icon.png
+resource:
+  memory: 268435456
+  permission: {}
+plugins:
+  tools:
+    - provider/google_flow_useapi.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: 1.9.0
+created_at: 2026-11-24T00:00:00.000000000Z
+privacy: PRIVACY.md
+verified: false
+network:
+  domains:
+    - api.useapi.net
+    - flow-content.google

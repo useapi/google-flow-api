@@ -1,0 +1,19 @@
+# Not shipped in the .difypkg
+dev/
+tests/
+pyproject.toml
+*.difypkg
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.git/
+.gitignore
+.github/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
