@@ -81,6 +81,16 @@ gemini extensions install https://github.com/useapi/google-flow-api
 
 The install asks for your useapi.net API token and keeps it in the system keychain. Change it later with `gemini extensions config useapi-google-flow`, and check the connection with `gemini mcp list`. The `omni-flash-video` skill's scripts read `USEAPI_TOKEN` from your shell, so export it as well if you use the skill.
 
+## Use in Dify
+
+The [`dify-plugin/`](./dify-plugin) folder is a [Dify](https://dify.ai) tool plugin, "Google Flow by useapi.net", with 20 tools for [workflows, chatflows](https://docs.dify.ai/en/cloud/use-dify/build/workflow-chatflow) and [agents](https://docs.dify.ai/en/cloud/use-dify/build/new-agent/overview): Veo 3.1 Lite and Omni 1.2 Flash video, Nano Banana images, extend, upscale to 4K, GIF, join, and the Google Flow agent. Connect several Google accounts and useapi.net spreads the jobs across them.
+
+1. Install it from the [Dify Marketplace](https://marketplace.dify.ai/plugin/useapi/google_flow_useapi), or download the `.difypkg` from [Releases](https://github.com/useapi/google-flow-api/releases) and upload it under Plugins > Install plugin > Local package file.
+2. In Tools, authorize "Google Flow by useapi.net" with your useapi.net [API token](https://useapi.net/docs/start-here/setup-useapi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), and optionally a default Google account email.
+3. Add "Generate video" or "Generate image" to a workflow: finished files come back to Dify.
+
+The labels are in English, Simplified Chinese, Japanese and Brazilian Portuguese. Setup, every tool with its endpoint, and workflow and agent examples: [Dify plugin README](./dify-plugin).
+
 ## One Google AI plan, four APIs
 
 The same Google account and Google AI plan (Plus, Pro or Ultra) run four useapi.net APIs. Each one spends its own allowance (Flow credits, Vids seconds, Notebook usage, Flow Music credits), so none takes from another, and one useapi.net subscription covers all four.
