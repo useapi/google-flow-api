@@ -1,25 +1,25 @@
 [
     {
-        "prompt": "By default the veo-3.1-fast model with a landscape 8-second clip will be used."
+        "prompt": "By default the veo-3.1-lite model with a landscape 8-second clip will be used."
     },
     {
-        "model": "veo-3.1-quality",
+        "model": "veo-3.1-lite",
         "aspectRatio": "landscape",
         "duration": 8,
         "count": 2,
-        "prompt": "Highest-quality Veo 3.1, two variations. For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
+        "prompt": "Veo 3.1 Lite, two variations. Lite makes 8-second 720p clips on every plan (4 and 6 seconds need Google AI Ultra). For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
     },
     {
-        "model": "veo-3.1-fast",
+        "model": "veo-3.1-lite",
         "aspectRatio": "portrait",
         "duration": 8,
         "startImage": "./first_image.jpeg",
         "endImage": "./last_image.jpeg",
-        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). Supported by Veo and by omni-flash."
+        "prompt": "Image-to-video with a start frame (startImage) and an end frame (endImage). Supported by Veo 3.1 Lite and by omni-flash-1.2."
     },
     {
-        "model": "omni-flash",
+        "model": "omni-flash-1.2",
         "duration": 10,
-        "prompt": "Gemini Omni Flash is audio-native and supports 10-second clips. Other models (veo-3.1-lite, veo-3.1-lite-low-priority, …) are selectable via the model field — see the POST /videos docs."
+        "prompt": "Omni 1.2 Flash is audio-native and makes 3 to 15 second clips (above 10 seconds on paid plans). Other models (veo-3.1-lite-low-priority, …) are selectable via the model field — see the POST /videos docs."
     }
 ]

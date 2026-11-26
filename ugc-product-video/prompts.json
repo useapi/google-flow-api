@@ -1,6 +1,6 @@
 {
   "model": "nano-banana-2-lite",
-  "videoModel": "omni-flash",
+  "videoModel": "omni-flash-1.2",
   "products": [
     {
       "name": "smart-mug",

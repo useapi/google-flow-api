@@ -1,9 +1,9 @@
 /*
 
-Script version 1.3, November 11, 2026
+Script version 1.4, November 25, 2026
 
 Script to batch-generate audio-native videos with Gemini Omni Flash using the Google Flow API by useapi.net
-Uses the POST /videos endpoint in async mode (model: omni-flash by default, or omni-flash-1.2 per prompt) and polls GET /jobs/{jobId}.
+Uses the POST /videos endpoint in async mode (model: omni-flash-1.2 by default, or any other model per prompt) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 
 Installation Instructions:
@@ -39,6 +39,7 @@ Changelog:
 - June 15, 2026: Initial release.
 - September 11, 2026: Adds resolution, startImage / endImage (start and end frames, local files uploaded for you) and character_1..7. Accepts .jpg and upper-case file extensions. Stops with a warning before submitting combinations the API rejects, such as endImage without startImage or referenceAudio_* on its own. A prompt whose local startImage, endImage, referenceImage_* or referenceVideo_1 file fails to upload is skipped and logged to omni-flash_errors.txt instead of being submitted without it. Saves a downloaded video under its final name only once it has been fully received, so a failed download leaves no partial MP4 for the next run to skip as "already exists".
 - November 11, 2026: referenceImage_8..10 and character_8..10: omni-flash-1.2 takes up to 10 references (omni-flash 7).
+- November 25, 2026: Default model is omni-flash-1.2 (Omni 1.1 Flash retires in Google Flow on December 5, 2026). Takes 3 to 15 seconds, 3 to 10 with startImage + endImage, and warns before submitting a longer one. Pass "model": "omni-flash" to keep using Omni 1.1 until it retires.
 
 */
 
@@ -53,7 +54,7 @@ import { Readable } from 'node:stream';
 const RESULTS_FILE = 'omni-flash_results.txt';
 const ERRORS_FILE = 'omni-flash_errors.txt';
 const DEFAULT_PROMPTS_FILE = 'prompts.json';
-const MODEL = 'omni-flash';
+const MODEL = 'omni-flash-1.2';
 // Reference slots: up to 10 on omni-flash-1.2, 7 on omni-flash, 3 on Veo (referenceImage_* and character_* together).
 const imageRefKeys = Array.from({ length: 10 }, (_, i) => `referenceImage_${i + 1}`);
 const characterKeys = Array.from({ length: 10 }, (_, i) => `character_${i + 1}`);
@@ -192,11 +193,11 @@ async function submit(apiToken, url, body, index, prompt) {
     }
 }
 
-// Submit a single prompt to POST /videos with model omni-flash (or the prompt's own model) in async mode.
+// Submit a single prompt to POST /videos with model omni-flash-1.2 (or the prompt's own model) in async mode.
 // startImage = start frame (I2V), endImage = end frame (I2V-FL, requires startImage) — the frames are the only input;
 // referenceImage_1..10 = R2V image refs; character_1..10 = POST /characters ids (10 on omni-flash-1.2, 7 on omni-flash);
 // referenceVideo_1 = V2V edit (no duration); referenceAudio_1..5 = system voice name or POST /voices user-voice id;
-// resolution = 720p (default) or 360p; model = 'omni-flash' (Omni 1.1, the default) or 'omni-flash-1.2' (3–15 s, per-second credits).
+// resolution = 720p (default) or 360p; model = 'omni-flash-1.2' (the default, 3–15 s, per-second credits) or 'omni-flash' (Omni 1.1, retires December 5, 2026).
 async function submitVideo(apiToken, email, prompt, index) {
     const {
         prompt: text, model = MODEL, aspectRatio, duration, resolution, count,
@@ -428,7 +429,7 @@ async function execute(apiToken, email, promptFile) {
 
     let warnings = [];
 
-    // Parameters accepted by this script for the omni-flash POST /videos endpoint.
+    // Parameters accepted by this script for the Omni POST /videos endpoint.
     // See https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos for the full parameter set.
     const supportedParams = [
         'prompt', 'model', 'aspectRatio', 'duration', 'resolution', 'count',
@@ -474,6 +475,10 @@ async function execute(apiToken, email, promptFile) {
         // V2V edit (referenceVideo_1) does not accept duration — output matches the trim window.
         if (referenceVideo_1 && duration)
             warnings.push(`⚠️  duration is not accepted with referenceVideo_1 (V2V edit). Prompt ${i}`);
+
+        // Omni 1.2 Flash takes 3 to 10 seconds with start/end frames.
+        if (startImage && duration > 10 && (prompt.model ?? MODEL) == 'omni-flash-1.2')
+            warnings.push(`⚠️  duration above 10 is not accepted with startImage/endImage on omni-flash-1.2. Prompt ${i}`);
 
         if (endImage && !startImage)
             warnings.push(`⚠️  endImage requires startImage (end-frame-only is not supported). Prompt ${i}`);

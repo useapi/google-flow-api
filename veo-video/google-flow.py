@@ -1,9 +1,9 @@
 """
 
-Script version 1.1, September 11, 2026
+Script version 1.2, November 25, 2026
 
 Script to batch-generate videos using prompts with the Google Flow API by useapi.net
-Uses the POST /videos endpoint in async mode (default model: veo-3.1-fast) and polls GET /jobs/{jobId}.
+Uses the POST /videos endpoint in async mode (default model: veo-3.1-lite) and polls GET /jobs/{jobId}.
 For more details visit https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos
 
 Installation Instructions:
@@ -38,6 +38,7 @@ Changelog:
 
 - June 15, 2026: Initial release.
 - September 11, 2026: Reads API_TOKEN, EMAIL and PROMPTS_FILE from the documented argument positions, sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403), and accepts .jpg and upper-case image extensions. A prompt whose startImage or endImage fails to upload is skipped and logged to google-flow_errors.txt instead of being submitted without that frame.
+- November 25, 2026: Default model is veo-3.1-lite (Veo 3.1 Fast and Quality retire in Google Flow on December 5, 2026). Lite makes 8-second 720p clips on every plan; 4 and 6 seconds need Google AI Ultra.
 
 """
 
@@ -55,7 +56,7 @@ from datetime import datetime
 RESULTS_FILE = 'google-flow_results.txt'
 ERRORS_FILE = 'google-flow_errors.txt'
 DEFAULT_PROMPTS_FILE = 'prompts.json'
-DEFAULT_MODEL = 'veo-3.1-fast'
+DEFAULT_MODEL = 'veo-3.1-lite'
 SLEEP_429 = 30  # in seconds
 SLEEP_POLL = 15  # in seconds
 

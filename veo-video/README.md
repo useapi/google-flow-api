@@ -1,6 +1,6 @@
 # Veo 3.1 video — Google Flow API batch generation (Node.js & Python)
 
-Batch-generate [Veo 3.1](https://aistudio.google.com/models/veo-3) video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+Batch-generate [Veo 3.1 Lite](https://aistudio.google.com/models/veo-3) video through the [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) by [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 Full walkthrough: **[How to Use the Veo 3.1 API: Generate Video with curl via the Google Flow API](https://useapi.net/docs/articles/google-flow-bash?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)** — June 15, 2026 (October 20, 2026)
 
@@ -23,7 +23,9 @@ python3 ./google-flow.py <API_TOKEN> <EMAIL> [PROMPTS_FILE]
 
 ## Prompts
 
-`prompts.json` is an array of prompt objects — `prompt` is the only required field; everything else falls back to the API defaults (model `veo-3.1-fast`, landscape, 8 seconds). Supported models include `veo-3.1-fast`, `veo-3.1-quality`, `veo-3.1-lite`, `veo-3.1-lite-low-priority`, and `omni-flash`.
+`prompts.json` is an array of prompt objects — `prompt` is the only required field; everything else falls back to the API defaults (model `veo-3.1-lite`, landscape, 8 seconds at 720p). Veo 3.1 Lite makes 8-second clips on every plan (4 and 6 seconds need Google AI Ultra), has no 360p and takes up to 3 reference images. Supported models include `veo-3.1-lite`, `veo-3.1-lite-low-priority` and `omni-flash-1.2`.
+
+Veo 3.1 Fast, Quality and Omni 1.1 Flash retire in Google Flow on December 5, 2026.
 
 - **Image-to-video:** set `startImage` (and optionally `endImage`) to a **local file path** — the script uploads it for you.
 

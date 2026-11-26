@@ -1,16 +1,16 @@
 [
     {
-        "prompt": "Audio-native text-to-video. By default model omni-flash with a landscape 8-second clip will be used."
+        "prompt": "Audio-native text-to-video. By default model omni-flash-1.2 with a landscape 8-second clip at 720p will be used."
     },
     {
         "duration": 10,
-        "prompt": "A 10-second clip (omni-flash only). Omni Flash is audio-native, so narration, dialogue and sound come from the prompt. To pin a specific voice, add referenceAudio_1 together with a referenceImage_* or character_*, as in the next prompt."
+        "prompt": "A 10-second clip. Omni 1.2 Flash makes 3 to 15 seconds (above 10 on paid plans) and is audio-native, so narration, dialogue and sound come from the prompt. To pin a specific voice, add referenceAudio_1 together with a referenceImage_* or character_*, as in the next prompt."
     },
     {
         "duration": 8,
         "referenceImage_1": "./subject.jpeg",
         "referenceAudio_1": "Kore",
-        "prompt": "Reference-to-video (R2V): the uploaded image is a reference, narrated by 'Kore'. Up to 7 referenceImage_* on omni-flash, 10 on omni-flash-1.2."
+        "prompt": "Reference-to-video (R2V): the uploaded image is a reference, narrated by 'Kore'. Up to 10 referenceImage_* on omni-flash-1.2."
     },
     {
         "duration": 8,
@@ -22,6 +22,6 @@
         "referenceVideo_1": "./source.mp4",
         "startFrameIndex_1": 0,
         "endFrameIndex_1": 240,
-        "prompt": "Video-to-video edit (V2V): omni-flash restyles the uploaded MP4. No duration here — output matches the trim window (max 10 s). For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
+        "prompt": "Video-to-video edit (V2V): omni-flash-1.2 restyles the uploaded MP4. No duration here — output matches the trim window (max 10 s on a free plan, 15 s on a paid one). For all parameters see https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos"
     }
 ]

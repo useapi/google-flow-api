@@ -1,11 +1,11 @@
 """
 
-Script version 1.1, September 11, 2026
+Script version 1.2, November 25, 2026
 
 Build a UGC product video end to end with the Google Flow API by useapi.net
 
 Runs the whole six-step pipeline from the tutorial: a product sheet per item and a presenter
-via POST /images and POST /characters, one still that carries them all, one Omni 1.1 Flash clip
+via POST /images and POST /characters, one still that carries them all, one Omni 1.2 Flash clip
 per product from that still via POST /videos (async, polled on GET /jobs/{jobId}), a free 1080p
 POST /videos/upscale per clip, and one POST /videos/concatenate to join them.
 
@@ -13,7 +13,7 @@ Companion tutorial:
   https://useapi.net/docs/articles/google-flow-ugc-product-video
 
 Every step is checkpointed to ugc_state.json, so a re-run resumes where it stopped instead of
-paying for the finished steps again. The clips are the only part that costs credits (15 each at
+paying for the finished steps again. The clips are the only part that costs credits (30 each at
 10s/720p), so an interrupted run must never redo them silently.
 
 Installation Instructions:
@@ -48,6 +48,7 @@ Changelog:
 ==========
 
 - September 4, 2026: Initial release.
+- November 25, 2026: Clips use Omni 1.2 Flash (omni-flash-1.2, 3 credits a second up to 10 seconds: 30 credits per 10s/720p clip). Omni 1.1 Flash retires in Google Flow on December 5, 2026.
 - September 11, 2026: Sends a named User-Agent on API calls (api.useapi.net rejects urllib's default one with HTTP 403).
 
 """
@@ -218,7 +219,7 @@ def save_image(generated_image, filename):
 
 
 # --- videos ----------------------------------------------------------------
-# First-plus-last-frame mode: the still goes in both slots. On omni-flash this
+# First-plus-last-frame mode: the still goes in both slots. On omni-flash-1.2 this
 # mode accepts nothing else — no reference images, no character, no voice — so
 # everything the clip needs must already be in the still.
 def generate_clip(api_token, email, clip, still_id, index):

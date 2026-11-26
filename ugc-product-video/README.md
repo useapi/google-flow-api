@@ -13,11 +13,13 @@ Video on YouTube: [Make a UGC product video with the Google Flow API](https://yo
 | 1 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | a four-view **product sheet** per item | 0 |
 | 2 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) ×2 + [`POST /characters`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-characters?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | two portraits and a **character** built from both | 0 |
 | 3 | [`POST /images`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-images?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | the **still** — presenter and every product in one frame | 0 |
-| 4 | [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) (async) | one **Omni 1.1 Flash clip** per product, from that still | 15 each |
+| 4 | [`POST /videos`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) (async) | one **Omni 1.2 Flash clip** per product, from that still | 30 each |
 | 5 | [`POST /videos/upscale`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-upscale?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | each clip to **1080p** | 0 |
 | 6 | [`POST /videos/concatenate`](https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-concatenate?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) | the clips **joined** into the final MP4 | 0 |
 
-The shipped `prompts.json` reproduces the tutorial exactly — three products, three 10-second clips, 45 credits in total.
+The shipped `prompts.json` reproduces the tutorial exactly — three products, three 10-second clips, 90 credits in total (Omni 1.2 Flash: 3 credits a second up to 10 seconds).
+
+Omni 1.1 Flash retires in Google Flow on December 5, 2026; the clips now use Omni 1.2 Flash (`omni-flash-1.2`).
 
 ## Prerequisites
 
@@ -44,7 +46,7 @@ Each step is checkpointed to **`ugc_state.json`** as soon as it succeeds. Re-run
 node ./ugc-product-video.mjs <API_TOKEN> <EMAIL>   # crashed at step 6? just run it again
 ```
 
-To **redo one step**, delete its key from `ugc_state.json` and run again — everything after it is rebuilt from the new result, everything before it is reused. The keys are `sheets`, `portraitFront`, `portraitThreeQuarter`, `character`, `still`, `clips`, `upscaled`, `joined`. Deleting `still`, for example, re-renders the still and then re-generates all three clips from it (15 credits each), but keeps the sheets and the character. Delete the whole file to start over.
+To **redo one step**, delete its key from `ugc_state.json` and run again — everything after it is rebuilt from the new result, everything before it is reused. The keys are `sheets`, `portraitFront`, `portraitThreeQuarter`, `character`, `still`, `clips`, `upscaled`, `joined`. Deleting `still`, for example, re-renders the still and then re-generates all three clips from it (30 credits each), but keeps the sheets and the character. Delete the whole file to start over.
 
 Failures are appended to `ugc_errors.txt`.
 
@@ -61,7 +63,7 @@ One object, mirroring the six steps:
 
 Some things worth knowing before you rewrite the prompts, all learned the hard way in the tutorial:
 
-- **The still carries the tags.** On `omni-flash`, first-plus-last-frame mode accepts *only* the two images — `referenceImage_*`, `character_*` and `referenceAudio_*` are rejected alongside them. Do the tagging in the still and the clips inherit it.
+- **The still carries the tags.** On `omni-flash-1.2`, first-plus-last-frame mode accepts *only* the two images — `referenceImage_*`, `character_*` and `referenceAudio_*` are rejected alongside them. Do the tagging in the still and the clips inherit it.
 - **Time the choreography.** A 10-second clip with a full line needs the put-down called out by the clock ("by the eight-second mark") and a still, silent hold at the end, or the model runs the line long and snaps into the end frame. About 20 words fits 10 seconds at this pace.
 - **Describe the voice identically in every clip.** Nothing carries a voice between separate generations, and a character's `voice` preset cannot reach this mode.
 - **Trim to the sound, not the picture.** The presenter goes still before she stops talking, so a cut placed at the first still frame takes the end of a line with it.

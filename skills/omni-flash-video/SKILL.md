@@ -1,6 +1,6 @@
 ---
 name: omni-flash-video
-description: Generate AI video with Google's Omni Flash 1.2 or 1.1 (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 through the useapi.net Google Flow API, on the user's Google AI subscription. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
+description: Generate AI video with Google's Omni 1.2 Flash (Gemini Omni Flash, audio-native video with spoken dialogue and voices) or Veo 3.1 Lite through the useapi.net Google Flow API, on the user's Google AI subscription. Supports text-to-video, reference images of people or products, start and end frames, preset voices and video-to-video edits, and downloads the .mp4. Use when the user asks to make a video, clip, ad, talking-head, UGC or product video with Omni Flash, Gemini Omni, Veo 3.1 Lite or Google Flow, or to automate Google Flow video from the command line. Needs curl, jq and a USEAPI_TOKEN environment variable.
 license: MIT
 compatibility: Needs bash, curl, jq and network access to api.useapi.net. Requires a useapi.net API token (USEAPI_TOKEN) and a Google account connected to useapi.net with a Google AI Plus, Pro or Ultra subscription (Omni 1.2 Flash also runs on a free account, up to 10 s), connected to useapi.net.
 metadata:
@@ -8,7 +8,7 @@ metadata:
   homepage: https://github.com/useapi/google-flow-api
 ---
 
-# Omni Flash (1.2 and 1.1) and Veo 3.1 video with the useapi.net Google Flow API
+# Omni 1.2 Flash and Veo 3.1 Lite video with the useapi.net Google Flow API
 
 These scripts call the [useapi.net Google Flow API](https://useapi.net/docs/api-google-flow-v1), a third-party REST API that drives the user's Google Flow account. Each clip spends Flow credits from the user's Google AI subscription. Every script is in `scripts/` next to this file. Run them with bash.
 
@@ -43,24 +43,26 @@ scripts/video.sh "The paper boat drifts down the gutter stream and into the drai
 scripts/video.sh "..." resolution=360p duration=4
 ```
 
-## Costs and limits (Omni 1.1 Flash)
+## Costs and limits (Omni 1.2 Flash, the default model)
+
+Veo 3.1 Fast, Veo 3.1 Quality and Omni 1.1 Flash retire in Google Flow on December 5, 2026; this skill uses `omni-flash-1.2` and `veo-3.1-lite`.
 
 | Duration | Credits at 720p | At 360p |
 |---|---|---|
-| 4 s | 7 | 4 |
-| 6 s | 10 | 5 |
-| 8 s (default) | 12 | 6 |
-| 10 s | 15 | 7 |
-| Video-to-video edit | 20 | 10 |
+| 4 s | 12 | 4 |
+| 6 s | 18 | 6 |
+| 8 s (default) | 24 | 8 |
+| 10 s | 30 | 10 |
+| Video-to-video edit | 3 a second of the edited length | 1 a second |
 
 - `aspectRatio`: `landscape` (default) or `portrait`. Ask the user which one; for phone video it is `portrait`, and forgetting it is the most common wasted generation.
 - Omni generates at 360p or 720p, and POST /videos/upscale takes a clip of up to 15 s to 1080p (free up to 10 s, then 1 credit a second), or to 4K on Ultra. `count` (1 to 4) multiplies the cost.
-- Veo 3.1 (`model=veo-3.1-fast`, `veo-3.1-quality`, `veo-3.1-lite`) has no 360p, takes up to 3 reference images and one voice (neither on `veo-3.1-quality`), and also accepts 1:1, 4:3 and 3:4.
+- Veo 3.1 Lite (`model=veo-3.1-lite`) makes 8 s clips at 720p on every plan (4 and 6 s need Google AI Ultra), has no 360p, takes up to 3 reference images and one voice, and also accepts 1:1, 4:3 and 3:4. It costs 10 credits (5 on Ultra).
 - Tell the user the credit cost before generating more than one clip or anything over 8 s.
 
 ## Omni 1.2 Flash
 
-`model=omni-flash-1.2` (Google released it on November 5, 2026) takes any whole number of seconds from 3 to 15 (`duration=3` … `duration=15`; 3 to 10 with `startImage` + `endImage`), at 720p or 360p, with the same references and voices as Omni 1.1. Credits are per second, the same on every plan: at 720p 3 a second up to 10 s and 6 a second above (8 s = 24, 15 s = 60), at 360p 1 and 2. Free Google accounts can use it up to 10 s. Google is giving it to accounts over several days; an account that does not have it yet answers `HTTP 400` saying so. To make a video longer than 15 s, extend it with POST /videos/extend (https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-extend): 3 to 10 s at a time, on a paid plan, for any video shorter than 30 s.
+`model=omni-flash-1.2` (Google released it on November 5, 2026) takes any whole number of seconds from 3 to 15 (`duration=3` … `duration=15`; 3 to 10 with `startImage` + `endImage`), at 720p or 360p, with up to 10 references and up to 5 voices. Credits are per second, the same on every plan: at 720p 3 a second up to 10 s and 6 a second above (8 s = 24, 15 s = 60), at 360p 1 and 2. Free Google accounts can use it up to 10 s. Google is giving it to accounts over several days; an account that does not have it yet answers `HTTP 400` saying so. To make a video longer than 15 s, extend it with POST /videos/extend (https://useapi.net/docs/api-google-flow-v1/post-google-flow-videos-extend): 3 to 10 s at a time, on a paid plan, for any video shorter than 30 s.
 
 ## Writing prompts that work
 
@@ -69,7 +71,7 @@ scripts/video.sh "..." resolution=360p duration=4
 - **A voice needs a face.** `referenceAudio_N` (a preset name like `Kore`, `Charon`, `Puck`, `Aoede`, or a voice id) only works together with a `referenceImage_N`, a `character_N` or a video edit. A voice on its own is rejected. Omni takes up to 5 voices for several speakers, Veo one.
 - **Point at references in the prompt** with `@referenceImage_1`, `@character_1`, `@referenceAudio_1`. Each marker needs its matching parameter.
 - **Name the camera**: "handheld phone camera", "static tripod shot", "slow push-in". UGC-style ads read as real with "handheld phone camera, natural light".
-- **Omni 1.2 Flash takes up to 10 references, Omni 1.1 Flash 7** (`referenceImage_*` and `character_*` together; Veo 3). More references are slower and fail more often; 1 to 3 is the sweet spot.
+- **Omni 1.2 Flash takes up to 10 references** (`referenceImage_*` and `character_*` together; Veo 3.1 Lite 3). More references are slower and fail more often; 1 to 3 is the sweet spot.
 - `startImage`/`endImage` mode takes no other references and no voice.
 
 ## Step by step (for more control)
