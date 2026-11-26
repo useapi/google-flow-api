@@ -81,6 +81,19 @@ gemini extensions install https://github.com/useapi/google-flow-api
 
 The install asks for your useapi.net API token and keeps it in the system keychain. Change it later with `gemini extensions config useapi-google-flow`, and check the connection with `gemini mcp list`. The `omni-flash-video` skill's scripts read `USEAPI_TOKEN` from your shell, so export it as well if you use the skill.
 
+## One Google AI plan, four APIs
+
+The same Google account and Google AI plan (Plus, Pro or Ultra) run four useapi.net APIs. Each one spends its own allowance (Flow credits, Vids seconds, Notebook usage, Flow Music credits), so none takes from another, and one useapi.net subscription covers all four.
+
+| API | What it makes | Examples | Docs |
+|---|---|---|---|
+| **Google Flow** | Veo 3.1 and Omni 1.2 Flash video, Nano Banana images, Google Flow Agent chat | this repo | [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) |
+| Google Vids | Omni 1.2 Flash video and voiced AI avatars, from Vids' own monthly allowance, no captcha | [useapi/google-vids-api](https://github.com/useapi/google-vids-api) | [Google Vids API](https://useapi.net/docs/api-google-vids-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) |
+| Gemini Notebook (NotebookLM) | Podcasts, video overviews and Deep Research from web pages, PDFs and YouTube | [useapi/notebooklm-api](https://github.com/useapi/notebooklm-api) | [Gemini Notebook (NotebookLM) API](https://useapi.net/docs/api-gemini-notebook-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) |
+| Google Flow Music | Full songs with Lyria 3.5 and Lyria 3 Pro | [useapi/flowmusic-api](https://github.com/useapi/flowmusic-api) | [Google Flow Music API](https://useapi.net/docs/api-flowmusic-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) |
+
+What each plan makes in a month across all four: [Can You Use Your Google AI Subscription Through an API?](https://useapi.net/docs/articles/google-ai-subscription-api?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api#one-account)
+
 ## Common questions
 
 <!-- Figures verified 2026-10-20, the same as the useapi.net Google Flow API overview (docs/api-google-flow-v1/index.md and _includes/google-flow/price-table.md). Official: Veo on https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing (Veo 3.1 Fast $0.10/s = $0.80 per 8 s), Omni 1.1 Flash and Nano Banana on https://ai.google.dev/gemini-api/docs/pricing ($17.50 per 1M output tokens at 5,792 tokens per 720p second = ~$0.81 per 8 s, Nano Banana Pro $0.134 per image). Flow: Pro $19.99 / 1,000 credits, Ultra $199.99 / 25,000 credits, Veo 3.1 Fast 20 credits (10 on Ultra), Omni 8 s 12 credits, images 0 credits. The useapi.net subscription is not part of the per-video math. -->
