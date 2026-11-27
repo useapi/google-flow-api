@@ -139,6 +139,8 @@ What each plan makes in a month across all four: [Can You Use Your Google AI Sub
 
 中文教程（Veo 3.1、Omni Flash 1.2 和 1.1、Nano Banana Pro，含价格对比与示例）：[如何通过 Google Flow API 调用 Veo 3.1、Omni Flash（1.2 和 1.1）和 Nano Banana Pro](https://useapi.net/docs/articles/google-flow-api-zh?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。快速开始见上方 [Quick start](#quick-start)，完整文档：[Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
 
+Google Flow 现在能用吗？查看[状态页面](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。昨天所有客户的成功率和任务耗时：[每日统计](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
+
 ## 日本語の説明
 
 [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) がホストするサードパーティの Google Flow API の、Node.js と Python のサンプルです。REST API で、Veo 3.1 Lite の動画、音声付きの Omni 1.2 Flash の動画、Nano Banana Pro、2.1、2 Lite の画像を生成します。
@@ -151,6 +153,8 @@ What each plan makes in a month across all four: [Can You Use Your Google AI Sub
 - サンプルでは、`prompts.json` から動画と画像を一括生成し、Omni 1.2 の延長で長いシーンを組み立て、UGC の商品動画を最初から最後まで作ります。
 
 日本語の記事：[Veo 3.1 API の使い方：Google Flow API と curl で動画を生成する](https://useapi.net/docs/articles/google-flow-bash-ja?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)、[Google AI のサブスクは API で使える？Plus・Pro・Ultra で毎月できること](https://useapi.net/docs/articles/google-ai-subscription-api-ja?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。ドキュメント全体：[Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
+
+Google Flow は今動いていますか？[ステータスページ](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)をご覧ください。昨日の全顧客の成功率とジョブ時間：[日次統計](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)。
 
 ## Sobre este repositório
 
@@ -165,6 +169,8 @@ Exemplos em Node.js e Python da Google Flow API, uma API de terceiros hospedada 
 
 Artigos em português: [Como usar a API do Veo 3.1 com curl pela Google Flow API](https://useapi.net/docs/articles/google-flow-bash-pt?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) e [Dá para usar a assinatura do Google AI por API?](https://useapi.net/docs/articles/google-ai-subscription-api-pt?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Documentação completa: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
+O Google Flow está funcionando agora? Veja a [página de status](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Taxas de sucesso e tempos dos jobs de ontem, somando todos os clientes: [estatísticas diárias](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
 ## Về repo này
 
 Ví dụ Node.js và Python cho Google Flow API, một API của bên thứ ba do [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) host, để tạo qua REST video Veo 3.1 Lite, video Omni 1.2 Flash có âm thanh, và ảnh Nano Banana Pro, 2.1 và 2 Lite.
@@ -178,6 +184,8 @@ Ví dụ Node.js và Python cho Google Flow API, một API của bên thứ ba d
 
 Bài viết tiếng Việt: [Cách dùng Veo 3.1 API: tạo video bằng curl qua Google Flow API](https://useapi.net/docs/articles/google-flow-bash-vi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) và [Dùng gói Google AI qua API được không?](https://useapi.net/docs/articles/google-ai-subscription-api-vi?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Tài liệu đầy đủ: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
+Google Flow hiện có đang hoạt động không? Xem [trang trạng thái](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Tỷ lệ thành công và thời gian job của hôm qua trên toàn bộ khách hàng: [thống kê hằng ngày](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
 ## Tentang repo ini
 
 Ini adalah contoh kode Node.js dan Python untuk Google Flow API dari [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api), API pihak ketiga untuk membuat video Veo 3.1 Lite, video Omni 1.2 Flash dengan audio, serta gambar Nano Banana Pro, 2.1 dan 2 Lite lewat REST API.
@@ -189,6 +197,8 @@ Ini adalah contoh kode Node.js dan Python untuk Google Flow API dari [useapi.net
 - Contoh di repo: `veo-video/` dan `images/` membuat video dan gambar secara batch dari `prompts.json`, `omni-extend/` membuat video Omni 1.2 Flash panjang lewat perpanjangan dengan suara, `ugc-product-video/` membuat video produk UGC utuh, ditambah workflow n8n dan agent skill untuk Claude Code, Codex dan Cursor.
 
 Artikel bahasa Indonesia: [Cara Memakai Veo 3.1 API: Membuat Video dengan curl lewat Google Flow API](https://useapi.net/docs/articles/google-flow-bash-id?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) dan [Bisakah Langganan Google AI Dipakai Lewat API? Isi Paket Plus, Pro dan Ultra](https://useapi.net/docs/articles/google-ai-subscription-api-id?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Dokumentasi lengkap: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
+
+Apakah Google Flow sedang berfungsi sekarang? Lihat [halaman status](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Tingkat keberhasilan dan waktu job kemarin dari semua pelanggan: [statistik harian](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 ## เกี่ยวกับ repo นี้
 
@@ -202,9 +212,13 @@ Artikel bahasa Indonesia: [Cara Memakai Veo 3.1 API: Membuat Video dengan curl l
 
 บทความภาษาไทย: [วิธีใช้ Veo 3.1 API: สร้างวิดีโอด้วย curl ผ่าน Google Flow API](https://useapi.net/docs/articles/google-flow-bash-th?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) และ [ใช้แพ็กเกจ Google AI ผ่าน API ได้ไหม? Plus, Pro และ Ultra ได้อะไรบ้าง](https://useapi.net/docs/articles/google-ai-subscription-api-th?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) เอกสารฉบับเต็ม: [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
 
+Google Flow ใช้งานได้ตอนนี้ไหม ดู[หน้าสถานะ](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) อัตราสำเร็จและเวลาของงานเมื่อวานจากลูกค้าทั้งหมด: [สถิติรายวัน](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api)
+
 ## About useapi.net
 
 [useapi.net](https://useapi.net/?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) is a third-party REST API for AI services, not affiliated with Google. The [Google Flow API](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api) runs on your Google AI subscription, so you spend its Flow credits instead of paying metered developer-API prices. See the [models](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api#models) and the [pricing comparison](https://useapi.net/docs/api-google-flow-v1?utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api#pricing).
+
+Is Google Flow working right now? See the [status page](https://useapi.net/status?api=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api). Yesterday's success rates and job times across all customers are in the [daily stats](https://useapi.net/docs/account-management/get-stats-daily?type=google-flow&utm_source=github.com&utm_medium=referral&utm_campaign=google-flow-api).
 
 Visit our [Discord Server](https://discord.gg/w28uK3cnmF) or [Telegram Channel](https://t.me/use_api) for any support questions and concerns.
 
